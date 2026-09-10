@@ -28,6 +28,17 @@ public class Doador {
         this.observacoes = observacoes;
     }
 
+    // verifica se o doador possui qualquer doação registrada
+    public boolean doacaoAnterior(){
+        return ultima_doacao != null;
+    }
+
+    // registra nova doação e atualiza os dados do doador
+    public void registrarDoacao(LocalDate dataDoacao){
+        this.ultima_doacao = dataDoacao;
+        this.apto_doacao = false;
+    }
+
     public Long getId() {
         return id;
     }
