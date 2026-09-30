@@ -1,9 +1,7 @@
+import DoadoresPage from './pages/DoadoresPage'
+
 function App() {
-  return (
-    <main>
-      <h1>HemoGestor</h1>
-    </main>
-  )
+  return <DoadoresPage />
 }
 
 export default App
