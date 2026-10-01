@@ -1,5 +1,9 @@
 package br.inatel.model;
 import java.time.LocalDate;
+import java.time.Period;
+
+import br.inatel.enumeracao.Sexo;
+import br.inatel.enumeracao.StatusDoador;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.TipoSanguineoException;
 
@@ -7,59 +11,78 @@ public class Doador {
     private static final String[] tipoS_validos = {"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"};
     private Long id;
     private String nome;
-    private int idade;
-    private float peso;
-    private String sexo;
     private String cpf;
+    private LocalDate data_nascimento;
+    private Sexo sexo;
     private String tipo_sanguineo;
+    private String email;
     private String telefone;
     private String cidade;
     private String bairro;
     private LocalDate ultima_doacao;
-    private LocalDate proxima_doacao;
-    private Boolean apto_doacao;
+    private StatusDoador status;
     private int qtd_doacoes;
     private String observacoes;
 
-    public Doador(Long id, String nome, int idade, float peso, String sexo, String cpf, String tipo_sanguineo, String telefone, String cidade, String bairro, LocalDate ultima_doacao, LocalDate proxima_doacao, Boolean apto_doacao, int qtd_doacoes, String observacoes) {
+    public Doador(Long id, String nome, String cpf, LocalDate data_nascimento, Sexo sexo, String tipo_sanguineo, String email, String telefone, String cidade, String bairro, LocalDate ultima_doacao, int qtd_doacoes, String observacoes) {
         validarNome(nome);
-        validarIdade(idade);
         validarCpf(cpf);
-        validarSexo(sexo);
+        validarDataNascimento(data_nascimento);
         validarTipoSanguineo(tipo_sanguineo);
-        validarPeso(peso);
         validarDataNaoFutura(ultima_doacao);
         validarQtdDoacoes(qtd_doacoes);
-
         this.id = id;
         this.nome = nome;
-        this.idade = idade;
-        this.peso = peso;
-        this.sexo = sexo.trim().toLowerCase();
         this.cpf = cpf;
-        this.tipo_sanguineo = tipo_sanguineo.trim().toUpperCase();
+        this.data_nascimento = data_nascimento;
+        //sexo pode ser nulo
+        if (sexo == null) {
+            this.sexo = Sexo.NAO_INFORMADO;
+        } else {
+            this.sexo = sexo;
+        }
+        // tipo sanguíneo pode ser nulo
+        if (tipo_sanguineo == null || tipo_sanguineo.isBlank()) {
+            this.tipo_sanguineo = null;
+        } else {
+            this.tipo_sanguineo = tipo_sanguineo.trim().toUpperCase();
+        }
+        this.email = email;
         this.telefone = telefone;
         this.cidade = cidade;
         this.bairro = bairro;
         this.ultima_doacao = ultima_doacao;
         this.qtd_doacoes = qtd_doacoes;
-        this.proxima_doacao = calculoProximaDoacao();
-        this.apto_doacao = verificarApto();
         this.observacoes = observacoes;
+        this.status = verificarStatus();
     }
 
-    //verifica se o doador está apto para doação
-    public boolean verificarApto(){
-        if(idade<16||idade>69){
-            return false;
+    public int calculoIdade(){
+        if(data_nascimento==null){
+            return 0;
         }
-        if(peso<50){
-            return false;
+        return Period.between(data_nascimento, LocalDate.now()).getYears();
+    }
+
+    //verifica a situação do doador
+    public StatusDoador verificarStatus(){
+        if(data_nascimento!=null){
+            int idade = calculoIdade();
+            if(idade<16||idade>69){
+                return StatusDoador.INAPTO;
+            }
         }
-        if(idade>60 && qtd_doacoes==0){
-            return false;
+        //se nunca realizou doação
+        if(ultima_doacao==null){
+            return StatusDoador.APTO;
         }
-        return LocalDate.now().isEqual(proxima_doacao)||LocalDate.now().isAfter(proxima_doacao);
+        LocalDate proxima_doacao = calculoProximaDoacao();
+
+        //se ainda não chegou na data de doação
+        if(LocalDate.now().isBefore(proxima_doacao)){
+            return StatusDoador.AGUARDANDO;
+        }
+        return StatusDoador.APTO;
     }
 
     //calcula a data da próxima doação
@@ -67,7 +90,7 @@ public class Doador {
         if(ultima_doacao==null){
             return LocalDate.now();
         }
-        if(sexo.equalsIgnoreCase("masculino")){
+        if(sexo == Sexo.MASCULINO){
             return ultima_doacao.plusDays(60);
         }
         return ultima_doacao.plusDays(90);
@@ -81,10 +104,14 @@ public class Doador {
     // registra nova doação e atualiza os dados do doador
     public void registrarDoacao(LocalDate dataDoacao){
         validarDataNaoFutura(dataDoacao);
+        if(dataDoacao==null){
+            throw new DadosInvalidosException("Data da doação não pode ser vazia.");
+        }
         this.ultima_doacao = dataDoacao;
         this.qtd_doacoes++;
-        this.proxima_doacao = calculoProximaDoacao();
-        this.apto_doacao = false;
+
+        //depois de doar, o status é alterado
+        this.status = verificarStatus();
     }
 
     //validações dos dados
@@ -100,24 +127,9 @@ public class Doador {
         }
     }
 
-    private void validarIdade(int idade){
-        if(idade<0){
-            throw new DadosInvalidosException("Idade não pode ser negativa.");
-        }
-    }
-
-    private void validarSexo(String sexo){
-        if(sexo==null || sexo.isBlank()){
-            throw new DadosInvalidosException("Sexo não pode ser vazio.");
-        }
-        if(!sexo.equalsIgnoreCase("masculino") && !sexo.equalsIgnoreCase("feminino")){
-            throw new DadosInvalidosException("Sexo inválido.");
-        }
-    }
-
-    private void validarPeso(float peso){
-        if(peso<=0){
-            throw new DadosInvalidosException("Peso inválido.");
+    private void validarDataNascimento(LocalDate data_nascimento){
+        if(data_nascimento != null && data_nascimento.isAfter(LocalDate.now())){
+            throw new DadosInvalidosException("Data de nascimento não pode ser futura.");
         }
     }
 
@@ -135,7 +147,7 @@ public class Doador {
 
     private void validarTipoSanguineo(String tipo_sanguineo){
         if(tipo_sanguineo==null || tipo_sanguineo.isBlank()){
-            throw new TipoSanguineoException("Tipo sanguíneo não pode ser vazio.");
+            return;
         }
 
         String tipoS = tipo_sanguineo.trim().toUpperCase();
@@ -154,6 +166,7 @@ public class Doador {
     }
 
     //getters e setters
+
     public Long getId() {
         return id;
     }
@@ -180,13 +193,49 @@ public class Doador {
         this.cpf = cpf;
     }
 
+    public LocalDate getData_nascimento() {
+        return data_nascimento;
+    }
+
+    public void setData_nascimento(LocalDate data_nascimento) {
+        validarDataNascimento(data_nascimento);
+        this.data_nascimento = data_nascimento;
+        this.status = verificarStatus();
+    }
+
+    public Sexo getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(Sexo sexo) {
+        if (sexo == null) {
+            this.sexo = Sexo.NAO_INFORMADO;
+        } else {
+            this.sexo = sexo;
+        }
+        this.status = verificarStatus();
+    }
+
     public String getTipo_sanguineo() {
         return tipo_sanguineo;
     }
 
     public void setTipo_sanguineo(String tipo_sanguineo) {
         validarTipoSanguineo(tipo_sanguineo);
-        this.tipo_sanguineo = tipo_sanguineo.trim().toUpperCase();
+        if (tipo_sanguineo == null || tipo_sanguineo.isBlank()) {
+            this.tipo_sanguineo = null;
+        }
+        else {
+            this.tipo_sanguineo = tipo_sanguineo.trim().toUpperCase();
+        }
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getTelefone() {
@@ -220,17 +269,13 @@ public class Doador {
     public void setUltima_doacao(LocalDate ultima_doacao) {
         validarDataNaoFutura(ultima_doacao);
         this.ultima_doacao = ultima_doacao;
-        this.proxima_doacao = calculoProximaDoacao();
-        this.apto_doacao = verificarApto();
+        this.status = verificarStatus();
     }
 
-    public Boolean getApto_doacao() {
-        return apto_doacao;
+    public StatusDoador getStatus() {
+        return status;
     }
-
-    public void setApto_doacao(Boolean apto_doacao) {
-        this.apto_doacao = apto_doacao;
-    }
+    //não tem o setter de status porque é automático
 
     public int getQtd_doacoes() {
         return qtd_doacoes;
@@ -239,7 +284,7 @@ public class Doador {
     public void setQtd_doacoes(int qtd_doacoes) {
         validarQtdDoacoes(qtd_doacoes);
         this.qtd_doacoes = qtd_doacoes;
-        this.apto_doacao = verificarApto();
+        this.status = verificarStatus();
     }
 
     public String getObservacoes() {
@@ -248,44 +293,5 @@ public class Doador {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
-    }
-
-    public int getIdade() {
-        return idade;
-    }
-
-    public void setIdade(int idade) {
-        validarIdade(idade);
-        this.idade = idade;
-        this.apto_doacao = verificarApto();
-    }
-
-    public float getPeso() {
-        return peso;
-    }
-
-    public void setPeso(float peso) {
-        validarPeso(peso);
-        this.peso = peso;
-        this.apto_doacao = verificarApto();
-    }
-
-    public String getSexo() {
-        return sexo;
-    }
-
-    public void setSexo(String sexo) {
-        validarSexo(sexo);
-        this.sexo = sexo.trim().toLowerCase();
-        this.proxima_doacao = calculoProximaDoacao();
-        this.apto_doacao = verificarApto();
-    }
-
-    public LocalDate getProxima_doacao() {
-        return proxima_doacao;
-    }
-
-    public void setProxima_doacao(LocalDate proxima_doacao) {
-        this.proxima_doacao = proxima_doacao;
     }
 }
