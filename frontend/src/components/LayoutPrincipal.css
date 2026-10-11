@@ -1,0 +1,9 @@
+.layout-principal {
+  display: flex;
+  min-height: 100vh;
+}
+
+.layout-principal__conteudo {
+  flex: 1;
+  min-width: 0;
+}
