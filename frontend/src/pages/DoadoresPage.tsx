@@ -1,3 +1,4 @@
+import CabecalhoPagina from '../components/CabecalhoPagina'
 import { useEffect, useState } from 'react'
 import { getDoadores } from '../services/doadorService'
 import type { Doador, StatusDoador } from '../types/doador'
@@ -29,11 +30,7 @@ function DoadoresPage() {
 
   return (
     <section className="doadores">
-      <header className="doadores__cabecalho">
-        <h1>Doadores</h1>
-        <p>Cadastro e acompanhamento de doadores</p>
-      </header>
-
+      <CabecalhoPagina titulo="Doadores" subtitulo="Cadastro e acompanhamento de doadores" />
       <div className="doadores__conteudo">
         <div className="doadores__barra">
           <span className="doadores__contagem">{doadores.length} doadores</span>

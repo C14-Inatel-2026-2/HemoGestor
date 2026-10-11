@@ -1,0 +1,22 @@
+.cabecalho-pagina {
+  height: 64px;
+  padding: 0 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--cor-superficie);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.cabecalho-pagina h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.cabecalho-pagina p {
+  margin: 1px 0 0;
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+}
