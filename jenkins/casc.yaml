@@ -1,0 +1,14 @@
+jenkins:
+  systemMessage: "Jenkins do HemoGestor - configurado pelo jenkins/casc.yaml"
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
