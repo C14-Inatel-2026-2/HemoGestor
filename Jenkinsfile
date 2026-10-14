@@ -9,5 +9,22 @@ pipeline {
                 }
             }
         }
+
+        stage('Tests Backend') {
+            steps {
+                dir('backend') {
+                    sh './mvnw verify'
+                }
+            }
+
+            post {
+                always {
+                    junit 'backend/target/surefire-reports/*.xml'
+
+                    archiveArtifacts artifacts: 'backend/target/site/jacoco/**',
+                                     fingerprint: true
+                }
+            }
+        }
     }
 }
