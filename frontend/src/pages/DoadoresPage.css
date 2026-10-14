@@ -1,0 +1,158 @@
+.doadores__cabecalho {
+  height: 64px;
+  padding: 0 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--cor-superficie);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.doadores__cabecalho h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.doadores__cabecalho p {
+  margin: 1px 0 0;
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+}
+
+.doadores__conteudo {
+  padding: 28px;
+}
+
+.doadores__barra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.doadores__contagem {
+  font-size: 13px;
+  color: var(--cor-placeholder);
+}
+
+.doadores__erro {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--raio-medio);
+  background: var(--cor-perigo-suave);
+  color: var(--cor-perigo);
+  font-size: 13.5px;
+}
+
+.tabela-card {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-card);
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.tabela th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 11px 18px;
+  background: var(--cor-superficie-alt);
+  border-bottom: 1px solid var(--cor-borda-suave);
+}
+
+.tabela td {
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--cor-texto-secundario);
+  border-bottom: 1px solid #f4f5f7;
+}
+
+.tabela tbody tr:hover {
+  background: var(--cor-superficie-alt);
+}
+
+.tabela__mono {
+  font-family: var(--fonte-mono);
+}
+
+.tabela__vazia {
+  margin: 0;
+  padding: 24px 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.doador {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doador__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #eef1f4;
+  color: var(--cor-texto-secundario);
+  font-size: 11.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doador__nome {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.doador__local {
+  font-size: 11.5px;
+  color: var(--cor-placeholder);
+}
+
+.selo-tipo {
+  font-family: var(--fonte-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--cor-primaria-suave);
+  color: var(--cor-primaria);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.selo-status {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.selo-status--apto {
+  background: var(--cor-sucesso-suave);
+  color: var(--cor-sucesso);
+}
+
+.selo-status--aguardando {
+  background: var(--cor-alerta-suave);
+  color: var(--cor-alerta);
+}
+
+.selo-status--inapto {
+  background: var(--cor-perigo-suave);
+  color: var(--cor-perigo);
+}
