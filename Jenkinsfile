@@ -9,7 +9,15 @@ pipeline {
                 }
             }
         }
-
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'npm ci'
+                    sh 'npm run lint'
+                    sh 'npm run build'
+                }
+            }
+        }
         stage('Tests Backend') {
             steps {
                 dir('backend') {
