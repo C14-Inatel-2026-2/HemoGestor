@@ -22,7 +22,7 @@ jobs:
                 remote {
                   url('https://github.com/C14-Inatel-2026-2/HemoGestor.git')
                 }
-                branches('*/dev-back')
+                branches('*/main')
               }
             }
             scriptPath('Jenkinsfile')
