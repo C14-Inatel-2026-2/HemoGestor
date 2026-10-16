@@ -1,0 +1,26 @@
+services:
+  jenkins:
+    build: ./jenkins
+    container_name: jenkins
+
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - .env
+
+    environment:
+      # pula o assistente inicial do Jenkins
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+
+      # indica onde estará a configuração do Jenkins
+      CASC_JENKINS_CONFIG: /var/jenkins_config/casc.yaml
+
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./jenkins/casc.yaml:/var/jenkins_config/casc.yaml:ro
+
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:

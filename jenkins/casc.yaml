@@ -1,0 +1,31 @@
+jenkins:
+  systemMessage: "Jenkins do HemoGestor - configurado pelo jenkins/casc.yaml"
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+jobs:
+  - script: >
+      pipelineJob('HemoGestor') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/C14-Inatel-2026-2/HemoGestor.git')
+                }
+                branches('*/dev-back')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
