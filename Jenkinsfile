@@ -26,5 +26,11 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploy será configurado na issue #20.'
+            }
+        }
     }
 }
