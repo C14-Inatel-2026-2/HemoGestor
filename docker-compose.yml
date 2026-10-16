@@ -10,10 +10,7 @@ services:
       - .env
 
     environment:
-      # pula o assistente inicial do Jenkins
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
-
-      # indica onde estará a configuração do Jenkins
       CASC_JENKINS_CONFIG: /var/jenkins_config/casc.yaml
 
     volumes:
@@ -22,5 +19,65 @@ services:
 
     restart: unless-stopped
 
+  mysql:
+    image: mysql:8.0
+    container_name: hemogestor-mysql
+
+    env_file:
+      - .env
+
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: hemogestor-backend
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    ports:
+      - "8081:8080"
+
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: hemogestor-frontend
+
+    depends_on:
+      - backend
+
+    ports:
+      - "5173:80"
+
+    restart: unless-stopped
+
 volumes:
   jenkins_home:
+  mysql_data:
