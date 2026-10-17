@@ -2,60 +2,68 @@ pipeline {
     agent any
 
     stages {
-        stage('Build Backend') {
-            steps {
-                dir('backend') {
-                    sh './mvnw clean package'
+        stage('Build') {
+            parallel {
+                stage('Build Back') {
+                    steps {
+                        dir('backend') {
+                            sh './mvnw clean package'
+                        }
+                    }
                 }
-            }
-        }
-        
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'npm ci'
-                    sh 'npm run lint'
-                    sh 'npm run build'
-                }
-            }
-        }
 
-        stage('Tests Backend') {
-            steps {
-                dir('backend') {
-                    sh './mvnw verify'
-                }
-            }
-
-            post {
-                always {
-                    junit 'backend/target/surefire-reports/*.xml'
-
-                    archiveArtifacts artifacts: 'backend/target/site/jacoco/**',
-                                     fingerprint: true
+                stage('Build Front') {
+                    steps {
+                        dir('frontend') {
+                            sh 'npm ci'
+                            sh 'npm run lint'
+                            sh 'npm run build'
+                        }
+                    }
                 }
             }
         }
 
-        stage('Tests Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'npm run test:ci'
+        stage('Testes') {
+            parallel {
+                stage('Testes Back') {
+                    steps {
+                        dir('backend') {
+                            sh './mvnw verify'
+                        }
+                    }
+
+                    post {
+                        always {
+                            junit 'backend/target/surefire-reports/*.xml'
+
+                            archiveArtifacts artifacts: 'backend/target/site/jacoco/**',
+                                             fingerprint: true
+                        }
+                    }
                 }
-            }
 
-            post {
-                always {
-                    junit 'frontend/test-results/junit.xml'
+                stage('Testes Front') {
+                    steps {
+                        dir('frontend') {
+                            sh 'npm run test:ci'
+                        }
+                    }
 
-                    recordCoverage(
-                        id: 'cobertura-frontend',
-                        name: 'Cobertura Frontend',
-                        tools: [[parser: 'COBERTURA', pattern: 'frontend/coverage/cobertura-coverage.xml']]
-                    )
+                    post {
+                        always {
+                            junit 'frontend/test-results/junit.xml'
 
-                    archiveArtifacts artifacts: 'frontend/coverage/**',
-                                     fingerprint: true
+                            recordCoverage(
+                                id: 'cobertura-frontend',
+                                name: 'Cobertura Frontend',
+                                tools: [[parser: 'COBERTURA', pattern: 'frontend/coverage/cobertura-coverage.xml']]
+                            )
+
+                            archiveArtifacts artifacts: 'frontend/coverage/**',
+                                             fingerprint: true
+                        }
+                    }
                 }
             }
         }
