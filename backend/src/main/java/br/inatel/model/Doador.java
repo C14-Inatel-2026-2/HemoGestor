@@ -7,22 +7,41 @@ import br.inatel.enumeracao.StatusDoador;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.TipoSanguineoException;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name="Doador")
 public class Doador {
     private static final String[] tipoS_validos = {"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"};
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, length = 100)
     private String nome;
+    @Column(nullable = false, unique = true, length = 14)
     private String cpf;
     private LocalDate data_nascimento;
+    @Enumerated(EnumType.STRING)
     private Sexo sexo;
+    @Column(length = 3)
     private String tipo_sanguineo;
+    @Column(length = 150)
     private String email;
+    @Column(length = 20)
     private String telefone;
+    @Column(length = 100)
     private String cidade;
+    @Column(length = 100)
     private String bairro;
     private LocalDate ultima_doacao;
+    @Enumerated(EnumType.STRING)
     private StatusDoador status;
     private int qtd_doacoes;
+    @Column(columnDefinition = "TEXT")
     private String observacoes;
+
+    public Doador() {
+    }
 
     public Doador(Long id, String nome, String cpf, LocalDate data_nascimento, Sexo sexo, String tipo_sanguineo, String email, String telefone, String cidade, String bairro, LocalDate ultima_doacao, int qtd_doacoes, String observacoes) {
         validarNome(nome);
@@ -293,5 +312,8 @@ public class Doador {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
+    }
+
+    public void setStatus(StatusDoador status) {
     }
 }
