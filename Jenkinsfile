@@ -70,7 +70,26 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploy será configurado na issue #20.'
+                sh 'cp .env.example .env'
+
+                sh 'docker compose -p hemogestor up -d --build mysql backend frontend'
+
+                sh '''
+                    for i in $(seq 1 30); do
+                        if curl -fs http://backend:8080/api/health ||
+                           curl -fs http://host.docker.internal:8081/api/health; then
+                            echo ""
+                            echo "Aplicação no ar: frontend em http://localhost:5173"
+                            exit 0
+                        fi
+
+                        echo "Aguardando o backend subir... ($i/30)"
+                        sleep 5
+                    done
+
+                    echo "O backend não respondeu ao health check."
+                    exit 1
+                '''
             }
         }
     }
