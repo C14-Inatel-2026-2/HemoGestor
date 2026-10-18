@@ -47,7 +47,6 @@ public class DoadorService {
             doador.setCidade(novosDados.getCidade());
             doador.setBairro(novosDados.getBairro());
             doador.setUltima_doacao(novosDados.getUltima_doacao());
-            doador.setStatus(novosDados.getStatus());
             doador.setQtd_doacoes(novosDados.getQtd_doacoes());
             doador.setObservacoes(novosDados.getObservacoes());
 

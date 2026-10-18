@@ -24,7 +24,7 @@ public class DoadorController {
        // envia o doador recebido para o service salvar no bd
         Doador doadorSalvo = service.salvar(doador);
         // retorna o doador salvo na resposta da requisição
-        return ResponseEntity.ok(doadorSalvo);
+        return ResponseEntity.status(201).body(doadorSalvo);;
     }
 
     // Endpoint PUT para atualizar um doador pelo id

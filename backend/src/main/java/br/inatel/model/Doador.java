@@ -313,7 +313,4 @@ public class Doador {
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
     }
-
-    public void setStatus(StatusDoador status) {
-    }
 }
