@@ -36,7 +36,7 @@ public class DoadorServiceTest {
                 0,
                 null
         );
-        when(repository.buscarPorId(1L)).thenReturn(Optional.of(doador));
+        when(repository.findById(1L)).thenReturn(Optional.of(doador));
 
         //processamento
         Optional<Doador> resultado = service.buscarPorId(1L);
@@ -45,7 +45,7 @@ public class DoadorServiceTest {
         assertTrue(resultado.isPresent());
         assertEquals("Clara Maria de Castro", resultado.get().getNome());
 
-        verify(repository).buscarPorId(1L);
+        verify(repository).findById(1L);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class DoadorServiceTest {
                 0,
                 null
         );
-        when(repository.salvar(doador)).thenReturn(doador);
+        when(repository.save(doador)).thenReturn(doador);
 
         //processamento
         Doador resultado = service.salvar(doador);
@@ -79,6 +79,6 @@ public class DoadorServiceTest {
         //assertiva
         assertEquals(doador, resultado);
 
-        verify(repository).salvar(doador);
+        verify(repository).save(doador);
     }
 }
