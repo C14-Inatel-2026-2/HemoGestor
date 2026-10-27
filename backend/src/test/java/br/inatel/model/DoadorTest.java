@@ -92,27 +92,6 @@ public class DoadorTest {
     }
 
     @Test
-    void definirStatusInaptoQuandoMenor16(){
-        //testa se um doador com data de nascimento fora da faixa permitida recebe status INAPTO
-        Doador doador = new Doador(
-                1L,
-                "Antonio da Silva",
-                "123.456.899-00",
-                LocalDate.of(2013, 5, 10),
-                Sexo.MASCULINO,
-                "A+",
-                "antoniods@gmail.com",
-                "(35)91756-7766",
-                "Santa Rita do Sapucaí",
-                "Centro",
-                null,
-                0,
-                null
-        );
-        assertEquals(StatusDoador.INAPTO, doador.getStatus());
-    }
-
-    @Test
     void lancaExceptionQuandoTipoSanguineoInvalido(){
         //testa se um tipo sanguineo inválido é rejeitado pela classe Doador
         assertThrows(TipoSanguineoException.class, ()-> new Doador(
@@ -131,5 +110,362 @@ public class DoadorTest {
                 null
                 )
         );
+    }
+
+    @Test
+    void definirComoInaptoDoadorMenor16Anos() {
+
+        Doador doador = new Doador(
+                null,
+                "Ana Souza",
+                "52998224725",
+                LocalDate.now().minusYears(15),
+                Sexo.FEMININO,
+                "O+",
+                "ana@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertEquals(StatusDoador.INAPTO, doador.getStatus());
+    }
+
+    @Test
+    void definirComoInaptoDoadorMaior69Anos() {
+
+        Doador doador = new Doador(
+                null,
+                "João Silva",
+                "12345678900",
+                LocalDate.now().minusYears(70),
+                Sexo.MASCULINO,
+                "A+",
+                "joao@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertEquals(StatusDoador.INAPTO, doador.getStatus());
+    }
+
+    @Test
+    void definirComoAptoDoadorCom16AnosSemDoacaoAnterior() {
+
+        Doador doador = new Doador(
+                null,
+                "Ana Souza",
+                "52998224725",
+                LocalDate.now().minusYears(16),
+                Sexo.FEMININO,
+                "O+",
+                "ana@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertEquals(StatusDoador.APTO, doador.getStatus());
+    }
+
+    @Test
+    void definirComoAptoDoadorCom69AnosSemDoacaoAnterior() {
+
+        Doador doador = new Doador(
+                null,
+                "João Silva",
+                "12345678900",
+                LocalDate.now().minusYears(69),
+                Sexo.MASCULINO,
+                "A+",
+                "joao@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertEquals(StatusDoador.APTO, doador.getStatus());
+    }
+
+    @Test
+    void calcularProximaDoacaoMasculinoEm60Dias() {
+
+        LocalDate ultimaDoacao = LocalDate.now().minusDays(10);
+
+        Doador doador = new Doador(
+                null,
+                "João Silva",
+                "12345678900",
+                LocalDate.now().minusYears(30),
+                Sexo.MASCULINO,
+                "A+",
+                "joao@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                ultimaDoacao,
+                1,
+                null
+        );
+
+        assertEquals(
+                ultimaDoacao.plusDays(60),
+                doador.calculoProximaDoacao()
+        );
+    }
+
+    @Test
+    void calcularProximaDoacaoFemininoEm90Dias() {
+
+        LocalDate ultimaDoacao = LocalDate.now().minusDays(10);
+
+        Doador doador = new Doador(
+                null,
+                "Ana Souza",
+                "52998224725",
+                LocalDate.now().minusYears(25),
+                Sexo.FEMININO,
+                "O+",
+                "ana@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                ultimaDoacao,
+                1,
+                null
+        );
+
+        assertEquals(
+                ultimaDoacao.plusDays(90),
+                doador.calculoProximaDoacao()
+        );
+    }
+
+    @Test
+    void retornarDataAtualQuandoNaoHaDoacaoAnterior() {
+
+        Doador doador = new Doador(
+                null,
+                "Ana Souza",
+                "52998224725",
+                LocalDate.now().minusYears(25),
+                Sexo.FEMININO,
+                "O+",
+                "ana@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertEquals(
+                LocalDate.now(),
+                doador.calculoProximaDoacao()
+        );
+    }
+
+    @Test
+    void naoRegistrarDoacaoComDataFutura() {
+
+        Doador doador = new Doador(
+                1L,
+                "Clara Maria de Castro",
+                "123.456.789-00",
+                LocalDate.of(2000, 5, 10),
+                Sexo.FEMININO,
+                "O+",
+                "claramcastro@gmail.com",
+                "(35)98989-7766",
+                "Santa Rita do Sapucaí",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertThrows(
+                DadosInvalidosException.class,
+                () -> doador.registrarDoacao(LocalDate.now().plusDays(1))
+        );
+    }
+
+    @Test
+    void naoRegistrarDoacaoComDataNull() {
+
+        Doador doador = new Doador(
+                1L,
+                "Clara Maria de Castro",
+                "123.456.789-00",
+                LocalDate.of(2000, 5, 10),
+                Sexo.FEMININO,
+                "O+",
+                "claramcastro@gmail.com",
+                "(35)98989-7766",
+                "Santa Rita do Sapucaí",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        DadosInvalidosException exception = assertThrows(
+                DadosInvalidosException.class,
+                () -> doador.registrarDoacao(null)
+        );
+
+        assertEquals(
+                "Data da doação não pode ser vazia.",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void naoCriarDoadorComDataNascimentoFutura() {
+
+        assertThrows(
+                DadosInvalidosException.class,
+                () -> new Doador(
+                        null,
+                        "Ana Souza",
+                        "52998224725",
+                        LocalDate.now().plusDays(1),
+                        Sexo.FEMININO,
+                        "O+",
+                        "ana@email.com",
+                        "35999999999",
+                        "Pouso Alegre",
+                        "Centro",
+                        null,
+                        0,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void naoCriarDoadorComQuantidadeDeDoacoesNegativa() {
+
+        assertThrows(
+                DadosInvalidosException.class,
+                () -> new Doador(
+                        null,
+                        "Ana Souza",
+                        "52998224725",
+                        LocalDate.now().minusYears(25),
+                        Sexo.FEMININO,
+                        "O+",
+                        "ana@email.com",
+                        "35999999999",
+                        "Pouso Alegre",
+                        "Centro",
+                        null,
+                        -1,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void naoCriarDoadorComNomeVazio() {
+
+        assertThrows(
+                DadosInvalidosException.class,
+                () -> new Doador(
+                        null,
+                        "",
+                        "52998224725",
+                        LocalDate.now().minusYears(25),
+                        Sexo.FEMININO,
+                        "O+",
+                        "ana@email.com",
+                        "35999999999",
+                        "Pouso Alegre",
+                        "Centro",
+                        null,
+                        0,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void definirSexoComoNaoInformadoQuandoSexoForNull() {
+
+        Doador doador = new Doador(
+                null,
+                "Ana Souza",
+                "52998224725",
+                LocalDate.now().minusYears(25),
+                null,
+                "O+",
+                "ana@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertEquals(Sexo.NAO_INFORMADO, doador.getSexo());
+    }
+
+    @Test
+    void definirTipoSanguineoComoNullQuandoNaoInformado() {
+
+        Doador doador = new Doador(
+                null,
+                "Ana Souza",
+                "52998224725",
+                LocalDate.now().minusYears(25),
+                Sexo.FEMININO,
+                null,
+                "ana@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertNull(doador.getTipo_sanguineo());
+    }
+
+    @Test
+    void definirTipoSanguineoComoNullQuandoEmBranco() {
+
+        Doador doador = new Doador(
+                null,
+                "Ana Souza",
+                "52998224725",
+                LocalDate.now().minusYears(25),
+                Sexo.FEMININO,
+                "   ",
+                "ana@email.com",
+                "35999999999",
+                "Pouso Alegre",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        assertNull(doador.getTipo_sanguineo());
     }
 }

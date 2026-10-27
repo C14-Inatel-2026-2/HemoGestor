@@ -2,6 +2,7 @@ package br.inatel.exception.handler;
 
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.TipoSanguineoException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -65,6 +66,18 @@ public class GlobalExceptionHandler {
         //retorna HTTP 400 Bad Request
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> tratarDadosDuplicados(
+            DataIntegrityViolationException exception) {
+
+        Map<String, String> erro = new HashMap<>();
+        erro.put("erro", "Já existe um doador cadastrado com esse CPF.");
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(erro);
     }
 }
