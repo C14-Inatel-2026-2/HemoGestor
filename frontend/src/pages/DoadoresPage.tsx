@@ -11,19 +11,22 @@ const ROTULO_STATUS: Record<StatusDoador, string> = {
   INAPTO: 'Inapto',
 }
 
+async function buscarDoadores(): Promise<Doador[]> {
+  const resposta = await getDoadores()
+  if (!Array.isArray(resposta.data)) {
+    throw new Error('Resposta inesperada da API')
+  }
+  return resposta.data
+}
+
 function DoadoresPage() {
   const [doadores, setDoadores] = useState<Doador[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
-    getDoadores()
-      .then((resposta) => {
-        if (!Array.isArray(resposta.data)) {
-          throw new Error('Resposta inesperada da API')
-        }
-        setDoadores(resposta.data)
-      })
+    buscarDoadores()
+      .then(setDoadores)
       .catch(() => setErro('Não foi possível carregar os doadores.'))
       .finally(() => setCarregando(false))
   }, [])
