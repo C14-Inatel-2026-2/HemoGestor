@@ -27,10 +27,6 @@ public class DoacaoService {
         return repository.findById(id);
     }
 
-    public void deletar(Long id){
-        repository.deleteById(id);
-    }
-
     public Optional<Doacao> concluir(Long id) {
         return repository.findById(id).map(doacao -> {
             doacao.concluirDoacao();
