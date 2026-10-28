@@ -15,4 +15,10 @@ describe('DoadorForm', () => {
     expect(onSubmit).not.toHaveBeenCalled()
     expect(screen.getByText('CPF inválido.')).toBeInTheDocument()
   })
+
+  it('desabilita o botão de salvar enquanto o cadastro está em andamento', () => {
+    render(<DoadorForm onSubmit={vi.fn()} onCancelar={vi.fn()} salvando />)
+
+    expect(screen.getByRole('button', { name: 'Salvando...' })).toBeDisabled()
+  })
 })
