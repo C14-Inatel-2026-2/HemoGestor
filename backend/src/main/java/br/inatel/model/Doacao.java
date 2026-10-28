@@ -17,18 +17,27 @@ public class Doacao {
     @ManyToOne //um doador pode possuir varias doações, mas uma doação pode pertencer a um único doador
     @JoinColumn(name = "doador_id", nullable = false)
     private Doador doador;
+    @Column(name = "data_coleta", nullable = false)
     private LocalDate dataColeta;
+    @Column(name = "hora_coleta", nullable = false)
     private LocalTime horaColeta;
+    @Column(name = "volume_ml", nullable = false)
     private int volume_ml;
     @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_doacao", nullable = false)
     private TipoDoacao tipoDoacao;
+    @Column(name = "pressao_arterial", length = 20)
     private String pressaoArterial;
+    @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal hemoglobina;
+    @Column(length = 100)
     private String sala;
+    @Column(nullable = false, length = 150)
     private String responsavel;
     @Column(columnDefinition = "TEXT")
     private String intercorrencia;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private StatusDoacao status;
 
     public Doacao(){}
