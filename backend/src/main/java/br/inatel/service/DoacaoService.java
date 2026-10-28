@@ -30,4 +30,18 @@ public class DoacaoService {
     public void deletar(Long id){
         repository.deleteById(id);
     }
+
+    public Optional<Doacao> concluir(Long id) {
+        return repository.findById(id).map(doacao -> {
+            doacao.concluirDoacao();
+            return repository.save(doacao);
+        });
+    }
+
+    public Optional<Doacao> descartar(Long id) {
+        return repository.findById(id).map(doacao -> {
+            doacao.descartarDoacao();
+            return repository.save(doacao);
+        });
+    }
 }
