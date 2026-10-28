@@ -33,10 +33,11 @@ public class Doacao {
 
     public Doacao(){}
 
-    public Doacao(Long id, Doador doador, LocalDate dataColeta, LocalTime horaColeta, int volume_ml, TipoDoacao tipoDoacao, String pressaoArterial, BigDecimal hemoglobina, String sala, String responsavel, String intercorrencia, StatusDoacao status) {
+    public Doacao(Long id, Doador doador, LocalDate dataColeta, LocalTime horaColeta, int volume_ml, TipoDoacao tipoDoacao, String pressaoArterial, BigDecimal hemoglobina, String sala, String responsavel, String intercorrencia) {
         validarDoador(doador);
         validarDataColeta(dataColeta);
         validarHoraColeta(horaColeta);
+        validarDataHoraColeta(dataColeta, horaColeta);
         validarVolume(volume_ml);
         validarTipoDoacao(tipoDoacao);
         validarHemoglobina(hemoglobina);
@@ -52,7 +53,7 @@ public class Doacao {
         this.sala = sala;
         this.responsavel = responsavel;
         this.intercorrencia = intercorrencia;
-        this.status = StatusDoacao.EM_TRIAGEM; //a bolsa entra no estoque automaticamente em triagem
+        this.status = StatusDoacao.EM_TRIAGEM; //nova doação inicia automaticamente em triagem
     }
 
     private void validarDoador(Doador doador){
@@ -61,22 +62,24 @@ public class Doacao {
         }
     }
 
-    private void validarDataColeta(LocalDate dataColeta){
-        if(dataColeta == null){
+    private void validarDataColeta(LocalDate dataColeta) {
+        if (dataColeta == null) {
             throw new DadosInvalidosException("Data de coleta não pode ser vazia.");
         }
 
-        if(dataColeta.isAfter(LocalDate.now())){
+        if (dataColeta.isAfter(LocalDate.now())) {
             throw new DadosInvalidosException("Data de coleta não pode ser futura.");
         }
     }
 
-    private void validarHoraColeta(LocalTime horaColeta){
-        if(horaColeta == null){
+    private void validarHoraColeta(LocalTime horaColeta) {
+        if (horaColeta == null) {
             throw new DadosInvalidosException("Hora de coleta não pode ser vazia.");
         }
+    }
 
-        if(horaColeta.isAfter(LocalTime.now())){
+    private void validarDataHoraColeta(LocalDate dataColeta, LocalTime horaColeta){
+        if (dataColeta.equals(LocalDate.now()) && horaColeta.isAfter(LocalTime.now())) {
             throw new DadosInvalidosException("Hora de coleta não pode ser futura.");
         }
     }
@@ -109,6 +112,14 @@ public class Doacao {
         }
     }
 
+    public void concluirDoacao(){
+        this.status = StatusDoacao.CONCLUIDA;
+    }
+
+    public void descartarDoacao(){
+        this.status = StatusDoacao.DESCARTADA;
+    }
+
     public Long getId() {
         return id;
     }
@@ -122,6 +133,7 @@ public class Doacao {
     }
 
     public void setDoador(Doador doador) {
+        validarDoador(doador);
         this.doador = doador;
     }
 
@@ -130,6 +142,10 @@ public class Doacao {
     }
 
     public void setDataColeta(LocalDate dataColeta) {
+        validarDataColeta(dataColeta);
+        if (this.horaColeta != null) {
+            validarDataHoraColeta(dataColeta, this.horaColeta);
+        }
         this.dataColeta = dataColeta;
     }
 
@@ -138,6 +154,10 @@ public class Doacao {
     }
 
     public void setHoraColeta(LocalTime horaColeta) {
+        validarHoraColeta(horaColeta);
+        if (this.dataColeta != null) {
+            validarDataHoraColeta(this.dataColeta, horaColeta);
+        }
         this.horaColeta = horaColeta;
     }
 
@@ -146,6 +166,7 @@ public class Doacao {
     }
 
     public void setVolume_ml(int volume_ml) {
+        validarVolume(volume_ml);
         this.volume_ml = volume_ml;
     }
 
@@ -154,6 +175,7 @@ public class Doacao {
     }
 
     public void setTipoDoacao(TipoDoacao tipoDoacao) {
+        validarTipoDoacao(tipoDoacao);
         this.tipoDoacao = tipoDoacao;
     }
 
@@ -170,6 +192,7 @@ public class Doacao {
     }
 
     public void setHemoglobina(BigDecimal hemoglobina) {
+        validarHemoglobina(hemoglobina);
         this.hemoglobina = hemoglobina;
     }
 
@@ -186,6 +209,7 @@ public class Doacao {
     }
 
     public void setResponsavel(String responsavel) {
+        validarResponsavel(responsavel);
         this.responsavel = responsavel;
     }
 
