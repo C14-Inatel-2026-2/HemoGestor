@@ -72,6 +72,11 @@
   cursor: pointer;
 }
 
+.botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .botao--primario {
   border: 0;
   background: var(--cor-primaria);
