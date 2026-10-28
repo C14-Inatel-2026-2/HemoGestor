@@ -1,6 +1,7 @@
 package br.inatel.model;
 import br.inatel.enumeracao.StatusDoacao;
 import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.exception.DadosInvalidosException;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -33,6 +34,13 @@ public class Doacao {
     public Doacao(){}
 
     public Doacao(Long id, Doador doador, LocalDate dataColeta, LocalTime horaColeta, int volume_ml, TipoDoacao tipoDoacao, String pressaoArterial, BigDecimal hemoglobina, String sala, String responsavel, String intercorrencia, StatusDoacao status) {
+        validarDoador(doador);
+        validarDataColeta(dataColeta);
+        validarHoraColeta(horaColeta);
+        validarVolume(volume_ml);
+        validarTipoDoacao(tipoDoacao);
+        validarHemoglobina(hemoglobina);
+        validarResponsavel(responsavel);
         this.id = id;
         this.doador = doador;
         this.dataColeta = dataColeta;
@@ -46,7 +54,61 @@ public class Doacao {
         this.intercorrencia = intercorrencia;
         this.status = StatusDoacao.EM_TRIAGEM; //a bolsa entra no estoque automaticamente em triagem
     }
-    
+
+    private void validarDoador(Doador doador){
+        if(doador == null){
+            throw new DadosInvalidosException("Doador não pode ser vazio.");
+        }
+    }
+
+    private void validarDataColeta(LocalDate dataColeta){
+        if(dataColeta == null){
+            throw new DadosInvalidosException("Data de coleta não pode ser vazia.");
+        }
+
+        if(dataColeta.isAfter(LocalDate.now())){
+            throw new DadosInvalidosException("Data de coleta não pode ser futura.");
+        }
+    }
+
+    private void validarHoraColeta(LocalTime horaColeta){
+        if(horaColeta == null){
+            throw new DadosInvalidosException("Hora de coleta não pode ser vazia.");
+        }
+
+        if(horaColeta.isAfter(LocalTime.now())){
+            throw new DadosInvalidosException("Hora de coleta não pode ser futura.");
+        }
+    }
+
+    private void validarVolume(int volume_ml){
+        if(volume_ml<=0){
+            throw new DadosInvalidosException("Volume coletado deve ser maior que zero.");
+        }
+    }
+
+    private void validarTipoDoacao(TipoDoacao tipoDoacao){
+        if(tipoDoacao == null){
+            throw new DadosInvalidosException("Tipo de doação não pode ser vazio.");
+        }
+    }
+
+    private void validarHemoglobina(BigDecimal hemoglobina) {
+        if (hemoglobina == null) {
+            throw new DadosInvalidosException("Hemoglobina não pode ser vazia.");
+        }
+
+        if (hemoglobina.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new DadosInvalidosException("Hemoglobina deve ser maior que zero.");
+        }
+    }
+
+    private void validarResponsavel(String responsavel) {
+        if (responsavel == null || responsavel.isBlank()) {
+            throw new DadosInvalidosException("Responsável não pode ser vazio.");
+        }
+    }
+
     public Long getId() {
         return id;
     }
@@ -139,7 +201,4 @@ public class Doacao {
         return status;
     }
 
-    public void setStatus(StatusDoacao status) {
-        this.status = status;
-    }
 }
