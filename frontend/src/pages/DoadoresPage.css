@@ -51,6 +51,11 @@
   margin: 16px 24px 0;
 }
 
+.tabela .doadores__editar {
+  padding: 6px 12px;
+  font-size: 12.5px;
+}
+
 .tabela-card {
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
