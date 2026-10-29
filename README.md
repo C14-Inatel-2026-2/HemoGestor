@@ -181,3 +181,18 @@ No build do Jenkins:
 
 - Após alterar algo na pasta `jenkins/` ou no `docker-compose.yml`, recrie o Jenkins com `docker compose up -d --build jenkins`.
 - O `.env` não é versionado. Cada pessoa cria o seu a partir do `.env.example`.
+
+## Equipe
+
+| Integrante | Responsabilidade | GitHub |
+|---|---|---|
+| Laura Fernanda de Castro Ferreira | Líder do projeto, design e front-end | [laurafernandacf](https://github.com/laurafernandacf) |
+| Maria Luisa Barroso Silva | Integração (axios, services, CORS e contratos de dados) | [maria-luisa-bs](https://github.com/maria-luisa-bs) |
+| Luísa de Medeiros Salvadori | Back-end e banco de dados | [luisasalvadori](https://github.com/luisasalvadori) |
+
+## Fluxo de trabalho
+
+- **Branches:** a `main` recebe apenas código revisado. Cada integrante trabalha em branches de funcionalidade (`feat/...`, `fix/...`, `docs/...`) e nas branches de área (`dev-front`, `dev-back` e `dev-integration`).
+- **Commits:** padrão Conventional Commits com escopo (por exemplo, `feat(frontend):`, `test(backend):` e `ci:`), com um commit por assunto.
+- **Pull requests:** todo PR é revisado por outro integrante antes do merge, e a descrição segue um modelo com resumo, o que foi feito, testes e como testar.
+- **Gestão do trabalho:** quadro Kanban no GitHub Projects, com tarefas e histórias de usuário registradas como issues e ligadas aos PRs por `Refs #número`.
