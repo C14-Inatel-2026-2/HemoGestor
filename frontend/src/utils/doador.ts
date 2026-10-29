@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios'
+import type { Doador, DoadorRequest, NovoDoador } from '../types/doador'
 
 function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, '')
@@ -47,4 +48,27 @@ export function obterIniciais(nome: string): string {
   const primeira = partes[0]?.[0] ?? ''
   const ultima = partes.length > 1 ? partes[partes.length - 1][0] : ''
   return (primeira + ultima).toUpperCase()
+}
+
+export function paraDadosDoFormulario(doador: Doador): NovoDoador {
+  return {
+    nome: doador.nome,
+    cpf: doador.cpf,
+    data_nascimento: doador.data_nascimento,
+    sexo: doador.sexo,
+    tipo_sanguineo: doador.tipo_sanguineo,
+    telefone: doador.telefone ?? '',
+    email: doador.email ?? '',
+    cidade: doador.cidade ?? '',
+    bairro: doador.bairro ?? '',
+    observacoes: doador.observacoes ?? '',
+  }
+}
+
+export function montarRequisicaoDeEdicao(doador: Doador, dados: NovoDoador): DoadorRequest {
+  return {
+    ...dados,
+    ultima_doacao: doador.ultima_doacao,
+    qtd_doacoes: doador.qtd_doacoes,
+  }
 }
