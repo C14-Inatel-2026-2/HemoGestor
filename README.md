@@ -24,6 +24,19 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 
 **Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
+## Requisitos não funcionais
+
+| ID | Requisito | Como o projeto atende |
+|---|---|---|
+| RNF01 | Validação de dados | O front-end valida nome e CPF (inclusive os dígitos verificadores) e o back-end valida com Bean Validation, devolvendo mensagens claras de erro |
+| RNF02 | Usabilidade | Interface web em português, com menu lateral e avisos de sucesso e de erro nas operações |
+| RNF03 | Portabilidade | Banco de dados, back-end e front-end sobem com `docker compose` |
+| RNF04 | Testabilidade | Testes automatizados no back-end (JUnit 5, Mockito, MockMvc e H2) e no front-end (Vitest e Testing Library), com relatórios de cobertura |
+| RNF05 | Integração contínua | Pipeline no Jenkins com Build, Testes e Deploy, incluindo relatórios JUnit e de cobertura |
+| RNF06 | Reprodutibilidade do build | `package-lock.json` e Maven Wrapper versionados |
+| RNF07 | Segurança básica | O front-end não acessa o banco, só o back-end; as credenciais ficam em variáveis de ambiente (o `.env` não é versionado); o CORS é restrito à origem do front-end |
+| RNF08 | Padronização do trabalho | Commits no padrão Conventional Commits, ESLint no front-end e revisão por pull request |
+
 ## Pipeline de CI/CD
 
 A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositório. O próprio Jenkins sobe via Docker, já configurado pelo `jenkins/casc.yaml`, com o job **HemoGestor** apontando para a branch `main`.
