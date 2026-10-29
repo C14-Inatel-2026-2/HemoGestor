@@ -57,6 +57,69 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 - **Jenkins no lugar do CircleCI.** A proposta inicial previa o CircleCI. A ferramenta passou a ser o Jenkins por recomendação do monitor da disciplina.
 - **Monorepo e API única.** Front-end e back-end ficam no mesmo repositório, nas pastas `frontend/` e `backend/`. A API é uma única aplicação (monolítica), dividida internamente em módulos de doadores, doações, estoque e solicitações, e não em microsserviços.
 
+## Como rodar a aplicação
+
+### Pré-requisitos
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e aberto
+- Para desenvolver o front-end: Node.js 24, de preferência com o `nvm` (a versão está no `frontend/.nvmrc`)
+
+### Com Docker (recomendado)
+
+1. Na raiz do repositório, crie o arquivo de variáveis de ambiente a partir do modelo:
+```bash
+   cp .env.example .env
+```
+2. Suba o banco, o back-end e o front-end:
+```bash
+   docker compose up -d --build mysql backend frontend
+```
+3. Abra a aplicação em `http://localhost:5173`.
+
+| Serviço | Endereço |
+|---|---|
+| Front-end | http://localhost:5173 |
+| API (health check) | http://localhost:8081/api/health |
+| MySQL | `localhost:3307` |
+
+Para parar: `docker compose down`. Os dados do banco ficam guardados em um volume e permanecem até ele ser apagado.
+
+### Desenvolvendo o front-end
+
+Com o banco e o back-end rodando no Docker, o front-end pode rodar em modo de desenvolvimento, com recarregamento automático:
+
+```bash
+docker compose up -d --build mysql backend
+cd frontend
+echo "VITE_API_URL=http://localhost:8081" > .env.local
+npm ci
+npm run dev
+```
+
+O front-end deve rodar na porta 5173, porque o CORS do back-end só aceita essa origem. Se o contêiner `hemogestor-frontend` estiver rodando, pare-o antes com `docker stop hemogestor-frontend`.
+
+## Testes
+
+**Back-end** (requer Java 21):
+
+```bash
+cd backend
+./mvnw verify
+```
+
+O relatório de cobertura (JaCoCo) fica em `backend/target/site/jacoco/index.html`.
+
+**Front-end:**
+
+```bash
+cd frontend
+npm ci
+npm test
+npm run coverage
+```
+
+O relatório de cobertura fica em `frontend/coverage/index.html`. Os testes também rodam na pipeline do Jenkins, que publica os relatórios (veja a seção a seguir).
+
 ## Pipeline de CI/CD
 
 A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositório. O próprio Jenkins sobe via Docker, já configurado pelo `jenkins/casc.yaml`, com o job **HemoGestor** apontando para a branch `main`.
