@@ -98,6 +98,10 @@ npm run dev
 
 O front-end deve rodar na porta 5173, porque o CORS do back-end só aceita essa origem. Se o contêiner `hemogestor-frontend` estiver rodando, pare-o antes com `docker stop hemogestor-frontend`.
 
+## Como usar
+
+No menu lateral, a tela **Doadores** mostra a lista de doadores cadastrados. O botão **Novo doador** abre o formulário de cadastro, em que nome e CPF são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. As demais telas (Registrar Doação, Estoque, Solicitações e Dashboard) estão em desenvolvimento, como mostra a tabela de requisitos funcionais.
+
 ## Testes
 
 **Back-end** (requer Java 21):
