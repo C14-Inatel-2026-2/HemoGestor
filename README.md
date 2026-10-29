@@ -37,6 +37,26 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 | RNF07 | Segurança básica | O front-end não acessa o banco, só o back-end; as credenciais ficam em variáveis de ambiente (o `.env` não é versionado); o CORS é restrito à origem do front-end |
 | RNF08 | Padronização do trabalho | Commits no padrão Conventional Commits, ESLint no front-end e revisão por pull request |
 
+## Tecnologias
+
+| Camada | Tecnologias |
+|---|---|
+| Front-end | React 19, TypeScript, Vite, react-router-dom e axios |
+| Back-end | Java 21, Spring Boot 4, Spring Data JPA e Bean Validation |
+| Banco de dados | MySQL 8 |
+| Testes do front-end | Vitest e Testing Library |
+| Testes do back-end | JUnit 5, Mockito, AssertJ, Spring Boot Test, MockMvc, H2 (em memória) e JaCoCo |
+| Gerenciamento de dependências | npm (`package.json` e `package-lock.json`) e Maven Wrapper (`pom.xml`) |
+| Qualidade de código | ESLint |
+| Contêineres | Docker e Docker Compose |
+| Integração contínua | Jenkins |
+
+## Decisões técnicas
+
+- **MySQL no lugar do PostgreSQL.** A proposta inicial previa PostgreSQL, mas o banco passou a ser o MySQL porque a integrante responsável pelo back-end e pelo banco de dados já o conhecia e tinha mais familiaridade com ele.
+- **Jenkins no lugar do CircleCI.** A proposta inicial previa o CircleCI. A ferramenta passou a ser o Jenkins por recomendação do monitor da disciplina.
+- **Monorepo e API única.** Front-end e back-end ficam no mesmo repositório, nas pastas `frontend/` e `backend/`. A API é uma única aplicação (monolítica), dividida internamente em módulos de doadores, doações, estoque e solicitações, e não em microsserviços.
+
 ## Pipeline de CI/CD
 
 A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositório. O próprio Jenkins sobe via Docker, já configurado pelo `jenkins/casc.yaml`, com o job **HemoGestor** apontando para a branch `main`.
