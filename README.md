@@ -124,6 +124,10 @@ npm run coverage
 
 O relatório de cobertura fica em `frontend/coverage/index.html`. Os testes também rodam na pipeline do Jenkins, que publica os relatórios (veja a seção a seguir).
 
+## Documentação da API
+
+Os endpoints do back-end e os contratos de dados (requisições e respostas) estão descritos em [`docs/api.md`](docs/api.md).
+
 ## Pipeline de CI/CD
 
 A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositório. O próprio Jenkins sobe via Docker, já configurado pelo `jenkins/casc.yaml`, com o job **HemoGestor** apontando para a branch `main`.
