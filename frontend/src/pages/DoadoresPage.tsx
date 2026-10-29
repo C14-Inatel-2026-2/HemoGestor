@@ -1,9 +1,16 @@
 import CabecalhoPagina from '../components/CabecalhoPagina'
 import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
-import { criarDoador, getDoadores } from '../services/doadorService'
+import { atualizarDoador, criarDoador, getDoadores } from '../services/doadorService'
 import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
-import { formatarCpf, formatarData, obterIniciais, obterMensagemErro } from '../utils/doador'
+import {
+  formatarCpf,
+  formatarData,
+  montarRequisicaoDeEdicao,
+  obterIniciais,
+  obterMensagemErro,
+  paraDadosDoFormulario,
+} from '../utils/doador'
 import './DoadoresPage.css'
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
@@ -25,6 +32,7 @@ function DoadoresPage() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [exibindoFormulario, setExibindoFormulario] = useState(false)
+  const [doadorEmEdicao, setDoadorEmEdicao] = useState<Doador | null>(null)
   const [salvando, setSalvando] = useState(false)
   const [erroCadastro, setErroCadastro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState<string | null>(null)
@@ -36,31 +44,50 @@ function DoadoresPage() {
       .finally(() => setCarregando(false))
   }, [])
 
+  const formularioAberto = exibindoFormulario || doadorEmEdicao !== null
+
   function abrirFormulario() {
     setSucesso(null)
     setErroCadastro(null)
+    setDoadorEmEdicao(null)
     setExibindoFormulario(true)
+  }
+
+  function editarDoador(doador: Doador) {
+    setSucesso(null)
+    setErroCadastro(null)
+    setExibindoFormulario(false)
+    setDoadorEmEdicao(doador)
   }
 
   function fecharFormulario() {
     setErroCadastro(null)
     setExibindoFormulario(false)
+    setDoadorEmEdicao(null)
   }
 
-  async function cadastrarDoador(novoDoador: NovoDoador) {
+  async function salvarDoador(dados: NovoDoador) {
+    const editando = doadorEmEdicao !== null
     setSalvando(true)
     setErroCadastro(null)
 
     try {
-      await criarDoador(novoDoador)
+      if (doadorEmEdicao) {
+        await atualizarDoador(doadorEmEdicao.id, montarRequisicaoDeEdicao(doadorEmEdicao, dados))
+      } else {
+        await criarDoador(dados)
+      }
     } catch (falha) {
-      setErroCadastro(obterMensagemErro(falha, 'Não foi possível cadastrar o doador.'))
+      const mensagemPadrao = editando
+        ? 'Não foi possível atualizar o doador.'
+        : 'Não foi possível cadastrar o doador.'
+      setErroCadastro(obterMensagemErro(falha, mensagemPadrao))
       setSalvando(false)
       return
     }
 
-    setExibindoFormulario(false)
-    setSucesso('Doador cadastrado com sucesso.')
+    fecharFormulario()
+    setSucesso(editando ? 'Doador atualizado com sucesso.' : 'Doador cadastrado com sucesso.')
     setSalvando(false)
 
     try {
@@ -77,7 +104,7 @@ function DoadoresPage() {
       <div className="doadores__conteudo">
         <div className="doadores__barra">
           <span className="doadores__contagem">{doadores.length} doadores</span>
-          {!exibindoFormulario && (
+          {!formularioAberto && (
             <button
               type="button"
               className="botao botao--primario doadores__novo"
@@ -100,18 +127,23 @@ function DoadoresPage() {
           </p>
         )}
 
-        {exibindoFormulario && (
+        {formularioAberto && (
           <div className="tabela-card doadores__formulario">
-            <h2 className="doadores__formulario-titulo">Novo doador</h2>
+            <h2 className="doadores__formulario-titulo">
+              {doadorEmEdicao ? 'Editar doador' : 'Novo doador'}
+            </h2>
             {erroCadastro && (
               <p role="alert" className="doadores__erro">
                 {erroCadastro}
               </p>
             )}
             <DoadorForm
-              onSubmit={cadastrarDoador}
+              key={doadorEmEdicao?.id ?? 'novo'}
+              onSubmit={salvarDoador}
               onCancelar={fecharFormulario}
               salvando={salvando}
+              doadorInicial={doadorEmEdicao ? paraDadosDoFormulario(doadorEmEdicao) : undefined}
+              textoSalvar={doadorEmEdicao ? 'Salvar alterações' : undefined}
             />
           </div>
         )}
@@ -126,6 +158,7 @@ function DoadoresPage() {
                 <th>Telefone</th>
                 <th>Última doação</th>
                 <th>Status</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -156,6 +189,16 @@ function DoadoresPage() {
                     <span className={`selo-status selo-status--${doador.status.toLowerCase()}`}>
                       {ROTULO_STATUS[doador.status]}
                     </span>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="botao botao--secundario doadores__editar"
+                      aria-label={`Editar ${doador.nome}`}
+                      onClick={() => editarDoador(doador)}
+                    >
+                      Editar
+                    </button>
                   </td>
                 </tr>
               ))}
