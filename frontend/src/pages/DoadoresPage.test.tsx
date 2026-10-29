@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { AxiosError } from 'axios'
 import type { AxiosResponse } from 'axios'
 import DoadoresPage from './DoadoresPage'
-import { criarDoador, getDoadores } from '../services/doadorService'
+import { atualizarDoador, criarDoador, getDoadores } from '../services/doadorService'
 import type { Doador } from '../types/doador'
 
 vi.mock('../services/doadorService')
@@ -109,5 +109,72 @@ describe('DoadoresPage', () => {
     expect(screen.queryByRole('button', { name: 'Salvar doador' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Novo doador' })).toBeInTheDocument()
     expect(criarDoador).not.toHaveBeenCalled()
+  })
+
+  it('abre o formulário preenchido ao clicar em Editar', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna]))
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar Ana Souza' }))
+
+    expect(screen.getByRole('heading', { name: 'Editar doador' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome completo')).toHaveValue('Ana Souza')
+    expect(screen.getByRole('button', { name: 'Salvar alterações' })).toBeInTheDocument()
+  })
+
+  it('atualiza o doador, mantém a quantidade de doações e atualiza a lista', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores)
+      .mockResolvedValueOnce(respostaComLista([doadoraAna]))
+      .mockResolvedValueOnce(respostaComLista([{ ...doadoraAna, nome: 'Ana Souza Lima' }]))
+    vi.mocked(atualizarDoador).mockResolvedValue({ data: doadoraAna } as AxiosResponse<Doador>)
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar Ana Souza' }))
+    await usuario.clear(screen.getByLabelText('Nome completo'))
+    await usuario.type(screen.getByLabelText('Nome completo'), 'Ana Souza Lima')
+    await usuario.click(screen.getByRole('button', { name: 'Salvar alterações' }))
+
+    expect(await screen.findByText('Doador atualizado com sucesso.')).toBeInTheDocument()
+    expect(atualizarDoador).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        nome: 'Ana Souza Lima',
+        qtd_doacoes: 9,
+        ultima_doacao: '2026-08-18',
+      }),
+    )
+    expect(await screen.findByText('Ana Souza Lima')).toBeInTheDocument()
+    expect(getDoadores).toHaveBeenCalledTimes(2)
+    expect(screen.queryByRole('button', { name: 'Salvar alterações' })).not.toBeInTheDocument()
+  })
+
+  it('mantém o formulário aberto e mostra o aviso quando a edição é recusada', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna]))
+    vi.mocked(atualizarDoador).mockRejectedValue(
+      new AxiosError('Conflict', 'ERR_BAD_REQUEST', undefined, undefined, {
+        status: 409,
+        data: { erro: 'Já existe um doador cadastrado com esse CPF.' },
+      } as AxiosResponse),
+    )
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar Ana Souza' }))
+    await usuario.click(screen.getByRole('button', { name: 'Salvar alterações' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Já existe um doador cadastrado com esse CPF.',
+    )
+    expect(screen.getByRole('button', { name: 'Salvar alterações' })).toBeInTheDocument()
+    expect(screen.queryByText('Doador atualizado com sucesso.')).not.toBeInTheDocument()
+    expect(getDoadores).toHaveBeenCalledTimes(1)
   })
 })
