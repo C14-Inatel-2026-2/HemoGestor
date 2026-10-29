@@ -1,5 +1,28 @@
 # HemoGestor
-Sistema gerenciador de banco de sangue.
+
+Aplicação web para o gerenciamento básico de um banco de sangue, desenvolvida na disciplina C14 – Engenharia de Software (Inatel).
+
+## Sobre o projeto
+
+O HemoGestor é uma aplicação web interna, voltada aos funcionários de um banco de sangue, para auxiliar o gerenciamento básico de doadores, doações, estoque de bolsas e solicitações de sangue. O projeto dá continuidade a um trabalho de Programação Orientada a Objetos em Java feito no semestre anterior, cuja lógica foi adaptada para uma aplicação web.
+
+A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**, **Solicitações** e **Dashboard**. O front-end em React se comunica por HTTP e JSON com uma API REST em Spring Boot, que acessa o banco de dados MySQL. O código fica em um único repositório (monorepo), com as pastas `frontend/` e `backend/`.
+
+## Funcionalidades e requisitos funcionais
+
+| ID | Requisito | Status |
+|---|---|---|
+| RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue |
+| RF02 | Listar doadores | Entregue |
+| RF03 | Editar doador | Parcial (API pronta, falta a tela) |
+| RF04 | Remover doador | Parcial (API pronta, falta a tela) |
+| RF05 | Registrar doações e datas de coleta | Planejado |
+| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Planejado |
+| RF07 | Cadastrar solicitações de sangue | Planejado |
+| RF08 | Verificar compatibilidade e disponibilidade | Planejado |
+| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Planejado |
+
+**Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
 ## Pipeline de CI/CD
 
