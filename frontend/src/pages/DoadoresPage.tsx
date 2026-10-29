@@ -1,8 +1,9 @@
 import CabecalhoPagina from '../components/CabecalhoPagina'
+import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
-import { getDoadores } from '../services/doadorService'
-import type { Doador, StatusDoador } from '../types/doador'
-import { formatarCpf, formatarData, obterIniciais } from '../utils/doador'
+import { criarDoador, getDoadores } from '../services/doadorService'
+import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
+import { formatarCpf, formatarData, obterIniciais, obterMensagemErro } from '../utils/doador'
 import './DoadoresPage.css'
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
@@ -11,22 +12,64 @@ const ROTULO_STATUS: Record<StatusDoador, string> = {
   INAPTO: 'Inapto',
 }
 
+async function buscarDoadores(): Promise<Doador[]> {
+  const resposta = await getDoadores()
+  if (!Array.isArray(resposta.data)) {
+    throw new Error('Resposta inesperada da API')
+  }
+  return resposta.data
+}
+
 function DoadoresPage() {
   const [doadores, setDoadores] = useState<Doador[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+  const [exibindoFormulario, setExibindoFormulario] = useState(false)
+  const [salvando, setSalvando] = useState(false)
+  const [erroCadastro, setErroCadastro] = useState<string | null>(null)
+  const [sucesso, setSucesso] = useState<string | null>(null)
 
   useEffect(() => {
-    getDoadores()
-      .then((resposta) => {
-        if (!Array.isArray(resposta.data)) {
-          throw new Error('Resposta inesperada da API')
-        }
-        setDoadores(resposta.data)
-      })
+    buscarDoadores()
+      .then(setDoadores)
       .catch(() => setErro('Não foi possível carregar os doadores.'))
       .finally(() => setCarregando(false))
   }, [])
+
+  function abrirFormulario() {
+    setSucesso(null)
+    setErroCadastro(null)
+    setExibindoFormulario(true)
+  }
+
+  function fecharFormulario() {
+    setErroCadastro(null)
+    setExibindoFormulario(false)
+  }
+
+  async function cadastrarDoador(novoDoador: NovoDoador) {
+    setSalvando(true)
+    setErroCadastro(null)
+
+    try {
+      await criarDoador(novoDoador)
+    } catch (falha) {
+      setErroCadastro(obterMensagemErro(falha, 'Não foi possível cadastrar o doador.'))
+      setSalvando(false)
+      return
+    }
+
+    setExibindoFormulario(false)
+    setSucesso('Doador cadastrado com sucesso.')
+    setSalvando(false)
+
+    try {
+      setDoadores(await buscarDoadores())
+      setErro(null)
+    } catch {
+      setErro('Não foi possível carregar os doadores.')
+    }
+  }
 
   return (
     <section className="doadores">
@@ -34,12 +77,43 @@ function DoadoresPage() {
       <div className="doadores__conteudo">
         <div className="doadores__barra">
           <span className="doadores__contagem">{doadores.length} doadores</span>
+          {!exibindoFormulario && (
+            <button
+              type="button"
+              className="botao botao--primario doadores__novo"
+              onClick={abrirFormulario}
+            >
+              Novo doador
+            </button>
+          )}
         </div>
+
+        {sucesso && (
+          <p role="status" className="doadores__sucesso">
+            {sucesso}
+          </p>
+        )}
 
         {erro && (
           <p role="alert" className="doadores__erro">
             {erro}
           </p>
+        )}
+
+        {exibindoFormulario && (
+          <div className="tabela-card doadores__formulario">
+            <h2 className="doadores__formulario-titulo">Novo doador</h2>
+            {erroCadastro && (
+              <p role="alert" className="doadores__erro">
+                {erroCadastro}
+              </p>
+            )}
+            <DoadorForm
+              onSubmit={cadastrarDoador}
+              onCancelar={fecharFormulario}
+              salvando={salvando}
+            />
+          </div>
         )}
 
         <div className="tabela-card">

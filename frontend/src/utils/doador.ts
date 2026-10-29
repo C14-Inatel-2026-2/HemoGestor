@@ -1,3 +1,5 @@
+import { isAxiosError } from 'axios'
+
 function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, '')
 }
@@ -30,6 +32,14 @@ export function formatarData(dataIso: string | null): string {
   if (!dataIso) return '—'
   const [ano, mes, dia] = dataIso.split('-')
   return `${dia}/${mes}/${ano}`
+}
+
+export function obterMensagemErro(erro: unknown, mensagemPadrao: string): string {
+  if (!isAxiosError(erro)) return mensagemPadrao
+  const corpo: unknown = erro.response?.data
+  if (typeof corpo !== 'object' || corpo === null) return mensagemPadrao
+  const mensagens = Object.values(corpo).filter((valor): valor is string => typeof valor === 'string' && valor.trim() !== '',)
+  return mensagens.length > 0 ? mensagens.join(' ') : mensagemPadrao
 }
 
 export function obterIniciais(nome: string): string {

@@ -27,9 +27,10 @@ interface ErrosFormulario {
 interface DoadorFormProps {
   onSubmit: (doador: NovoDoador) => void
   onCancelar: () => void
+  salvando?: boolean
 }
 
-function DoadorForm({ onSubmit, onCancelar }: DoadorFormProps) {
+function DoadorForm({ onSubmit, onCancelar, salvando = false}: DoadorFormProps) {
   const [dados, setDados] = useState<NovoDoador>(DOADOR_VAZIO)
   const [erros, setErros] = useState<ErrosFormulario>({})
 
@@ -189,8 +190,8 @@ function DoadorForm({ onSubmit, onCancelar }: DoadorFormProps) {
         <button type="button" className="botao botao--secundario" onClick={onCancelar}>
           Cancelar
         </button>
-        <button type="submit" className="botao botao--primario">
-          Salvar doador
+        <button type="submit" className="botao botao--primario" disabled={salvando}>
+          {salvando ? 'Salvando...' : 'Salvar doador'}
         </button>
       </div>
     </form>
