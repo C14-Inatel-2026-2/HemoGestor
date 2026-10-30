@@ -168,6 +168,7 @@ function RegistrarDoacaoPage() {
             )}
             <DoacaoForm
               doadores={doadores}
+              doacoes={doacoes}
               onSubmit={registrarDoacao}
               onCancelar={fecharFormulario}
               salvando={salvando}

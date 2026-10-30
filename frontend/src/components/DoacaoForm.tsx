@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import type { DoacaoRequest, TipoDoacao } from '../types/doacao'
+import type { Doacao, DoacaoRequest, TipoDoacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
 import {
   ROTULO_TIPO_DOACAO,
+  dataDeHoje,
+  dataLiberadaParaDoar,
   montarRequisicaoDeDoacao,
   validarDoacao,
+  verificarElegibilidade,
 } from '../utils/doacao'
 import type { DadosDoacaoFormulario, ErrosDoacao } from '../utils/doacao'
-import { formatarCpf } from '../utils/doador'
+import { formatarCpf, formatarData } from '../utils/doador'
 import './DoadorForm.css'
 
 const TIPOS_DOACAO = Object.keys(ROTULO_TIPO_DOACAO) as TipoDoacao[]
@@ -19,16 +22,12 @@ const ROTULO_STATUS_DOADOR = {
   INAPTO: 'Inapto',
 } as const
 
-function doisDigitos(valor: number): string {
-  return String(valor).padStart(2, '0')
-}
-
 function dadosIniciais(): DadosDoacaoFormulario {
   const agora = new Date()
   return {
     doadorId: '',
-    dataColeta: `${agora.getFullYear()}-${doisDigitos(agora.getMonth() + 1)}-${doisDigitos(agora.getDate())}`,
-    horaColeta: `${doisDigitos(agora.getHours())}:${doisDigitos(agora.getMinutes())}`,
+    dataColeta: dataDeHoje(),
+    horaColeta: `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`,
     volume_ml: '450',
     tipoDoacao: 'SANGUE_TOTAL',
     pressaoArterial: '',
@@ -41,14 +40,22 @@ function dadosIniciais(): DadosDoacaoFormulario {
 
 interface DoacaoFormProps {
   doadores: Doador[]
+  doacoes?: Doacao[]
   onSubmit: (doacao: DoacaoRequest) => void
   onCancelar: () => void
   salvando?: boolean
 }
 
-function DoacaoForm({ doadores, onSubmit, onCancelar, salvando = false }: DoacaoFormProps) {
+function DoacaoForm({
+  doadores,
+  doacoes = [],
+  onSubmit,
+  onCancelar,
+  salvando = false,
+}: DoacaoFormProps) {
   const [dados, setDados] = useState<DadosDoacaoFormulario>(dadosIniciais)
   const [erros, setErros] = useState<ErrosDoacao>({})
+  const hoje = dataDeHoje()
 
   function atualizar<K extends keyof DadosDoacaoFormulario>(
     campo: K,
@@ -60,6 +67,11 @@ function DoacaoForm({ doadores, onSubmit, onCancelar, salvando = false }: Doacao
   function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     const novosErros = validarDoacao(dados)
+    const doadorEscolhido = doadores.find((doador) => String(doador.id) === dados.doadorId)
+    if (doadorEscolhido && !novosErros.dataColeta) {
+      const motivo = verificarElegibilidade(doadorEscolhido, doacoes, dados.dataColeta)
+      if (motivo) novosErros.dataColeta = motivo
+    }
     setErros(novosErros)
     if (Object.keys(novosErros).length > 0) return
 
@@ -78,16 +90,24 @@ function DoacaoForm({ doadores, onSubmit, onCancelar, salvando = false }: Doacao
             aria-invalid={Boolean(erros.doadorId)}
           >
             <option value="">Selecione o doador</option>
-            {doadores.map((doador) => (
-              <option
-                key={doador.id}
-                value={String(doador.id)}
-                disabled={doador.status !== 'APTO'}
-              >
-                {doador.nome} · {formatarCpf(doador.cpf)} · {doador.tipo_sanguineo ?? 'Tipo não informado'}
-                {doador.status !== 'APTO' ? ` (${ROTULO_STATUS_DOADOR[doador.status]})` : ''}
-              </option>
-            ))}
+            {doadores.map((doador) => {
+              const liberadaEm = dataLiberadaParaDoar(doador, doacoes)
+              const aguardandoIntervalo = liberadaEm !== null && liberadaEm > hoje
+              const indisponivel = doador.status !== 'APTO' || aguardandoIntervalo
+              let observacao = ''
+              if (doador.status !== 'APTO') {
+                observacao = ` (${ROTULO_STATUS_DOADOR[doador.status]})`
+              } else if (aguardandoIntervalo) {
+                observacao = ` (disponível em ${formatarData(liberadaEm)})`
+              }
+
+              return (
+                <option key={doador.id} value={String(doador.id)} disabled={indisponivel}>
+                  {doador.nome} · {formatarCpf(doador.cpf)} · {doador.tipo_sanguineo ?? 'Tipo não informado'}
+                  {observacao}
+                </option>
+              )
+            })}
           </select>
           {erros.doadorId && <span className="campo__erro">{erros.doadorId}</span>}
         </div>
