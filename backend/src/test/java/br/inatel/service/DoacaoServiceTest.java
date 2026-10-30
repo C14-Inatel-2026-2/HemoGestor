@@ -158,4 +158,33 @@ public class DoacaoServiceTest {
         verify(repository).findById(99L);
         verify(repository, never()).save(any(Doacao.class));
     }
+
+    @Test
+    void buscarDoacoesPorDoador() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doacao doacao = criarDoacao();
+
+        when(repository.findByDoadorId(1L)).thenReturn(List.of(doacao));
+
+        List<Doacao> resultado = service.buscarPorDoador(1L);
+
+        assertEquals(1, resultado.size());
+        assertEquals(doacao, resultado.get(0));
+        verify(repository).findByDoadorId(1L);
+    }
+
+    @Test
+    void retornarListaVaziaDoadorNaoPossuiDoacoes(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        when(repository.findByDoadorId(1L)).thenReturn(List.of());
+
+        List<Doacao> resultado = service.buscarPorDoador(1L);
+
+        assertTrue(resultado.isEmpty());
+        verify(repository).findByDoadorId(1L);
+    }
 }

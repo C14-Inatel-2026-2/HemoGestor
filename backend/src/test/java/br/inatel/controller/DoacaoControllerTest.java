@@ -228,4 +228,42 @@ public class DoacaoControllerTest {
                 .andExpect(jsonPath("$.responsavel")
                         .value("Responsável não pode ser vazio."));
     }
+
+    @Test
+    void buscarDoacoesPorDoador() throws Exception {
+        Doacao doacao = criarDoacao();
+
+        when(doacaoService.buscarPorDoador(1L)).thenReturn(List.of(doacao));
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].nomeDoador").value("Ana Souza"))
+                .andExpect(jsonPath("$[0].dataColeta").exists())
+                .andExpect(jsonPath("$[0].status").value("EM_TRIAGEM"));
+    }
+
+    @Test
+    void retornarListaVaziaQuandoDoadorNaoPossuirDoacoes() throws Exception {
+        when(doacaoService.buscarPorDoador(1L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    void retornarDoacoesDoDoadorInformado() throws Exception{
+        Doacao doacao = criarDoacao();
+
+        when(doacaoService.buscarPorDoador(1L)).thenReturn(List.of(doacao));
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].doadorId").value(1))
+                .andExpect(jsonPath("$[0].nomeDoador").value("Ana Souza"));
+    }
 }
