@@ -160,7 +160,8 @@ public class DoacaoControllerTest {
         mockMvc.perform(post("/doacoes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro").value("Doador não encontrado."));
     }
 
     @Test
