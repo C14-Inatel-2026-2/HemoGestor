@@ -9,6 +9,7 @@ import br.inatel.service.DoacaoService;
 import br.inatel.service.DoadorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class DoacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<DoacaoResponseDTO> cadastrar(@RequestBody DoacaoRequestDTO dto) {
+    public ResponseEntity<DoacaoResponseDTO> cadastrar(@Valid @RequestBody DoacaoRequestDTO dto) {
         Doador doador = doadorService.buscarPorId(dto.getDoadorId())
                 .orElse(null);
         if (doador == null) {
