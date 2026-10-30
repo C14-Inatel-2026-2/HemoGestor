@@ -3,6 +3,8 @@ package br.inatel.repository;
 import br.inatel.model.Doacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
+import java.util.List;
 
+public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
+    List<Doacao> findByDoadorId(Long doadorId);
 }
