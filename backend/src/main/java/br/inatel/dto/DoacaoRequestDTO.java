@@ -19,7 +19,7 @@ public class DoacaoRequestDTO {
     @NotNull(message = "Volume coletado não pode ser vazio.")
     @Positive(message = "Volume coletado deve ser maior que zero.")
     private Integer volume_ml;
-    @NotNull(message = "Tipo de doação não pode ser vazia.")
+    @NotNull(message = "Tipo de doação não pode ser vazio.")
     private TipoDoacao tipoDoacao;
     private String pressaoArterial;
     @NotNull(message = "Hemoglobina não pode ser vazia.")
