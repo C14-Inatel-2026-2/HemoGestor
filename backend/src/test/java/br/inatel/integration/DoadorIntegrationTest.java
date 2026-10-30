@@ -1,5 +1,6 @@
 package br.inatel.integration;
 
+import br.inatel.repository.DoacaoRepository;
 import br.inatel.repository.DoadorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,12 @@ public class DoadorIntegrationTest {
     @Autowired
     private DoadorRepository repository;
 
+    @Autowired
+    private DoacaoRepository doacaoRepository;
+
     @BeforeEach
     void limparBanco() {
+        doacaoRepository.deleteAll();
         repository.deleteAll();
     }
 
