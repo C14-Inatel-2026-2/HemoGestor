@@ -2,6 +2,7 @@ package br.inatel.service;
 
 import br.inatel.enumeracao.Sexo;
 import br.inatel.enumeracao.StatusDoacao;
+import br.inatel.enumeracao.StatusDoador;
 import br.inatel.enumeracao.TipoDoacao;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
@@ -109,6 +110,17 @@ public class DoacaoServiceTest {
 
         assertTrue(resultado.isPresent());
         assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
+
+        assertTrue(resultado.isPresent());
+        assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
+
+        Doador doadorAtualizado = resultado.get().getDoador();
+
+        assertEquals(doacao.getDataColeta(), doadorAtualizado.getUltima_doacao());
+        assertEquals(1, doadorAtualizado.getQtd_doacoes());
+        assertEquals("AGUARDANDO", doadorAtualizado.getStatus().name());
+        assertEquals(StatusDoador.AGUARDANDO, doadorAtualizado.getStatus());
+
         verify(repository).findById(1L);
         verify(repository).save(doacao);
     }
