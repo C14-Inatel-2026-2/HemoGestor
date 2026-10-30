@@ -1,8 +1,10 @@
 package br.inatel.service;
 
 import br.inatel.model.Doacao;
+import br.inatel.model.Doador;
 import br.inatel.repository.DoacaoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +29,16 @@ public class DoacaoService {
         return repository.findById(id);
     }
 
+    @Transactional
     public Optional<Doacao> concluir(Long id) {
         return repository.findById(id).map(doacao -> {
             doacao.concluirDoacao();
+
+            Doador doador = doacao.getDoador();
+            doador.setUltima_doacao(doacao.getDataColeta());
+            doador.setQtd_doacoes(doador.getQtd_doacoes()+1);
+            doador.verificarStatus();
+            
             return repository.save(doacao);
         });
     }
