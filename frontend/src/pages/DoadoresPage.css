@@ -23,6 +23,39 @@
   font-size: 13.5px;
 }
 
+.doadores__novo {
+  margin-left: auto;
+}
+
+.doadores__sucesso {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--raio-medio);
+  background: var(--cor-sucesso-suave);
+  color: var(--cor-sucesso);
+  font-size: 13.5px;
+}
+
+.doadores__formulario {
+  margin-bottom: 20px;
+}
+
+.doadores__formulario-titulo {
+  margin: 0;
+  padding: 18px 24px 0;
+  font-size: 15px;
+  color: var(--cor-texto);
+}
+
+.doadores__formulario .doadores__erro {
+  margin: 16px 24px 0;
+}
+
+.tabela .doadores__editar {
+  padding: 6px 12px;
+  font-size: 12.5px;
+}
+
 .tabela-card {
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
