@@ -129,4 +129,71 @@ public class DoacaoIntegrationTest {
                 .andExpect(jsonPath("$.status").value("CONCLUIDA"));
     }
 
+    @Test
+    void retornarDoacoesDoDoadorInformado() throws Exception{
+        Doador outroDoador = new Doador(
+                null,
+                "Beatriz Lima",
+                "987.654.321-00",
+                LocalDate.of(1998, 8, 20),
+                Sexo.FEMININO,
+                "A+",
+                "beatriz@email.com",
+                "35988888888",
+                "Santa Rita do Sapucaí",
+                "Centro",
+                null,
+                0,
+                null
+        );
+
+        Long outroDoadorId = doadorRepository.save(outroDoador).getId();
+
+        String primeiraDoacao = """
+            {
+              "doadorId": %d,
+              "dataColeta": "2026-10-28",
+              "horaColeta": "10:30:00",
+              "volume_ml": 450,
+              "tipoDoacao": "SANGUE_TOTAL",
+              "pressaoArterial": "120/80",
+              "hemoglobina": 14.2,
+              "sala": "Sala 1",
+              "responsavel": "Mariana Rocha",
+              "intercorrencia": "Nenhuma"
+            }
+            """.formatted(doadorId);
+
+        String segundaDoacao = """
+            {
+              "doadorId": %d,
+              "dataColeta": "2026-10-28",
+              "horaColeta": "11:00:00",
+              "volume_ml": 450,
+              "tipoDoacao": "SANGUE_TOTAL",
+              "pressaoArterial": "110/70",
+              "hemoglobina": 13.8,
+              "sala": "Sala 2",
+              "responsavel": "Mariana Rocha",
+              "intercorrencia": "Nenhuma"
+            }
+            """.formatted(outroDoadorId);
+
+        mockMvc.perform(post("/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(primeiraDoacao))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(segundaDoacao))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/doacoes/doador/" + doadorId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].doadorId").value(doadorId))
+                .andExpect(jsonPath("$[0].nomeDoador").value("Ana Souza"));
+    }
+
 }
