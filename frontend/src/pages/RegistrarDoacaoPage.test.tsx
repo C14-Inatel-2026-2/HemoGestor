@@ -12,6 +12,7 @@ import {
 import { getDoadores } from '../services/doadorService'
 import type { Doacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
+import { dataDeHoje } from '../utils/doacao'
 
 vi.mock('../services/doacaoService')
 vi.mock('../services/doadorService')
@@ -183,5 +184,18 @@ describe('RegistrarDoacaoPage', () => {
     const linha = (await screen.findByText('Ana Souza')).closest('tr') as HTMLElement
     expect(within(linha).getByText('Concluída')).toBeInTheDocument()
     expect(within(linha).queryByRole('button')).not.toBeInTheDocument()
+  })
+
+    it('impede nova doação de quem já tem uma doação recente registrada', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoacoes).mockResolvedValue(
+      respostaCom([{ ...doacaoEmTriagem, dataColeta: dataDeHoje() }]),
+    )
+
+    render(<RegistrarDoacaoPage />)
+    await screen.findByText('Em triagem')
+    await usuario.click(screen.getByRole('button', { name: 'Nova doação' }))
+
+    expect(screen.getByRole('option', { name: /Ana Souza.*disponível em/ })).toBeDisabled()
   })
 })
