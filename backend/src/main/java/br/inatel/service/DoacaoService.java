@@ -40,4 +40,8 @@ public class DoacaoService {
             return repository.save(doacao);
         });
     }
+
+    public List<Doacao> buscarPorDoador(Long doadorId) {
+        return repository.findByDoadorId(doadorId);
+    }
 }

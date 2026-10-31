@@ -77,4 +77,15 @@ public class DoacaoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/doador/{doadorId}")
+    public ResponseEntity<List<DoacaoResponseDTO>> buscarPorDoador(
+            @PathVariable("doadorId") Long doadorId) {
+
+        List<DoacaoResponseDTO> doacoes = doacaoService.buscarPorDoador(doadorId)
+                .stream()
+                .map(DoacaoMapper::toResponseDTO)
+                .toList();
+
+        return ResponseEntity.ok(doacoes);
+    }
 }
