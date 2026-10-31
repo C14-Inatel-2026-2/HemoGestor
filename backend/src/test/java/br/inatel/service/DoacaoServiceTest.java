@@ -254,14 +254,10 @@ public class DoacaoServiceTest {
         assertTrue(resultado.isPresent());
         assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
 
-        assertTrue(resultado.isPresent());
-        assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
-
         Doador doadorAtualizado = resultado.get().getDoador();
 
         assertEquals(doacao.getDataColeta(), doadorAtualizado.getUltima_doacao());
         assertEquals(1, doadorAtualizado.getQtd_doacoes());
-        assertEquals("AGUARDANDO", doadorAtualizado.getStatus().name());
         assertEquals(StatusDoador.AGUARDANDO, doadorAtualizado.getStatus());
 
         verify(repository).findById(1L);

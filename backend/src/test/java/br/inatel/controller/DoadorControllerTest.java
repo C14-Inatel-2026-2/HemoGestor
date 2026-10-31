@@ -350,28 +350,29 @@ public class DoadorControllerTest {
                 .thenThrow(new DataIntegrityViolationException("CPF duplicado"));
 
         String json = """
-            {
-              "nome": "Ana Souza",
-              "cpf": "52998224725",
-              "data_nascimento": "2000-05-10",
-              "sexo": "FEMININO",
-              "tipo_sanguineo": "O+",
-              "email": "ana@email.com",
-              "telefone": "35999999999",
-              "cidade": "Pouso Alegre",
-              "bairro": "Centro",
-              "ultima_doacao": null,
-              "qtd_doacoes": 0,
-              "observacoes": null
-            }
-            """;
+                {
+                  "nome": "Ana Souza",
+                  "cpf": "52998224725",
+                  "data_nascimento": "2000-05-10",
+                  "sexo": "FEMININO",
+                  "tipo_sanguineo": "O+",
+                  "email": "ana@email.com",
+                  "telefone": "35999999999",
+                  "cidade": "Pouso Alegre",
+                  "bairro": "Centro",
+                  "ultima_doacao": null,
+                  "qtd_doacoes": 0,
+                  "observacoes": null
+                }
+                """;
 
         mockMvc.perform(post("/doadores")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.erro")
-                        .value("Já existe um doador cadastrado com esse CPF."));
+                        .value("Não foi possível concluir a operação devido a um conflito de integridade dos dados."));
+
     }
 
     @Test
