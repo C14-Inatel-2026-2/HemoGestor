@@ -16,7 +16,7 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 | RF02 | Listar doadores | Entregue |
 | RF03 | Editar doador | Entregue |
 | RF04 | Remover doador | Parcial (API pronta, falta a tela) |
-| RF05 | Registrar doações e datas de coleta | Planejado |
+| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Parcial (tela pronta; falta o back-end travar a conclusão repetida) |
 | RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Planejado |
 | RF07 | Cadastrar solicitações de sangue | Planejado |
 | RF08 | Verificar compatibilidade e disponibilidade | Planejado |
@@ -100,7 +100,7 @@ O front-end deve rodar na porta 5173, porque o CORS do back-end só aceita essa 
 
 ## Como usar
 
-No menu lateral, a tela **Doadores** mostra a lista de doadores cadastrados. O botão **Novo doador** abre o formulário de cadastro, em que nome e CPF são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. As demais telas (Registrar Doação, Estoque, Solicitações e Dashboard) estão em desenvolvimento, como mostra a tabela de requisitos funcionais.
+No menu lateral, a tela **Doadores** mostra a lista de doadores cadastrados. O botão **Novo doador** abre o formulário de cadastro, em que nome e CPF são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. A tela de **Registrar Doação** está em desenvolvimento, com o back-end já disponível para cadastro, consulta e gerenciamento das doações. As telas de **Estoque**, **Solicitações** e **Dashboard** também permanecem em desenvolvimento, conforme a tabela de requisitos funcionais.
 
 ## Testes
 

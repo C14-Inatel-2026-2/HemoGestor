@@ -10,7 +10,10 @@ import br.inatel.service.DoadorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/doacoes")
@@ -24,11 +27,11 @@ public class DoacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<DoacaoResponseDTO> cadastrar(@RequestBody DoacaoRequestDTO dto) {
+    public ResponseEntity<?> cadastrar(@Valid @RequestBody DoacaoRequestDTO dto) {
         Doador doador = doadorService.buscarPorId(dto.getDoadorId())
                 .orElse(null);
         if (doador == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body(Map.of("erro", "Doador não encontrado."));
         }
         Doacao doacao = DoacaoMapper.toEntity(dto, doador);
         Doacao doacaoSalva = doacaoService.salvar(doacao);
@@ -76,4 +79,15 @@ public class DoacaoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/doador/{doadorId}")
+    public ResponseEntity<List<DoacaoResponseDTO>> buscarPorDoador(
+            @PathVariable("doadorId") Long doadorId) {
+
+        List<DoacaoResponseDTO> doacoes = doacaoService.buscarPorDoador(doadorId)
+                .stream()
+                .map(DoacaoMapper::toResponseDTO)
+                .toList();
+
+        return ResponseEntity.ok(doacoes);
+    }
 }

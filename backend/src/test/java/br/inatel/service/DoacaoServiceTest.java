@@ -2,7 +2,9 @@ package br.inatel.service;
 
 import br.inatel.enumeracao.Sexo;
 import br.inatel.enumeracao.StatusDoacao;
+import br.inatel.enumeracao.StatusDoador;
 import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.exception.DadosInvalidosException;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
 import br.inatel.repository.DoacaoRepository;
@@ -66,6 +68,146 @@ public class DoacaoServiceTest {
     }
 
     @Test
+    void naoSalvarDoacaoAntesDoIntervaloMinimo() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+        Doador doador = criarDoador();
+        doador.setUltima_doacao(LocalDate.now().minusDays(30));
+
+        Doacao novaDoacao = new Doacao(
+                1L,
+                doador,
+                LocalDate.now(),
+                LocalTime.now().minusMinutes(10),
+                450,
+                TipoDoacao.SANGUE_TOTAL,
+                "120/80",
+                new BigDecimal("14.2"),
+                "Sala 1",
+                "Mariana Rocha",
+                "Nenhuma"
+        );
+
+        when(repository.findByDoadorIdAndStatusNot(doador.getId(), StatusDoacao.DESCARTADA)).thenReturn(List.of());
+        DadosInvalidosException exception = assertThrows(
+                DadosInvalidosException.class, () -> service.salvar(novaDoacao)
+        );
+
+        assertTrue(exception.getMessage().contains("só poderá doar novamente a partir de"));
+        verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
+    void naoSalvarDoacaoQuandoAtingirLimiteAnual() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doador doador = criarDoador();
+        Doacao doacao1 = new Doacao(
+                1L,
+                doador,
+                LocalDate.now().minusMonths(10),
+                LocalTime.of(10, 0),
+                450,
+                TipoDoacao.SANGUE_TOTAL,
+                "120/80",
+                new BigDecimal("14.0"),
+                "Sala 1",
+                "Mariana Rocha",
+                "Nenhuma"
+        );
+        Doacao doacao2 = new Doacao(
+                2L,
+                doador,
+                LocalDate.now().minusMonths(7),
+                LocalTime.of(10, 0),
+                450,
+                TipoDoacao.SANGUE_TOTAL,
+                "120/80",
+                new BigDecimal("14.0"),
+                "Sala 1",
+                "Mariana Rocha",
+                "Nenhuma"
+        );
+        Doacao doacao3 = new Doacao(
+                3L,
+                doador,
+                LocalDate.now().minusMonths(4),
+                LocalTime.of(10, 0),
+                450,
+                TipoDoacao.SANGUE_TOTAL,
+                "120/80",
+                new BigDecimal("14.0"),
+                "Sala 1",
+                "Mariana Rocha",
+                "Nenhuma"
+        );
+        Doacao novaDoacao = new Doacao(
+                4L,
+                doador,
+                LocalDate.now(),
+                LocalTime.now().minusMinutes(10),
+                450,
+                TipoDoacao.SANGUE_TOTAL,
+                "120/80",
+                new BigDecimal("14.2"),
+                "Sala 1",
+                "Mariana Rocha",
+                "Nenhuma"
+        );
+
+        when(repository.findByDoadorIdAndStatusNot(doador.getId(), StatusDoacao.DESCARTADA)).thenReturn(List.of(doacao1, doacao2, doacao3));
+        DadosInvalidosException exception = assertThrows(
+                DadosInvalidosException.class,
+                () -> service.salvar(novaDoacao)
+        );
+        assertEquals(
+                "Clara Maria de Castro atingiu o limite de 3 doações nos últimos 12 meses.", exception.getMessage());
+        verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
+    void salvarDoacaoQuandoRespeitarIntervaloELimiteAnual() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doador doador = criarDoador();
+        Doacao doacaoAnterior = new Doacao(
+                1L,
+                doador,
+                LocalDate.now().minusMonths(4),
+                LocalTime.of(10, 0),
+                450,
+                TipoDoacao.SANGUE_TOTAL,
+                "120/80",
+                new BigDecimal("14.0"),
+                "Sala 1",
+                "Mariana Rocha",
+                "Nenhuma"
+        );
+        Doacao novaDoacao = new Doacao(
+                2L,
+                doador,
+                LocalDate.now(),
+                LocalTime.now().minusMinutes(10),
+                450,
+                TipoDoacao.SANGUE_TOTAL,
+                "120/80",
+                new BigDecimal("14.2"),
+                "Sala 1",
+                "Mariana Rocha",
+                "Nenhuma"
+        );
+
+        when(repository.findByDoadorIdAndStatusNot(doador.getId(), StatusDoacao.DESCARTADA)).thenReturn(List.of(doacaoAnterior));
+        when(repository.save(novaDoacao)).thenReturn(novaDoacao);
+
+        Doacao resultado = service.salvar(novaDoacao);
+        assertEquals(novaDoacao, resultado);
+        verify(repository).save(novaDoacao);
+    }
+
+    @Test
     void buscarDoacaoPorId() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
         DoacaoService service = new DoacaoService(repository);
@@ -109,6 +251,17 @@ public class DoacaoServiceTest {
 
         assertTrue(resultado.isPresent());
         assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
+
+        assertTrue(resultado.isPresent());
+        assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
+
+        Doador doadorAtualizado = resultado.get().getDoador();
+
+        assertEquals(doacao.getDataColeta(), doadorAtualizado.getUltima_doacao());
+        assertEquals(1, doadorAtualizado.getQtd_doacoes());
+        assertEquals("AGUARDANDO", doadorAtualizado.getStatus().name());
+        assertEquals(StatusDoador.AGUARDANDO, doadorAtualizado.getStatus());
+
         verify(repository).findById(1L);
         verify(repository).save(doacao);
     }
@@ -157,5 +310,34 @@ public class DoacaoServiceTest {
         assertTrue(resultado.isEmpty());
         verify(repository).findById(99L);
         verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
+    void buscarDoacoesPorDoador() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doacao doacao = criarDoacao();
+
+        when(repository.findByDoadorId(1L)).thenReturn(List.of(doacao));
+
+        List<Doacao> resultado = service.buscarPorDoador(1L);
+
+        assertEquals(1, resultado.size());
+        assertEquals(doacao, resultado.get(0));
+        verify(repository).findByDoadorId(1L);
+    }
+
+    @Test
+    void retornarListaVaziaDoadorNaoPossuiDoacoes(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        when(repository.findByDoadorId(1L)).thenReturn(List.of());
+
+        List<Doacao> resultado = service.buscarPorDoador(1L);
+
+        assertTrue(resultado.isEmpty());
+        verify(repository).findByDoadorId(1L);
     }
 }

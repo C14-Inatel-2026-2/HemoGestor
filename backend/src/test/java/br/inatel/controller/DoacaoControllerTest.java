@@ -160,7 +160,8 @@ public class DoacaoControllerTest {
         mockMvc.perform(post("/doacoes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro").value("Doador não encontrado."));
     }
 
     @Test
@@ -203,5 +204,138 @@ public class DoacaoControllerTest {
 
         mockMvc.perform(patch("/doacoes/99/descartar"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void retornarBadRequestCampoObrigatorioNaoInformado() throws Exception{
+        String json = """
+            {
+              "doadorId": 1,
+              "dataColeta": "2026-10-28",
+              "horaColeta": "10:30:00",
+              "volume_ml": 450,
+              "tipoDoacao": "SANGUE_TOTAL",
+              "pressaoArterial": "120/80",
+              "hemoglobina": 14.2,
+              "sala": "Sala 1",
+              "intercorrencia": "Nenhuma"
+            }
+            """;
+
+        mockMvc.perform(post("/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responsavel")
+                        .value("Responsável não pode ser vazio."));
+    }
+
+    @Test
+    void buscarDoacoesPorDoador() throws Exception {
+        Doacao doacao = criarDoacao();
+
+        when(doacaoService.buscarPorDoador(1L)).thenReturn(List.of(doacao));
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].nomeDoador").value("Ana Souza"))
+                .andExpect(jsonPath("$[0].dataColeta").exists())
+                .andExpect(jsonPath("$[0].status").value("EM_TRIAGEM"));
+    }
+
+    @Test
+    void retornarListaVaziaQuandoDoadorNaoPossuirDoacoes() throws Exception {
+        when(doacaoService.buscarPorDoador(1L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    void retornarDoacoesDoDoadorInformado() throws Exception{
+        Doacao doacao = criarDoacao();
+
+        when(doacaoService.buscarPorDoador(1L)).thenReturn(List.of(doacao));
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].doadorId").value(1))
+                .andExpect(jsonPath("$[0].nomeDoador").value("Ana Souza"));
+    }
+
+    @Test
+    void retornarBadRequestVolumeForZero() throws Exception{
+        String json = """
+            {
+              "doadorId": 1,
+              "dataColeta": "2026-10-28",
+              "horaColeta": "10:30:00",
+              "volume_ml": 0,
+              "tipoDoacao": "SANGUE_TOTAL",
+              "pressaoArterial": "120/80",
+              "hemoglobina": 14.2,
+              "sala": "Sala 1",
+              "responsavel": "Mariana Rocha",
+              "intercorrencia": "Nenhuma"
+            }
+            """;
+        mockMvc.perform(post("/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.volume_ml")
+                        .value("Volume coletado deve ser maior que zero."));
+    }
+
+    @Test
+    void retornarBadRequestHemoglobinaNegativa() throws Exception {
+        String json = """
+            {
+              "doadorId": 1,
+              "dataColeta": "2026-10-28",
+              "horaColeta": "10:30:00",
+              "volume_ml": 450,
+              "tipoDoacao": "SANGUE_TOTAL",
+              "pressaoArterial": "120/80",
+              "hemoglobina": -1,
+              "sala": "Sala 1",
+              "responsavel": "Mariana Rocha",
+              "intercorrencia": "Nenhuma"
+            }
+            """;
+        mockMvc.perform(post("/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.hemoglobina")
+                        .value("Hemoglobina deve ser maior que zero."));
+    }
+
+    @Test
+    void retornarBadRequestDoadorIdNaoForInformado() throws Exception {
+        String json = """
+            {
+              "dataColeta": "2026-10-28",
+              "horaColeta": "10:30:00",
+              "volume_ml": 450,
+              "tipoDoacao": "SANGUE_TOTAL",
+              "pressaoArterial": "120/80",
+              "hemoglobina": 14.2,
+              "sala": "Sala 1",
+              "responsavel": "Mariana Rocha",
+              "intercorrencia": "Nenhuma"
+            }
+            """;
+        mockMvc.perform(post("/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.doadorId")
+                        .value("Doador não pode ser vazio."));
     }
 }
