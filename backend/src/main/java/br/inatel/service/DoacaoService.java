@@ -2,6 +2,7 @@ package br.inatel.service;
 
 import br.inatel.enumeracao.Sexo;
 import br.inatel.enumeracao.StatusDoacao;
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
@@ -76,12 +77,14 @@ public class DoacaoService {
     @Transactional
     public Optional<Doacao> concluir(Long id) {
         return repository.findById(id).map(doacao -> {
+            if(doacao.getStatus() != StatusDoacao.EM_TRIAGEM){
+                throw new ConflitoException("Só é possível concluir doações em triagem.");
+            }
+
             doacao.concluirDoacao();
 
             Doador doador = doacao.getDoador();
-            doador.setUltima_doacao(doacao.getDataColeta());
-            doador.setQtd_doacoes(doador.getQtd_doacoes()+1);
-            doador.verificarStatus();
+            doador.registrarDoacao(doacao.getDataColeta());
 
             return repository.save(doacao);
         });
@@ -89,6 +92,9 @@ public class DoacaoService {
 
     public Optional<Doacao> descartar(Long id) {
         return repository.findById(id).map(doacao -> {
+            if(doacao.getStatus() != StatusDoacao.EM_TRIAGEM){
+                throw new ConflitoException("Só é possível descartar doações em triagem.");
+            }
             doacao.descartarDoacao();
             return repository.save(doacao);
         });
