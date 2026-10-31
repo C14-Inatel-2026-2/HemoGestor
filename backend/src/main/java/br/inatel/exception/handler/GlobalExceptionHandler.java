@@ -1,5 +1,6 @@
 package br.inatel.exception.handler;
 
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.TipoSanguineoException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -79,5 +80,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(erro);
+    }
+
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<Map<String, String>> tratarConflito(ConflitoException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", exception.getMessage()));
     }
 }
