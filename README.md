@@ -10,17 +10,17 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 
 ## Funcionalidades e requisitos funcionais
 
-| ID | Requisito | Status |
-|---|---|---|
-| RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue |
-| RF02 | Listar doadores | Entregue |
-| RF03 | Editar doador | Parcial (API pronta, falta a tela) |
-| RF04 | Remover doador | Parcial (API pronta, falta a tela) |
-| RF05 | Registrar doações e datas de coleta | Planejado |
-| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Planejado |
-| RF07 | Cadastrar solicitações de sangue | Planejado |
-| RF08 | Verificar compatibilidade e disponibilidade | Planejado |
-| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Planejado |
+| ID | Requisito | Status                                                       |
+|---|---|--------------------------------------------------------------|
+| RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue                                                     |
+| RF02 | Listar doadores | Entregue                                                     |
+| RF03 | Editar doador | Parcial (API pronta, falta a tela)                           |
+| RF04 | Remover doador | Parcial (API pronta, falta a tela)                           |
+| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Parcial (API pronta, falta a integração completa com a tela) |
+| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Planejado                                                    |
+| RF07 | Cadastrar solicitações de sangue | Planejado                                                    |
+| RF08 | Verificar compatibilidade e disponibilidade | Planejado                                                    |
+| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Planejado                                                    |
 
 **Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
@@ -100,7 +100,7 @@ O front-end deve rodar na porta 5173, porque o CORS do back-end só aceita essa 
 
 ## Como usar
 
-No menu lateral, a tela **Doadores** mostra a lista de doadores cadastrados. O botão **Novo doador** abre o formulário de cadastro, em que nome e CPF são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. As demais telas (Registrar Doação, Estoque, Solicitações e Dashboard) estão em desenvolvimento, como mostra a tabela de requisitos funcionais.
+No menu lateral, a tela **Doadores** mostra a lista de doadores cadastrados. O botão **Novo doador** abre o formulário de cadastro, em que nome e CPF são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. A tela de **Registrar Doação** está em desenvolvimento, com o back-end já disponível para cadastro, consulta e gerenciamento das doações. As telas de **Estoque**, **Solicitações** e **Dashboard** também permanecem em desenvolvimento, conforme a tabela de requisitos funcionais.
 
 ## Testes
 
