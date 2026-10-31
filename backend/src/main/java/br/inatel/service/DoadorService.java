@@ -1,5 +1,7 @@
 package br.inatel.service;
+import br.inatel.exception.ConflitoException;
 import br.inatel.model.Doador;
+import br.inatel.repository.DoacaoRepository;
 import br.inatel.repository.DoadorRepository;
 import org.springframework.stereotype.Service;
 
@@ -9,9 +11,11 @@ import java.util.List;
 @Service
 public class DoadorService {
     private final DoadorRepository repository;
+    private final DoacaoRepository doacaoRepository;
 
-    public DoadorService(DoadorRepository repository){
+    public DoadorService(DoadorRepository repository, DoacaoRepository doacaoRepository){
         this.repository = repository;
+        this.doacaoRepository = doacaoRepository;
     }
 
     public Optional<Doador> buscarPorId(Long id){
@@ -28,7 +32,13 @@ public class DoadorService {
     }
 
     //remove um doador pelo id
+    //se tentar remover um doador que já tenha doações, lança exceção
     public void deletar(Long id) {
+        if (doacaoRepository.existsByDoadorId(id)) {
+            throw new ConflitoException(
+                    "Não é possível remover um doador que já tem doações registradas."
+            );
+        }
         repository.deleteById(id);
     }
 
