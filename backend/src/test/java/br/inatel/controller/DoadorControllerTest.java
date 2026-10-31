@@ -1,6 +1,7 @@
 package br.inatel.controller;
 
 import br.inatel.enumeracao.Sexo;
+import br.inatel.exception.ConflitoException;
 import br.inatel.model.Doador;
 import br.inatel.service.DoadorService;
 import br.inatel.exception.DadosInvalidosException;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -371,5 +372,28 @@ public class DoadorControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.erro")
                         .value("Já existe um doador cadastrado com esse CPF."));
+    }
+
+    @Test
+    void retornar409AoRemoverDoadorComDoacoes() throws Exception {
+        Doador doador = new Doador();
+        when(service.buscarPorId(1L)).thenReturn(Optional.of(doador));
+        doThrow(new ConflitoException("Não é possível remover um doador que já tem doações registradas.")).when(service).deletar(1L);
+
+        mockMvc.perform(delete("/doadores/1"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro")
+                        .value("Não é possível remover um doador que já tem doações registradas."));
+    }
+
+    @Test
+    void retornar204AoRemoverDoadorSemDoacoes() throws Exception {
+        Doador doador = new Doador();
+
+        when(service.buscarPorId(1L)).thenReturn(Optional.of(doador));
+        doNothing().when(service).deletar(1L);
+
+        mockMvc.perform(delete("/doadores/1"))
+                .andExpect(status().isNoContent());
     }
 }
