@@ -397,4 +397,56 @@ public class DoadorControllerTest {
         mockMvc.perform(delete("/doadores/1"))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void retornarBadRequestDataNascimentoNaoInformada() throws Exception{
+        String json = """
+        {
+          "nome": "Ana Souza",
+          "cpf": "52998224725",
+          "sexo": "FEMININO",
+          "tipo_sanguineo": "O+",
+          "email": "ana@email.com",
+          "telefone": "35999999999",
+          "cidade": "Pouso Alegre",
+          "bairro": "Centro",
+          "ultima_doacao": null,
+          "qtd_doacoes": 0,
+          "observacoes": null
+        }
+        """;
+
+        mockMvc.perform(post("/doadores")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data_nascimento")
+                        .value("Data de nascimento não pode ser vazia."));
+    }
+
+    @Test
+    void retornarBadRequestTipoSanguineoNaoInformado() throws Exception {
+        String json = """
+        {
+          "nome": "Ana Souza",
+          "cpf": "52998224725",
+          "data_nascimento": "2000-05-10",
+          "sexo": "FEMININO",
+          "email": "ana@email.com",
+          "telefone": "35999999999",
+          "cidade": "Pouso Alegre",
+          "bairro": "Centro",
+          "ultima_doacao": null,
+          "qtd_doacoes": 0,
+          "observacoes": null
+        }
+        """;
+
+        mockMvc.perform(post("/doadores")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.tipo_sanguineo")
+                        .value("Tipo sanguíneo não pode ser vazio."));
+    }
 }
