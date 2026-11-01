@@ -40,6 +40,13 @@ Utilizado nas requisições de cadastro e atualização de doadores.
 }
 ```
 
+**Campos obrigatórios:**
+
+- `nome`
+- `cpf`
+- `data_nascimento`
+- `tipo_sanguineo`
+
 ### DoadorResponse
 
 Retornado pelo backend nas operações de consulta, cadastro e atualização.
@@ -79,6 +86,10 @@ Utiliza o contrato `DoadorRequest`.
 
 - Status: `201 Created`
 - Corpo: `DoadorResponse`
+
+**Possível resposta de erro:**
+
+- Status: `400 Bad Request`, quando algum campo obrigatório é inválido ou não foi informado.
 
 ---
 
@@ -292,7 +303,12 @@ Consulta as doações associadas a um doador específico.
 - Status: `200 OK`
 - Corpo: lista de `DoacaoResponseDTO`.
 
-Caso o doador não possua doações registradas, é retornada uma lista vazia.
+Caso o doador não possua doações registradas, é retornada uma mensagem informativa:
+```json
+{
+  "mensagem": "Não existem doações registradas para este doador."
+}
+```
 
 ---
 
