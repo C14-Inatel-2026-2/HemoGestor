@@ -3,19 +3,18 @@ package br.inatel.dto;
 import br.inatel.enumeracao.Sexo;
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 
 public class DoadorRequestDTO {
     @NotBlank(message = "Nome não pode ser vazio.")
     private String nome;
     @NotBlank(message = "CPF não pode ser vazio.")
     private String cpf;
+    @NotNull(message = "Data de nascimento não pode ser vazia.")
     @PastOrPresent(message = "Data de nascimento não pode ser futura.")
     private LocalDate data_nascimento;
     private Sexo sexo;
+    @NotNull(message = "Tipo sanguíneo não pode ser vazio.")
     private String tipo_sanguineo;
     @Email(message = "E-mail inválido.")
     private String email;
