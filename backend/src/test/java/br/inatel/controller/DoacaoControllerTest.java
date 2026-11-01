@@ -259,6 +259,16 @@ public class DoacaoControllerTest {
     }
 
     @Test
+    void retornarErroQuandoFalharConsultaHistorico() throws Exception{
+        when(doacaoService.buscarPorDoador(1L)).thenThrow(new RuntimeException());
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erro")
+                        .value("Não foi possível consultar o histórico de doações."));
+    }
+
+    @Test
     void retornarBadRequestVolumeForZero() throws Exception{
         String json = """
             {
