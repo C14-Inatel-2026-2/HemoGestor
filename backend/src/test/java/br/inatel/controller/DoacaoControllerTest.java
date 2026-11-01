@@ -254,8 +254,8 @@ public class DoacaoControllerTest {
 
         mockMvc.perform(get("/doacoes/doador/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Não existem doações registradas para este doador."));
     }
 
     @Test
