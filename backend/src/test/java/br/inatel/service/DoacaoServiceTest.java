@@ -4,10 +4,12 @@ import br.inatel.enumeracao.Sexo;
 import br.inatel.enumeracao.StatusDoacao;
 import br.inatel.enumeracao.StatusDoador;
 import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
 import br.inatel.repository.DoacaoRepository;
+import br.inatel.repository.DoadorRepository;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -252,18 +254,29 @@ public class DoacaoServiceTest {
         assertTrue(resultado.isPresent());
         assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
 
-        assertTrue(resultado.isPresent());
-        assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
-
         Doador doadorAtualizado = resultado.get().getDoador();
 
         assertEquals(doacao.getDataColeta(), doadorAtualizado.getUltima_doacao());
         assertEquals(1, doadorAtualizado.getQtd_doacoes());
-        assertEquals("AGUARDANDO", doadorAtualizado.getStatus().name());
         assertEquals(StatusDoador.AGUARDANDO, doadorAtualizado.getStatus());
 
         verify(repository).findById(1L);
         verify(repository).save(doacao);
+    }
+
+    @Test
+    void naoConcluirDoacaoConcluida(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doacao doacao = criarDoacao();
+        doacao.concluirDoacao();
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.concluir(1L));
+        assertEquals("Só é possível concluir doações em triagem.", exception.getMessage());
+        verify(repository, never()).save(any(Doacao.class));
     }
 
     @Test
@@ -295,6 +308,36 @@ public class DoacaoServiceTest {
 
         assertTrue(resultado.isEmpty());
         verify(repository).findById(99L);
+        verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
+    void naoConcluirDoacaoDescartada(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doacao doacao = criarDoacao();
+        doacao.descartarDoacao();
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.concluir(1L));
+
+        assertEquals("Só é possível concluir doações em triagem.", exception.getMessage());
+        verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
+    void naoDescartarDoacaoConcluida(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doacao doacao = criarDoacao();
+        doacao.concluirDoacao();
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.descartar(1L) );
+
+        assertEquals("Só é possível descartar doações em triagem.", exception.getMessage());
         verify(repository, never()).save(any(Doacao.class));
     }
 
@@ -339,5 +382,28 @@ public class DoacaoServiceTest {
 
         assertTrue(resultado.isEmpty());
         verify(repository).findByDoadorId(1L);
+    }
+
+    @Test
+    void naoAtualizarUltimaDoacaoComDataMaisAntiga(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        DoacaoService service = new DoacaoService(repository);
+
+        Doacao doacao = criarDoacao();
+        Doador doador = doacao.getDoador();
+
+        LocalDate ultimaDoacaoAtual = LocalDate.now().minusDays(10);
+        doador.setUltima_doacao(ultimaDoacaoAtual);
+
+        LocalDate dataDoacaoAntiga = LocalDate.now().minusDays(30);
+        doacao.setDataColeta(dataDoacaoAntiga);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+        when(repository.save(doacao)).thenReturn(doacao);
+
+        service.concluir(1L);
+
+        assertEquals(ultimaDoacaoAtual, doador.getUltima_doacao());
+        assertEquals(1, doador.getQtd_doacoes());
     }
 }

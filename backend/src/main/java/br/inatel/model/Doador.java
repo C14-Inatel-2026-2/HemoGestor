@@ -126,7 +126,9 @@ public class Doador {
         if(dataDoacao==null){
             throw new DadosInvalidosException("Data da doação não pode ser vazia.");
         }
-        this.ultima_doacao = dataDoacao;
+        if(this.ultima_doacao == null || dataDoacao.isAfter(this.ultima_doacao)){
+            this.ultima_doacao = dataDoacao;
+        }
         this.qtd_doacoes++;
 
         //depois de doar, o status é alterado

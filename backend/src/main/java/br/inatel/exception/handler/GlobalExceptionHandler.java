@@ -1,5 +1,6 @@
 package br.inatel.exception.handler;
 
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.TipoSanguineoException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -70,14 +71,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> tratarDadosDuplicados(
+    public ResponseEntity<Map<String, String>> tratarIntegridadeDados(
             DataIntegrityViolationException exception) {
 
         Map<String, String> erro = new HashMap<>();
-        erro.put("erro", "Já existe um doador cadastrado com esse CPF.");
+        erro.put("erro", "Não foi possível concluir a operação devido a um conflito de integridade dos dados.");
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(erro);
+    }
+
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<Map<String, String>> tratarConflito(ConflitoException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", exception.getMessage()));
     }
 }

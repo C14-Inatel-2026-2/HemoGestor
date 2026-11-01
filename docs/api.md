@@ -147,9 +147,10 @@ Remove um doador pelo identificador.
 
 - Status: `204 No Content`
 
-**Possível resposta de erro:**
+**Possíveid respostas de erro:**
 
 - Status: `404 Not Found`, caso o doador não seja encontrado.
+- Status: `409 Conflict`, caso o doador possua doações registradas e não possa ser removido.
 
 ---
 
@@ -167,7 +168,7 @@ Utilizado no cadastro de novas doações.
   "dataColeta": "YYYY-MM-DD",
   "horaColeta": "HH:mm:ss",
   "volume_ml": 450,
-  "tipoDoacao": "SANGUE_TOTAL | PLAQUETAS_POR_AFERESE | PLASMA",
+  "tipoDoacao": "SANGUE_TOTAL | PLAQUETA_POR_AFERESE | PLASMA",
   "pressaoArterial": "120/80",
   "hemoglobina": 14.2,
   "sala": "string",
@@ -313,6 +314,7 @@ Ao concluir uma doação, os dados do doador associado também são atualizados:
 **Possível resposta de erro:**
 
 - Status: `404 Not Found`, caso a doação não seja encontrada.
+- Status: `409 Conflict`, caso a doação não esteja em triagem.
 
 ---
 
@@ -328,6 +330,7 @@ Altera o status da doação para `DESCARTADA`.
 **Possível resposta de erro:**
 
 - Status: `404 Not Found`, caso a doação não seja encontrada.
+- Status: `409 Conflict`, caso a doação não esteja em triagem.
 
 ## Tipos utilizados no frontend
 

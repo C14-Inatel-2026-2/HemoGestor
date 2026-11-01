@@ -2,6 +2,7 @@ package br.inatel.controller;
 
 import br.inatel.enumeracao.Sexo;
 import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.exception.ConflitoException;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
 import br.inatel.service.DoacaoService;
@@ -238,7 +239,10 @@ public class DoacaoControllerTest {
 
         mockMvc.perform(get("/doacoes/doador/1"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].doadorId").value(1))
                 .andExpect(jsonPath("$[0].nomeDoador").value("Ana Souza"))
                 .andExpect(jsonPath("$[0].dataColeta").exists())
                 .andExpect(jsonPath("$[0].status").value("EM_TRIAGEM"));
@@ -252,20 +256,6 @@ public class DoacaoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());
-    }
-
-    @Test
-    void retornarDoacoesDoDoadorInformado() throws Exception{
-        Doacao doacao = criarDoacao();
-
-        when(doacaoService.buscarPorDoador(1L)).thenReturn(List.of(doacao));
-
-        mockMvc.perform(get("/doacoes/doador/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].doadorId").value(1))
-                .andExpect(jsonPath("$[0].nomeDoador").value("Ana Souza"));
     }
 
     @Test
@@ -337,5 +327,25 @@ public class DoacaoControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.doadorId")
                         .value("Doador não pode ser vazio."));
+    }
+
+    @Test
+    void retornar409AoConcluirDoacaoNaoEstaEmTriagem() throws Exception {
+        when(doacaoService.concluir(1L)).thenThrow(new ConflitoException("Só é possível concluir doações em triagem."));
+
+        mockMvc.perform(patch("/doacoes/1/concluir"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro")
+                        .value("Só é possível concluir doações em triagem."));
+    }
+
+    @Test
+    void retornar409AoDescartarDoacaoNaoEstaEmTriagem() throws Exception {
+        when(doacaoService.descartar(1L)).thenThrow(new ConflitoException("Só é possível descartar doações em triagem."));
+
+        mockMvc.perform(patch("/doacoes/1/descartar"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro")
+                        .value("Só é possível descartar doações em triagem."));
     }
 }
