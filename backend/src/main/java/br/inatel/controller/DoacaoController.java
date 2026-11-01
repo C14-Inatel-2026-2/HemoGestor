@@ -80,14 +80,16 @@ public class DoacaoController {
     }
 
     @GetMapping("/doador/{doadorId}")
-    public ResponseEntity<List<DoacaoResponseDTO>> buscarPorDoador(
-            @PathVariable("doadorId") Long doadorId) {
-
+    public ResponseEntity<?> buscarPorDoador(@PathVariable("doadorId") Long doadorId) {
         List<DoacaoResponseDTO> doacoes = doacaoService.buscarPorDoador(doadorId)
                 .stream()
                 .map(DoacaoMapper::toResponseDTO)
                 .toList();
-
+        if (doacoes.isEmpty()) {
+            return ResponseEntity.ok(
+                    Map.of("mensagem", "Não existem doações registradas para este doador.")
+            );
+        }
         return ResponseEntity.ok(doacoes);
     }
 }
