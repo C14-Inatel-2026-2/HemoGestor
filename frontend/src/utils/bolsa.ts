@@ -1,4 +1,5 @@
 import type { Bolsa, StatusBolsa } from '../types/bolsa'
+import type { TipoSanguineo } from '../types/doador'
 import { dataDeHoje } from './doacao'
 
 export const DIAS_ALERTA_VENCIMENTO = 7
@@ -71,4 +72,36 @@ export function resumirEstoque(bolsas: Bolsa[], hoje: string = dataDeHoje()): Re
     vencemEmBreve: emEstoque.filter((bolsa) => venceEmBreve(bolsa, hoje)).length,
     foraDoEstoque: bolsas.length - emEstoque.length,
   }
+}
+
+export type AbaEstoque = 'ATUAL' | 'FORA'
+
+export interface FiltrosEstoque {
+  aba: AbaEstoque
+  tipoSanguineo: TipoSanguineo | ''
+  status: StatusBolsa | ''
+  somenteVencendo: boolean
+}
+
+export const FILTROS_INICIAIS: FiltrosEstoque = {
+  aba: 'ATUAL',
+  tipoSanguineo: '',
+  status: '',
+  somenteVencendo: false,
+}
+
+export function filtrarBolsas(
+  bolsas: Bolsa[],
+  filtros: FiltrosEstoque,
+  hoje: string = dataDeHoje(),
+): Bolsa[] {
+  return bolsas
+    .filter((bolsa) => {
+      const noEstoque = estaNoEstoque(bolsa, hoje)
+      return filtros.aba === 'ATUAL' ? noEstoque : !noEstoque
+    })
+    .filter((bolsa) => !filtros.tipoSanguineo || bolsa.tipoSanguineo === filtros.tipoSanguineo)
+    .filter((bolsa) => !filtros.status || bolsa.status === filtros.status)
+    .filter((bolsa) => !filtros.somenteVencendo || venceEmBreve(bolsa, hoje))
+    .sort((a, b) => a.dataValidade.localeCompare(b.dataValidade))
 }
