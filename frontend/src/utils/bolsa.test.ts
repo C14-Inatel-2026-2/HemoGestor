@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
   DIAS_ALERTA_VENCIMENTO,
+  FILTROS_INICIAIS,
   descreverValidade,
   diasParaVencer,
   estaNoEstoque,
   estaVencida,
+  filtrarBolsas,
   formatarCodigoBolsa,
   resumirEstoque,
   venceEmBreve,
@@ -155,5 +157,53 @@ describe('resumirEstoque', () => {
       vencemEmBreve: 0,
       foraDoEstoque: 0,
     })
+  })
+})
+
+describe('filtrarBolsas', () => {
+  const bolsas = [
+    criarBolsa({ id: 1, tipoSanguineo: 'O-', dataValidade: '2026-12-01' }),
+    criarBolsa({ id: 2, tipoSanguineo: 'A+', status: 'RESERVADA', dataValidade: '2026-11-05' }),
+    criarBolsa({ id: 3, tipoSanguineo: 'O-', dataValidade: '2026-11-20' }),
+    criarBolsa({ id: 4, tipoSanguineo: 'O-', status: 'DESCARTADA' }),
+    criarBolsa({ id: 5, tipoSanguineo: 'A+', dataValidade: '2026-11-01' }),
+  ]
+
+  function ids(lista: Bolsa[]): number[] {
+    return lista.map((bolsa) => bolsa.id)
+  }
+
+  it('mostra no estoque atual só as bolsas válidas, das que vencem primeiro às últimas', () => {
+    expect(ids(filtrarBolsas(bolsas, FILTROS_INICIAIS, HOJE))).toEqual([2, 3, 1])
+  })
+
+  it('mostra na aba fora do estoque as bolsas vencidas e descartadas', () => {
+    const filtros = { ...FILTROS_INICIAIS, aba: 'FORA' as const }
+    expect(ids(filtrarBolsas(bolsas, filtros, HOJE))).toEqual([5, 4])
+  })
+
+  it('filtra pelo tipo sanguíneo', () => {
+    const filtros = { ...FILTROS_INICIAIS, tipoSanguineo: 'O-' as const }
+    expect(ids(filtrarBolsas(bolsas, filtros, HOJE))).toEqual([3, 1])
+  })
+
+  it('filtra pelo status', () => {
+    const filtros = { ...FILTROS_INICIAIS, status: 'RESERVADA' as const }
+    expect(ids(filtrarBolsas(bolsas, filtros, HOJE))).toEqual([2])
+  })
+
+  it('mostra só as bolsas próximas do vencimento quando a opção está marcada', () => {
+    const filtros = { ...FILTROS_INICIAIS, somenteVencendo: true }
+    expect(ids(filtrarBolsas(bolsas, filtros, HOJE))).toEqual([2])
+  })
+
+  it('devolve lista vazia quando nenhuma bolsa atende a todos os filtros', () => {
+    const filtros = { ...FILTROS_INICIAIS, tipoSanguineo: 'O-' as const, somenteVencendo: true }
+    expect(filtrarBolsas(bolsas, filtros, HOJE)).toEqual([])
+  })
+
+  it('não altera a ordem da lista original', () => {
+    filtrarBolsas(bolsas, FILTROS_INICIAIS, HOJE)
+    expect(ids(bolsas)).toEqual([1, 2, 3, 4, 5])
   })
 })
