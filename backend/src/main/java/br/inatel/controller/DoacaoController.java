@@ -7,6 +7,7 @@ import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
 import br.inatel.service.DoacaoService;
 import br.inatel.service.DoadorService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,14 +81,21 @@ public class DoacaoController {
     }
 
     @GetMapping("/doador/{doadorId}")
-    public ResponseEntity<List<DoacaoResponseDTO>> buscarPorDoador(
-            @PathVariable("doadorId") Long doadorId) {
+    public ResponseEntity<?> buscarPorDoador(@PathVariable("doadorId") Long doadorId) {
+        try{
+            List<DoacaoResponseDTO> doacoes = doacaoService.buscarPorDoador(doadorId)
+                    .stream()
+                    .map(DoacaoMapper::toResponseDTO)
+                    .toList();
+            if(doacoes.isEmpty()){
+                return ResponseEntity.ok(Map.of("mensagem", "Não existem doações registradas para este doador."));
+            }
+            return ResponseEntity.ok(doacoes);
+        }
+        catch (Exception exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("erro", "Não foi possível consultar o histórico de doações."));
+        }
 
-        List<DoacaoResponseDTO> doacoes = doacaoService.buscarPorDoador(doadorId)
-                .stream()
-                .map(DoacaoMapper::toResponseDTO)
-                .toList();
-
-        return ResponseEntity.ok(doacoes);
     }
 }

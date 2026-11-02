@@ -254,8 +254,18 @@ public class DoacaoControllerTest {
 
         mockMvc.perform(get("/doacoes/doador/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Não existem doações registradas para este doador."));
+    }
+
+    @Test
+    void retornarErroQuandoFalharConsultaHistorico() throws Exception{
+        when(doacaoService.buscarPorDoador(1L)).thenThrow(new RuntimeException());
+
+        mockMvc.perform(get("/doacoes/doador/1"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.erro")
+                        .value("Não foi possível consultar o histórico de doações."));
     }
 
     @Test
