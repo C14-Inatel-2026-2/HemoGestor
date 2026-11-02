@@ -1,7 +1,6 @@
-import type { StatusBolsa } from '../types/bolsa'
+import type { Bolsa, StatusBolsa } from '../types/bolsa'
 import { dataDeHoje } from './doacao'
 
-// Bolsas que vencem dentro deste número de dias aparecem em destaque.
 export const DIAS_ALERTA_VENCIMENTO = 7
 
 const MILISSEGUNDOS_POR_DIA = 1000 * 60 * 60 * 24
@@ -21,7 +20,6 @@ function paraMilissegundosUtc(dataIso: string): number {
   return new Date(`${dataIso}T00:00:00Z`).getTime()
 }
 
-// Dias que faltam até a validade: 0 quando vence hoje e negativo quando já venceu.
 export function diasParaVencer(dataValidade: string, hoje: string = dataDeHoje()): number {
   const diferenca = paraMilissegundosUtc(dataValidade) - paraMilissegundosUtc(hoje)
   return Math.round(diferenca / MILISSEGUNDOS_POR_DIA)
@@ -31,11 +29,46 @@ function quantidadeDeDias(quantidade: number): string {
   return quantidade === 1 ? '1 dia' : `${quantidade} dias`
 }
 
-// Texto exibido abaixo da data de validade na tabela do estoque.
 export function descreverValidade(dataValidade: string, hoje: string = dataDeHoje()): string {
   const dias = diasParaVencer(dataValidade, hoje)
   if (dias < 0) return `vencida há ${quantidadeDeDias(-dias)}`
   if (dias === 0) return 'vence hoje'
   if (dias <= DIAS_ALERTA_VENCIMENTO) return `em ${quantidadeDeDias(dias)}`
   return `${dias} dias restantes`
+}
+
+export function estaVencida(bolsa: Bolsa, hoje: string = dataDeHoje()): boolean {
+  return diasParaVencer(bolsa.dataValidade, hoje) < 0
+}
+
+export function estaNoEstoque(bolsa: Bolsa, hoje: string = dataDeHoje()): boolean {
+  const statusDeEstoque = bolsa.status === 'DISPONIVEL' || bolsa.status === 'RESERVADA'
+  return statusDeEstoque && !estaVencida(bolsa, hoje)
+}
+
+export function venceEmBreve(bolsa: Bolsa, hoje: string = dataDeHoje()): boolean {
+  return (
+    estaNoEstoque(bolsa, hoje) &&
+    diasParaVencer(bolsa.dataValidade, hoje) <= DIAS_ALERTA_VENCIMENTO
+  )
+}
+
+export interface ResumoEstoque {
+  noEstoque: number
+  disponiveis: number
+  reservadas: number
+  vencemEmBreve: number
+  foraDoEstoque: number
+}
+
+export function resumirEstoque(bolsas: Bolsa[], hoje: string = dataDeHoje()): ResumoEstoque {
+  const emEstoque = bolsas.filter((bolsa) => estaNoEstoque(bolsa, hoje))
+
+  return {
+    noEstoque: emEstoque.length,
+    disponiveis: emEstoque.filter((bolsa) => bolsa.status === 'DISPONIVEL').length,
+    reservadas: emEstoque.filter((bolsa) => bolsa.status === 'RESERVADA').length,
+    vencemEmBreve: emEstoque.filter((bolsa) => venceEmBreve(bolsa, hoje)).length,
+    foraDoEstoque: bolsas.length - emEstoque.length,
+  }
 }
