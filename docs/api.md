@@ -347,3 +347,150 @@ Os principais tipos utilizados são:
 - `DoadorResponse`
 
 O tipo `Doador` é mantido como alias de `DoadorResponse` para preservar compatibilidade com o código existente.
+
+---
+
+## Bolsas
+
+As bolsas representam o sangue coletado e armazenado no estoque. Uma bolsa é criada automaticamente pelo backend quando uma doação é concluída (`PATCH /doacoes/{id}/concluir`). Por isso, não existe endpoint de cadastro de bolsas.
+
+### BolsaResponse
+
+Retornado pelo backend nas operações de consulta e de descarte.
+
+```json
+{
+  "id": 1,
+  "doacaoId": 1,
+  "doadorId": 1,
+  "nomeDoador": "string",
+  "tipoSanguineo": "A+ | A- | B+ | B- | AB+ | AB- | O+ | O-",
+  "tipoDoacao": "SANGUE_TOTAL | PLAQUETA_POR_AFERESE | PLASMA",
+  "volume_ml": 450,
+  "dataColeta": "YYYY-MM-DD",
+  "dataValidade": "YYYY-MM-DD",
+  "status": "DISPONIVEL | RESERVADA | UTILIZADA | DESCARTADA"
+}
+```
+
+### Regras das bolsas
+
+- Cada doação concluída gera exatamente uma bolsa. Doações descartadas não geram bolsa.
+- A bolsa herda o tipo sanguíneo do doador, o tipo de doação, o volume e a data de coleta da doação.
+- A data de validade é calculada a partir da data de coleta, conforme o tipo de doação:
+
+| Tipo de doação | Validade |
+|---|---|
+| `SANGUE_TOTAL` | 42 dias |
+| `PLAQUETA_POR_AFERESE` | 5 dias |
+| `PLASMA` | 365 dias |
+
+- Toda bolsa nasce com o status `DISPONIVEL`.
+- `RESERVADA` e `UTILIZADA` são definidos pelo fluxo de solicitações.
+- "Vencida" não é um status armazenado: uma bolsa está vencida quando `dataValidade` é anterior à data atual. O frontend faz essa verificação na exibição.
+
+---
+
+## Endpoints de Bolsas
+
+### GET `/bolsas`
+
+Lista todas as bolsas cadastradas, ordenadas pela data de validade (da mais próxima para a mais distante).
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: lista de `BolsaResponse`. Caso não existam bolsas, é retornada uma lista vazia.
+
+---
+
+### GET `/bolsas/{id}`
+
+Busca uma bolsa pelo identificador.
+
+**Parâmetro de rota:**
+
+- `id`: identificador da bolsa.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `BolsaResponse`
+
+**Possível resposta de erro:**
+
+- Status: `404 Not Found`, caso a bolsa não seja encontrada.
+
+---
+
+### PATCH `/bolsas/{id}/descartar`
+
+Altera o status da bolsa para `DESCARTADA`. É usado, por exemplo, para retirar do estoque uma bolsa vencida ou com problema na qualidade.
+
+**Parâmetro de rota:**
+
+- `id`: identificador da bolsa.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `BolsaResponse`
+
+**Possíveis respostas de erro:**
+
+- Status: `404 Not Found`, caso a bolsa não seja encontrada.
+- Status: `409 Conflict`, caso a bolsa não esteja disponível.
+
+```json
+{
+  "erro": "Só é possível descartar bolsas disponíveis."
+}
+```
+
+---
+
+## Alteração em PATCH `/doacoes/{id}/concluir`
+
+Além de atualizar os dados do doador, a conclusão de uma doação passa a gerar uma bolsa no estoque, seguindo as regras da seção de Bolsas.
+
+**Nova resposta de erro:**
+
+- Status: `400 Bad Request`, caso o doador não tenha tipo sanguíneo informado, porque a bolsa não pode ser gerada sem ele.
+
+```json
+{
+  "erro": "Informe o tipo sanguíneo do doador antes de concluir a doação."
+}
+```
+
+---
+
+## Tipos de bolsa utilizados no frontend
+
+Os tipos TypeScript relacionados a bolsas ficam em `frontend/src/types/bolsa.ts`:
+
+```ts
+import type { TipoDoacao } from './doacao'
+import type { TipoSanguineo } from './doador'
+
+export type StatusBolsa =
+  | 'DISPONIVEL'
+  | 'RESERVADA'
+  | 'UTILIZADA'
+  | 'DESCARTADA'
+
+export interface BolsaResponse {
+  id: number
+  doacaoId: number
+  doadorId: number
+  nomeDoador: string
+  tipoSanguineo: TipoSanguineo
+  tipoDoacao: TipoDoacao
+  volume_ml: number
+  dataColeta: string
+  dataValidade: string
+  status: StatusBolsa
+}
+
+export type Bolsa = BolsaResponse
+```
