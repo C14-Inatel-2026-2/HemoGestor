@@ -6,6 +6,7 @@ import br.inatel.service.BolsaSangueService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,7 +22,13 @@ public class BolsaSangueController {
 
     @GetMapping
     public ResponseEntity<List<BolsaSangueResponseDTO>> listarTodas(){
-        List<BolsaSangueResponseDTO> bolsas = service.listarTodas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
-        return ResponseEntity.ok(bolsas);
+        List<BolsaSangueResponseDTO> resposta = service.listarTodas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/tipo")
+    public ResponseEntity<List<BolsaSangueResponseDTO>> listarPorTipoSanguineo(@RequestParam("tipoSanguineo") String tipoSanguineo){
+        List<BolsaSangueResponseDTO> resposta = service.listarPorTipoSanguineo(tipoSanguineo).stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        return ResponseEntity.ok(resposta);
     }
 }

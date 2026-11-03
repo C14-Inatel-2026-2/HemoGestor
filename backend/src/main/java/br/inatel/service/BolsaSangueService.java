@@ -17,4 +17,8 @@ public class BolsaSangueService {
     public List<BolsaSangue> listarTodas(){
         return repository.findAll();
     }
+
+    public List<BolsaSangue> listarPorTipoSanguineo(String tipoSanguineo) {
+        return repository.findByTipoSanguineo(tipoSanguineo);
+    }
 }
