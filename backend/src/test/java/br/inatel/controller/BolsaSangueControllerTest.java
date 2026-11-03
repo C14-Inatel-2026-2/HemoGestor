@@ -1,6 +1,7 @@
 package br.inatel.controller;
 
 import br.inatel.enumeracao.SituacaoBolsa;
+import br.inatel.enumeracao.TipoDoacao;
 import br.inatel.model.BolsaSangue;
 import br.inatel.model.Doacao;
 import br.inatel.service.BolsaSangueService;
@@ -78,5 +79,36 @@ public class BolsaSangueControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void deveListarBolsasValidas() throws Exception {
+        Doacao doacao = new Doacao();
+        doacao.setId(1L);
+        BolsaSangue bolsa = new BolsaSangue(doacao, "A+", LocalDate.now(), SituacaoBolsa.DISPONIVEL);
+
+        when(service.listarValidas()).thenReturn(List.of(bolsa));
+
+        mockMvc.perform(get("/bolsas/validas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].vencida").value(false));
+    }
+
+    @Test
+    void deveListarBolsasVencidas() throws Exception {
+        Doacao doacao = new Doacao();
+        doacao.setId(2L);
+        doacao.setTipoDoacao(TipoDoacao.PLAQUETA_POR_AFERESE);
+        BolsaSangue bolsa = new BolsaSangue(doacao, "O-", LocalDate.now().minusDays(10), SituacaoBolsa.DISPONIVEL);
+
+        when(service.listarVencidas()).thenReturn(List.of(bolsa));
+
+        mockMvc.perform(get("/bolsas/vencidas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].vencida").value(true));
     }
 }
