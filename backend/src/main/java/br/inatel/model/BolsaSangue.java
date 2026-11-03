@@ -45,7 +45,7 @@ public class BolsaSangue {
         } else if (doacao.getTipoDoacao() == TipoDoacao.PLAQUETA_POR_AFERESE) {
             return dataColeta.plusDays(5);
         } else if (doacao.getTipoDoacao() == TipoDoacao.PLASMA) {
-            return dataColeta.plusMonths(12);
+            return dataColeta.plusDays(365);
         }
         return null;
     }
