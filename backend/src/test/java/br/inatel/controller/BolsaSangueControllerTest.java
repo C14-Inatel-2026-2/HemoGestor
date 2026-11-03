@@ -52,4 +52,31 @@ public class BolsaSangueControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
     }
+
+    @Test
+    void filtrarBolsasPorTipoSanguineo() throws Exception{
+        Doacao doacao = new Doacao();
+        doacao.setId(1L);
+        BolsaSangue bolsa = new BolsaSangue(doacao, "O+", LocalDate.now(), SituacaoBolsa.DISPONIVEL);
+
+        when(service.listarPorTipoSanguineo("O+")).thenReturn(List.of(bolsa));
+
+        mockMvc.perform(get("/bolsas/tipo")
+                        .param("tipoSanguineo", "O+"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].tipoSanguineo").value("O+"));
+    }
+
+    @Test
+    void retornarListaVaziaQuandoNaoTemBolsasDoTipo() throws Exception{
+        when(service.listarPorTipoSanguineo("AB-")).thenReturn(List.of());
+
+        mockMvc.perform(get("/bolsas/tipo")
+                        .param("tipoSanguineo", "AB-"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
 }
