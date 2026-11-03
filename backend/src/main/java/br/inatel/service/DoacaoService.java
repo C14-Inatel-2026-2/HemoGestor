@@ -1,11 +1,14 @@
 package br.inatel.service;
 
 import br.inatel.enumeracao.Sexo;
+import br.inatel.enumeracao.SituacaoBolsa;
 import br.inatel.enumeracao.StatusDoacao;
 import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
+import br.inatel.model.BolsaSangue;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
+import br.inatel.repository.BolsaSangueRepository;
 import br.inatel.repository.DoacaoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +21,11 @@ import java.util.Optional;
 @Service
 public class DoacaoService {
     private final DoacaoRepository repository;
+    private final BolsaSangueRepository bolsaSangueRepository;
 
-    public DoacaoService(DoacaoRepository repository){
+    public DoacaoService(DoacaoRepository repository, BolsaSangueRepository bolsaSangueRepository) {
         this.repository = repository;
+        this.bolsaSangueRepository = bolsaSangueRepository;
     }
 
     public Doacao salvar(Doacao doacao) {
@@ -85,6 +90,13 @@ public class DoacaoService {
 
             Doador doador = doacao.getDoador();
             doador.registrarDoacao(doacao.getDataColeta());
+
+            BolsaSangue bolsa = new BolsaSangue(
+                    doacao,
+                    doador.getTipo_sanguineo(),
+                    doacao.getDataColeta(),
+                    SituacaoBolsa.DISPONIVEL);
+            bolsaSangueRepository.save(bolsa);
 
             return repository.save(doacao);
         });
