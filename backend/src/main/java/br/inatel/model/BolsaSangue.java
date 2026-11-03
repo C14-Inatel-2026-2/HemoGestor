@@ -50,6 +50,10 @@ public class BolsaSangue {
         return null;
     }
 
+    public boolean estaVencida(){
+        return dataValidade != null && dataValidade.isBefore(LocalDate.now());
+    }
+
     public Long getId() {
         return id;
     }
