@@ -1,0 +1,55 @@
+package br.inatel.controller;
+
+import br.inatel.enumeracao.SituacaoBolsa;
+import br.inatel.model.BolsaSangue;
+import br.inatel.model.Doacao;
+import br.inatel.service.BolsaSangueService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(BolsaSangueController.class)
+public class BolsaSangueControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private BolsaSangueService service;
+
+    @Test
+    void listarTodasBolsas() throws Exception{
+        Doacao doacao = new Doacao();
+        doacao.setId(1L);
+        BolsaSangue bolsa = new BolsaSangue(doacao, "O+", LocalDate.now(), SituacaoBolsa.DISPONIVEL);
+
+        when(service.listarTodas()).thenReturn(List.of(bolsa));
+
+        mockMvc.perform(get("/bolsas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].doacaoId").value(1))
+                .andExpect(jsonPath("$[0].tipoSanguineo").value("O+"))
+                .andExpect(jsonPath("$[0].situacao").value("DISPONIVEL"));
+    }
+
+    @Test
+    void retornarListaVaziaSeNaoTemBolsas() throws Exception{
+        when(service.listarTodas()).thenReturn(List.of());
+
+        mockMvc.perform(get("/bolsas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+}
