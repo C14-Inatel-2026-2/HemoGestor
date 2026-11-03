@@ -21,4 +21,12 @@ public class BolsaSangueService {
     public List<BolsaSangue> listarPorTipoSanguineo(String tipoSanguineo) {
         return repository.findByTipoSanguineo(tipoSanguineo);
     }
+
+    public List<BolsaSangue> listarValidas(){
+        return repository.findAll().stream().filter(bolsa -> !bolsa.estaVencida()).toList();
+    }
+
+    public List<BolsaSangue> listarVencidas(){
+        return repository.findAll().stream().filter(BolsaSangue::estaVencida).toList();
+    }
 }

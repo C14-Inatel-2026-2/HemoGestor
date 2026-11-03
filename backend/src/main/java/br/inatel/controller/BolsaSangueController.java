@@ -31,4 +31,16 @@ public class BolsaSangueController {
         List<BolsaSangueResponseDTO> resposta = service.listarPorTipoSanguineo(tipoSanguineo).stream().map(BolsaSangueMapper::toResponseDTO).toList();
         return ResponseEntity.ok(resposta);
     }
+
+    @GetMapping("/validas")
+    public ResponseEntity<List<BolsaSangueResponseDTO>> listarValidas(){
+        List<BolsaSangueResponseDTO> resposta = service.listarValidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/vencidas")
+    public ResponseEntity<List<BolsaSangueResponseDTO>> listarVencidas() {
+        List<BolsaSangueResponseDTO> resposta = service.listarVencidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        return ResponseEntity.ok(resposta);
+    }
 }
