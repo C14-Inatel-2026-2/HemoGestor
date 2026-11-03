@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bolsas")
@@ -21,26 +22,46 @@ public class BolsaSangueController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BolsaSangueResponseDTO>> listarTodas(){
+    public ResponseEntity<?> listarTodas(){
         List<BolsaSangueResponseDTO> resposta = service.listarTodas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+
+        if (resposta.isEmpty()) {
+            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas cadastradas."));
+        }
+
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/tipo")
-    public ResponseEntity<List<BolsaSangueResponseDTO>> listarPorTipoSanguineo(@RequestParam("tipoSanguineo") String tipoSanguineo){
+    public ResponseEntity<?> listarPorTipoSanguineo(@RequestParam("tipoSanguineo") String tipoSanguineo){
         List<BolsaSangueResponseDTO> resposta = service.listarPorTipoSanguineo(tipoSanguineo).stream().map(BolsaSangueMapper::toResponseDTO).toList();
+
+        if (resposta.isEmpty()) {
+            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas cadastradas para este tipo sanguíneo."));
+        }
+
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/validas")
-    public ResponseEntity<List<BolsaSangueResponseDTO>> listarValidas(){
+    public ResponseEntity<?> listarValidas(){
         List<BolsaSangueResponseDTO> resposta = service.listarValidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+
+        if (resposta.isEmpty()) {
+            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas válidas cadastradas."));
+        }
+
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/vencidas")
-    public ResponseEntity<List<BolsaSangueResponseDTO>> listarVencidas() {
+    public ResponseEntity<?> listarVencidas() {
         List<BolsaSangueResponseDTO> resposta = service.listarVencidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+
+        if (resposta.isEmpty()) {
+            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas vencidas cadastradas."));
+        }
+
         return ResponseEntity.ok(resposta);
     }
 }
