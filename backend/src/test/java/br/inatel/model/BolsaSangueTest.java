@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BolsaSangueTest {
     private Doador doador;
@@ -71,5 +71,23 @@ public class BolsaSangueTest {
         BolsaSangue bolsa = new BolsaSangue(doacao, doador.getTipo_sanguineo(), doacao.getDataColeta(), SituacaoBolsa.DISPONIVEL);
 
         assertEquals(doacao.getDataColeta().plusDays(365), bolsa.getDataValidade());
+    }
+
+    @Test
+    void identificarBolsaVencida(){
+        doacao.setTipoDoacao((TipoDoacao.PLAQUETA_POR_AFERESE));
+        doacao.setDataColeta(LocalDate.now().minusDays(10));
+
+        BolsaSangue bolsa = new BolsaSangue(doacao, doador.getTipo_sanguineo(), doacao.getDataColeta(), SituacaoBolsa.DISPONIVEL);
+        assertTrue(bolsa.estaVencida());
+    }
+
+    @Test
+    void naoIndentificarBolsaComoVencida(){
+        doacao.setTipoDoacao((TipoDoacao.PLAQUETA_POR_AFERESE));
+        doacao.setDataColeta(LocalDate.now().minusDays(2));
+
+        BolsaSangue bolsa = new BolsaSangue(doacao, doador.getTipo_sanguineo(), doacao.getDataColeta(), SituacaoBolsa.DISPONIVEL);
+        assertFalse(bolsa.estaVencida());
     }
 }
