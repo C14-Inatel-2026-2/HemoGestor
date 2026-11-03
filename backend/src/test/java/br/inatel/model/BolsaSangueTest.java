@@ -70,6 +70,6 @@ public class BolsaSangueTest {
         doacao.setTipoDoacao(TipoDoacao.PLASMA);
         BolsaSangue bolsa = new BolsaSangue(doacao, doador.getTipo_sanguineo(), doacao.getDataColeta(), SituacaoBolsa.DISPONIVEL);
 
-        assertEquals(doacao.getDataColeta().plusMonths(12), bolsa.getDataValidade());
+        assertEquals(doacao.getDataColeta().plusDays(365), bolsa.getDataValidade());
     }
 }
