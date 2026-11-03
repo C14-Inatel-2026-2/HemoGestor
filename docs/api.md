@@ -381,7 +381,7 @@ Retornado pelo backend nas operações de consulta e de descarte.
 
 | Tipo de doação | Validade |
 |---|---|
-| `SANGUE_TOTAL` | 42 dias |
+| `SANGUE_TOTAL` | 35 dias |
 | `PLAQUETA_POR_AFERESE` | 5 dias |
 | `PLASMA` | 365 dias |
 
