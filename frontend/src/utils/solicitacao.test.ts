@@ -6,10 +6,13 @@ import {
   filtrarSolicitacoes,
   formatarCodigoSolicitacao,
   formatarDataHora,
+  montarRequisicaoDeSolicitacao,
   quantidadeDeBolsas,
   resumirSolicitacoes,
   temEstoqueSuficiente,
+  validarSolicitacao,
 } from './solicitacao'
+import type { DadosSolicitacaoFormulario } from './solicitacao'
 import type { Solicitacao } from '../types/solicitacao'
 
 function criarSolicitacao(dados: Partial<Solicitacao> = {}): Solicitacao {
@@ -190,5 +193,67 @@ describe('filtrarSolicitacoes', () => {
     filtrarSolicitacoes(solicitacoes, FILTROS_INICIAIS_SOLICITACOES)
 
     expect(solicitacoes).toEqual(copia)
+  })
+})
+
+function criarDadosFormulario(
+  dados: Partial<DadosSolicitacaoFormulario> = {},
+): DadosSolicitacaoFormulario {
+  return {
+    instituicao: 'Hospital São Lucas',
+    setor: 'UTI adulto',
+    tipoSanguineo: 'O-',
+    quantidade: '2',
+    prioridade: 'URGENTE',
+    justificativa: 'Cirurgia de emergência',
+    ...dados,
+  }
+}
+
+describe('validarSolicitacao', () => {
+  it('não devolve erros quando os dados estão corretos', () => {
+    expect(validarSolicitacao(criarDadosFormulario())).toEqual({})
+  })
+
+  it('aceita setor e justificativa em branco', () => {
+    expect(validarSolicitacao(criarDadosFormulario({ setor: '', justificativa: '' }))).toEqual({})
+  })
+
+  it('exige a instituição, mesmo que só tenha espaços', () => {
+    expect(validarSolicitacao(criarDadosFormulario({ instituicao: '   ' })).instituicao).toBe(
+      'Informe a instituição solicitante.',
+    )
+  })
+
+  it('exige o tipo sanguíneo', () => {
+    expect(validarSolicitacao(criarDadosFormulario({ tipoSanguineo: '' })).tipoSanguineo).toBe(
+      'Selecione o tipo sanguíneo.',
+    )
+  })
+
+  it.each(['', '0', '-1', '1.5', 'abc'])('recusa a quantidade "%s"', (quantidade) => {
+    expect(validarSolicitacao(criarDadosFormulario({ quantidade })).quantidade).toBe(
+      'Informe uma quantidade maior que zero.',
+    )
+  })
+})
+
+describe('montarRequisicaoDeSolicitacao', () => {
+  it('remove os espaços das pontas e converte a quantidade para número', () => {
+    const dados = criarDadosFormulario({
+      instituicao: '  Hospital São Lucas ',
+      setor: ' UTI adulto ',
+      quantidade: ' 3 ',
+      justificativa: ' Cirurgia de emergência ',
+    })
+
+    expect(montarRequisicaoDeSolicitacao(dados)).toEqual({
+      instituicao: 'Hospital São Lucas',
+      setor: 'UTI adulto',
+      tipoSanguineo: 'O-',
+      quantidade: 3,
+      prioridade: 'URGENTE',
+      justificativa: 'Cirurgia de emergência',
+    })
   })
 })
