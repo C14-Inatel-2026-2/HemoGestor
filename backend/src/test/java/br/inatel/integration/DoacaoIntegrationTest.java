@@ -2,6 +2,7 @@ package br.inatel.integration;
 
 import br.inatel.enumeracao.Sexo;
 import br.inatel.model.Doador;
+import br.inatel.repository.BolsaSangueRepository;
 import br.inatel.repository.DoacaoRepository;
 import br.inatel.repository.DoadorRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,10 +31,14 @@ public class DoacaoIntegrationTest {
     @Autowired
     private DoadorRepository doadorRepository;
 
+    @Autowired
+    private BolsaSangueRepository bolsaSangueRepository;
+
     private Long doadorId;
 
     @BeforeEach
     void prepararBanco() {
+        bolsaSangueRepository.deleteAll();
         doacaoRepository.deleteAll();
         doadorRepository.deleteAll();
 
