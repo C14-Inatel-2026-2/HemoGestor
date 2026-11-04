@@ -1,5 +1,6 @@
 package br.inatel.service;
 
+import br.inatel.enumeracao.SituacaoBolsa;
 import br.inatel.model.BolsaSangue;
 import br.inatel.repository.BolsaSangueRepository;
 import org.springframework.stereotype.Service;
@@ -28,5 +29,9 @@ public class BolsaSangueService {
 
     public List<BolsaSangue> listarVencidas(){
         return repository.findAll().stream().filter(BolsaSangue::estaVencida).toList();
+    }
+
+    public List<BolsaSangue> listarPorSituacao (SituacaoBolsa situacao){
+        return repository.findBySituacao(situacao);
     }
 }

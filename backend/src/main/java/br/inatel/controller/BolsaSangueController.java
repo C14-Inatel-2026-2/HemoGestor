@@ -2,6 +2,7 @@ package br.inatel.controller;
 
 import br.inatel.dto.BolsaSangueMapper;
 import br.inatel.dto.BolsaSangueResponseDTO;
+import br.inatel.enumeracao.SituacaoBolsa;
 import br.inatel.service.BolsaSangueService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,6 +63,15 @@ public class BolsaSangueController {
             return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas vencidas cadastradas."));
         }
 
+        return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/situacao")
+    public ResponseEntity<?> listarPorSituacao(@RequestParam("situacao")SituacaoBolsa situacao){
+        List<BolsaSangueResponseDTO> resposta = service.listarPorSituacao(situacao).stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        if(resposta.isEmpty()){
+            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas cadastradas com esta situação."));
+        }
         return ResponseEntity.ok(resposta);
     }
 }
