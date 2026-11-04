@@ -1,6 +1,8 @@
+import type { TipoSanguineo } from '../types/doador'
 import type {
   PrioridadeSolicitacao,
   Solicitacao,
+  SolicitacaoRequest,
   StatusSolicitacao,
 } from '../types/solicitacao'
 import { formatarData } from './doador'
@@ -103,4 +105,39 @@ export function filtrarSolicitacoes(
     .filter((solicitacao) => !filtros.status || solicitacao.status === filtros.status)
     .filter((solicitacao) => !filtros.prioridade || solicitacao.prioridade === filtros.prioridade)
     .sort(filtros.aba === 'ATIVAS' ? compararAtivas : compararHistorico)
+}
+
+export interface DadosSolicitacaoFormulario {
+  instituicao: string
+  setor: string
+  tipoSanguineo: TipoSanguineo | ''
+  quantidade: string
+  prioridade: PrioridadeSolicitacao
+  justificativa: string
+}
+
+export type ErrosSolicitacao = Partial<Record<'instituicao' | 'tipoSanguineo' | 'quantidade', string>>
+
+export function validarSolicitacao(dados: DadosSolicitacaoFormulario): ErrosSolicitacao {
+  const erros: ErrosSolicitacao = {}
+  const quantidade = Number(dados.quantidade.trim())
+
+  if (!dados.instituicao.trim()) erros.instituicao = 'Informe a instituição solicitante.'
+  if (!dados.tipoSanguineo) erros.tipoSanguineo = 'Selecione o tipo sanguíneo.'
+  if (!dados.quantidade.trim() || !Number.isInteger(quantidade) || quantidade <= 0) {
+    erros.quantidade = 'Informe uma quantidade maior que zero.'
+  }
+
+  return erros
+}
+
+export function montarRequisicaoDeSolicitacao(dados: DadosSolicitacaoFormulario): SolicitacaoRequest {
+  return {
+    instituicao: dados.instituicao.trim(),
+    setor: dados.setor.trim(),
+    tipoSanguineo: dados.tipoSanguineo as TipoSanguineo,
+    quantidade: Number(dados.quantidade.trim()),
+    prioridade: dados.prioridade,
+    justificativa: dados.justificativa.trim(),
+  }
 }
