@@ -16,24 +16,30 @@ public class BolsaSangueService {
         this.repository = repository;
     }
 
+    private List<BolsaSangue> ordenarPorValidade(List<BolsaSangue> bolsas) {
+        return bolsas.stream().sorted((b1, b2) -> b1.getDataValidade().compareTo(b2.getDataValidade())).toList();
+    }
+
     public List<BolsaSangue> listarTodas(){
-        return repository.findAll();
+        return ordenarPorValidade(repository.findAll());
     }
 
     public List<BolsaSangue> listarPorTipoSanguineo(String tipoSanguineo) {
-        return repository.findByTipoSanguineo(tipoSanguineo);
+        return ordenarPorValidade(repository.findByTipoSanguineo(tipoSanguineo));
     }
 
     public List<BolsaSangue> listarValidas(){
-        return repository.findAll().stream().filter(bolsa -> !bolsa.estaVencida()).toList();
+        return ordenarPorValidade(
+                repository.findAll().stream().filter(b -> !b.estaVencida()).toList());
     }
 
     public List<BolsaSangue> listarVencidas(){
-        return repository.findAll().stream().filter(BolsaSangue::estaVencida).toList();
+        return ordenarPorValidade(
+                repository.findAll().stream().filter(BolsaSangue::estaVencida).toList());
     }
 
     public List<BolsaSangue> listarPorSituacao (SituacaoBolsa situacao){
-        return repository.findBySituacao(situacao);
+        return ordenarPorValidade(repository.findBySituacao(situacao));
     }
 
     public BolsaSangue buscarPorId(Long id) {
