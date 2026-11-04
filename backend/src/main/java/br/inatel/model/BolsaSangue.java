@@ -54,6 +54,13 @@ public class BolsaSangue {
         return dataValidade != null && dataValidade.isBefore(LocalDate.now());
     }
 
+    public void descartar() {
+        if (this.situacao != SituacaoBolsa.DISPONIVEL) {
+            throw new IllegalStateException("Só é possível descartar bolsas disponíveis.");
+        }
+        this.situacao = SituacaoBolsa.DESCARTADA;
+    }
+
     public Long getId() {
         return id;
     }
