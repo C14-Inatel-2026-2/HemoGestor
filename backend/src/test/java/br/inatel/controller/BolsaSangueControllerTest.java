@@ -60,13 +60,13 @@ public class BolsaSangueControllerTest {
     }
 
     @Test
-    void retornarMensagemSeNaoTemBolsas() throws Exception{
+    void retornarListaVaziaSeNaoTemBolsas() throws Exception{
         when(service.listarTodas()).thenReturn(List.of());
 
         mockMvc.perform(get("/bolsas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensagem")
-                        .value("Não existem bolsas cadastradas."));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
@@ -85,14 +85,14 @@ public class BolsaSangueControllerTest {
     }
 
     @Test
-    void retornarMensagemQuandoNaoTemBolsasDoTipo() throws Exception{
+    void retornarListaVaziaSeNaoTemBolsasDoTipo() throws Exception{
         when(service.listarPorTipoSanguineo("AB-")).thenReturn(List.of());
 
         mockMvc.perform(get("/bolsas/tipo")
                         .param("tipoSanguineo", "AB-"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensagem")
-                        .value("Não existem bolsas cadastradas para este tipo sanguíneo."));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
@@ -110,13 +110,13 @@ public class BolsaSangueControllerTest {
     }
 
     @Test
-    void retornarMensagemSeNaoTemBolsasValidas() throws Exception {
+    void retornarListaVaziaSeNaoTemBolsasValidas() throws Exception {
         when(service.listarValidas()).thenReturn(List.of());
 
         mockMvc.perform(get("/bolsas/validas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensagem")
-                        .value("Não existem bolsas válidas cadastradas."));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
@@ -135,13 +135,13 @@ public class BolsaSangueControllerTest {
     }
 
     @Test
-    void retornarMensagemSeNaoTemBolsasVencidas() throws Exception {
+    void retornarListaVaziaSeNaoTemBolsasVencidas() throws Exception {
         when(service.listarVencidas()).thenReturn(List.of());
 
         mockMvc.perform(get("/bolsas/vencidas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensagem")
-                        .value("Não existem bolsas vencidas cadastradas."));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
@@ -160,14 +160,14 @@ public class BolsaSangueControllerTest {
     }
 
     @Test
-    void retornarMensagemSeNaoTemBolsaDaSituacao() throws Exception{
+    void retornarListaVaziaSeNaoTemBolsaDaSituacao() throws Exception{
         when(service.listarPorSituacao(SituacaoBolsa.DESCARTADA)).thenReturn(List.of());
 
         mockMvc.perform(get("/bolsas/situacao")
                         .param("situacao", "DESCARTADA"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensagem")
-                        .value("Não existem bolsas cadastradas com esta situação."));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
