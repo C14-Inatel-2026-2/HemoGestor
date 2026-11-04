@@ -65,4 +65,19 @@ public class BolsaSangueServiceTest {
         assertEquals(1, resultado.size());
         assertEquals("O-", resultado.getFirst().getTipoSanguineo());
     }
+
+    @Test
+    void listarBolsasPorSituacao() {
+        Doacao doacao = new Doacao();
+        doacao.setTipoDoacao(TipoDoacao.SANGUE_TOTAL);
+
+        BolsaSangue bolsa = new BolsaSangue(doacao, "A+", LocalDate.now(), SituacaoBolsa.DISPONIVEL);
+
+        when(repository.findBySituacao(SituacaoBolsa.DISPONIVEL)).thenReturn(List.of(bolsa));
+
+        List<BolsaSangue> resultado = service.listarPorSituacao(SituacaoBolsa.DISPONIVEL);
+
+        assertEquals(1, resultado.size());
+        assertEquals(SituacaoBolsa.DISPONIVEL, resultado.getFirst().getSituacao());
+    }
 }

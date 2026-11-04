@@ -131,4 +131,32 @@ public class BolsaSangueControllerTest {
                 .andExpect(jsonPath("$.mensagem")
                         .value("Não existem bolsas vencidas cadastradas."));
     }
+
+    @Test
+    void filtrarBolsaPorSituacao() throws Exception{
+        Doacao doacao = new Doacao();
+        doacao.setId(1L);
+        doacao.setTipoDoacao(TipoDoacao.SANGUE_TOTAL);
+        BolsaSangue bolsa = new BolsaSangue(doacao, "A+", LocalDate.now(), SituacaoBolsa.DISPONIVEL);
+
+        when(service.listarPorSituacao(SituacaoBolsa.DISPONIVEL)).thenReturn(List.of(bolsa));
+
+        mockMvc.perform(get("/bolsas/situacao")
+                        .param("situacao", "DISPONIVEL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].situacao").value("DISPONIVEL"));
+    }
+
+    @Test
+    void retornarMensagemSeNaoTemBolsaDaSituacao() throws Exception{
+        when(service.listarPorSituacao(SituacaoBolsa.DESCARTADA)).thenReturn(List.of());
+
+        mockMvc.perform(get("/bolsas/situacao")
+                        .param("situacao", "DESCARTADA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Não existem bolsas cadastradas com esta situação."));
+    }
 }
