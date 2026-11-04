@@ -34,4 +34,14 @@ public class BolsaSangueService {
     public List<BolsaSangue> listarPorSituacao (SituacaoBolsa situacao){
         return repository.findBySituacao(situacao);
     }
+
+    public BolsaSangue buscarPorId(Long id) {
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Bolsa não encontrada."));
+    }
+
+    public BolsaSangue descartar(Long id) {
+        BolsaSangue bolsa = repository.findById(id).orElseThrow(() -> new RuntimeException("Bolsa não encontrada."));
+        bolsa.descartar();
+        return repository.save(bolsa);
+    }
 }

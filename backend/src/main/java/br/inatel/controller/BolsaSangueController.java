@@ -3,12 +3,10 @@ package br.inatel.controller;
 import br.inatel.dto.BolsaSangueMapper;
 import br.inatel.dto.BolsaSangueResponseDTO;
 import br.inatel.enumeracao.SituacaoBolsa;
+import br.inatel.model.BolsaSangue;
 import br.inatel.service.BolsaSangueService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -73,5 +71,17 @@ public class BolsaSangueController {
             return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas cadastradas com esta situação."));
         }
         return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BolsaSangueResponseDTO> buscarPorId(@PathVariable("id") Long id) {
+        BolsaSangue bolsa = service.buscarPorId(id);
+        return ResponseEntity.ok(BolsaSangueMapper.toResponseDTO(bolsa));
+    }
+
+    @PatchMapping("/{id}/descartar")
+    public ResponseEntity<BolsaSangueResponseDTO> descartar(@PathVariable("id") Long id) {
+        BolsaSangue bolsa = service.descartar(id);
+        return ResponseEntity.ok(BolsaSangueMapper.toResponseDTO(bolsa));
     }
 }
