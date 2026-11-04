@@ -80,4 +80,20 @@ public class BolsaSangueServiceTest {
         assertEquals(1, resultado.size());
         assertEquals(SituacaoBolsa.DISPONIVEL, resultado.getFirst().getSituacao());
     }
+
+    @Test
+    void ordenarBolsasPorDataValidade() {
+        Doacao doacao = new Doacao();
+        doacao.setTipoDoacao(TipoDoacao.SANGUE_TOTAL);
+
+        BolsaSangue bolsaMaisDistante = new BolsaSangue(doacao, "O+", LocalDate.now(), SituacaoBolsa.DISPONIVEL);
+        BolsaSangue bolsaMaisProxima = new BolsaSangue(doacao, "A+", LocalDate.now().minusDays(10), SituacaoBolsa.DISPONIVEL);
+
+        when(repository.findAll()).thenReturn(List.of(bolsaMaisDistante, bolsaMaisProxima));
+
+        List<BolsaSangue> resultado = service.listarTodas();
+
+        assertEquals(bolsaMaisProxima, resultado.get(0));
+        assertEquals(bolsaMaisDistante, resultado.get(1));
+    }
 }
