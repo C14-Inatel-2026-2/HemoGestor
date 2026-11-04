@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS bolsa_sangue (
     tipo_sanguineo VARCHAR(3) NOT NULL,
     data_coleta DATE NOT NULL,
     data_validade DATE NOT NULL,
-    situacao ENUM('DISPONIVEL', 'UTILIZADA', 'DESCARTADA') NOT NULL,
+    situacao ENUM('DISPONIVEL', 'UTILIZADA', 'RESERVADA','DESCARTADA') NOT NULL,
     CONSTRAINT fk_bolsa_doacao
         FOREIGN KEY (doacao_id)
         REFERENCES Doacao(id)
