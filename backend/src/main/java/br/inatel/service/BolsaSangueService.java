@@ -1,6 +1,7 @@
 package br.inatel.service;
 
 import br.inatel.enumeracao.SituacaoBolsa;
+import br.inatel.exception.BolsaNaoEncontradaException;
 import br.inatel.model.BolsaSangue;
 import br.inatel.repository.BolsaSangueRepository;
 import org.springframework.stereotype.Service;
@@ -36,11 +37,11 @@ public class BolsaSangueService {
     }
 
     public BolsaSangue buscarPorId(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Bolsa não encontrada."));
+        return repository.findById(id).orElseThrow(() -> new BolsaNaoEncontradaException("Bolsa não encontrada."));
     }
 
     public BolsaSangue descartar(Long id) {
-        BolsaSangue bolsa = repository.findById(id).orElseThrow(() -> new RuntimeException("Bolsa não encontrada."));
+        BolsaSangue bolsa = repository.findById(id).orElseThrow(() -> new BolsaNaoEncontradaException("Bolsa não encontrada."));
         bolsa.descartar();
         return repository.save(bolsa);
     }
