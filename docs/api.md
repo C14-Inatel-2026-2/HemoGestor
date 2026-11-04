@@ -347,3 +347,369 @@ Os principais tipos utilizados são:
 - `DoadorResponse`
 
 O tipo `Doador` é mantido como alias de `DoadorResponse` para preservar compatibilidade com o código existente.
+
+---
+
+## Bolsas
+
+As bolsas representam o sangue coletado e armazenado no estoque. Uma bolsa é criada automaticamente pelo backend quando uma doação é concluída (`PATCH /doacoes/{id}/concluir`). Por isso, não existe endpoint de cadastro de bolsas.
+
+### BolsaResponse
+
+Retornado pelo backend nas operações de consulta e de descarte.
+
+```json
+{
+  "id": 1,
+  "doacaoId": 1,
+  "doadorId": 1,
+  "nomeDoador": "string",
+  "tipoSanguineo": "A+ | A- | B+ | B- | AB+ | AB- | O+ | O-",
+  "tipoDoacao": "SANGUE_TOTAL | PLAQUETA_POR_AFERESE | PLASMA",
+  "volume_ml": 450,
+  "dataColeta": "YYYY-MM-DD",
+  "dataValidade": "YYYY-MM-DD",
+  "status": "DISPONIVEL | RESERVADA | UTILIZADA | DESCARTADA"
+}
+```
+
+### Regras das bolsas
+
+- Cada doação concluída gera exatamente uma bolsa. Doações descartadas não geram bolsa.
+- A bolsa herda o tipo sanguíneo do doador, o tipo de doação, o volume e a data de coleta da doação.
+- A data de validade é calculada a partir da data de coleta, conforme o tipo de doação:
+
+| Tipo de doação | Validade |
+|---|---|
+| `SANGUE_TOTAL` | 35 dias |
+| `PLAQUETA_POR_AFERESE` | 5 dias |
+| `PLASMA` | 365 dias |
+
+- Toda bolsa nasce com o status `DISPONIVEL`.
+- `RESERVADA` e `UTILIZADA` são definidos pelo fluxo de solicitações.
+- "Vencida" não é um status armazenado: uma bolsa está vencida quando `dataValidade` é anterior à data atual. O frontend faz essa verificação na exibição.
+
+---
+
+## Endpoints de Bolsas
+
+### GET `/bolsas`
+
+Lista todas as bolsas cadastradas, ordenadas pela data de validade (da mais próxima para a mais distante).
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: lista de `BolsaResponse`. Caso não existam bolsas, é retornada uma lista vazia.
+
+---
+
+### GET `/bolsas/{id}`
+
+Busca uma bolsa pelo identificador.
+
+**Parâmetro de rota:**
+
+- `id`: identificador da bolsa.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `BolsaResponse`
+
+**Possível resposta de erro:**
+
+- Status: `404 Not Found`, caso a bolsa não seja encontrada.
+
+---
+
+### PATCH `/bolsas/{id}/descartar`
+
+Altera o status da bolsa para `DESCARTADA`. É usado, por exemplo, para retirar do estoque uma bolsa vencida ou com problema na qualidade.
+
+**Parâmetro de rota:**
+
+- `id`: identificador da bolsa.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `BolsaResponse`
+
+**Possíveis respostas de erro:**
+
+- Status: `404 Not Found`, caso a bolsa não seja encontrada.
+- Status: `409 Conflict`, caso a bolsa não esteja disponível.
+
+```json
+{
+  "erro": "Só é possível descartar bolsas disponíveis."
+}
+```
+
+---
+
+## Alteração em PATCH `/doacoes/{id}/concluir`
+
+Além de atualizar os dados do doador, a conclusão de uma doação passa a gerar uma bolsa no estoque, seguindo as regras da seção de Bolsas.
+
+**Nova resposta de erro:**
+
+- Status: `400 Bad Request`, caso o doador não tenha tipo sanguíneo informado, porque a bolsa não pode ser gerada sem ele.
+
+```json
+{
+  "erro": "Informe o tipo sanguíneo do doador antes de concluir a doação."
+}
+```
+
+---
+
+## Tipos de bolsa utilizados no frontend
+
+Os tipos TypeScript relacionados a bolsas ficam em `frontend/src/types/bolsa.ts`:
+
+```ts
+import type { TipoDoacao } from './doacao'
+import type { TipoSanguineo } from './doador'
+
+export type StatusBolsa =
+  | 'DISPONIVEL'
+  | 'RESERVADA'
+  | 'UTILIZADA'
+  | 'DESCARTADA'
+
+export interface BolsaResponse {
+  id: number
+  doacaoId: number
+  doadorId: number
+  nomeDoador: string
+  tipoSanguineo: TipoSanguineo
+  tipoDoacao: TipoDoacao
+  volume_ml: number
+  dataColeta: string
+  dataValidade: string
+  status: StatusBolsa
+}
+
+export type Bolsa = BolsaResponse
+```
+---
+
+## Solicitações
+
+As solicitações representam os pedidos de bolsas de sangue feitos por instituições de saúde. Uma solicitação pede uma quantidade de bolsas de um tipo sanguíneo e é atendida com bolsas de sangue total compatíveis que estejam disponíveis no estoque.
+
+### SolicitacaoRequest
+
+Utilizado no cadastro de novas solicitações.
+
+```json
+{
+  "instituicao": "string",
+  "setor": "string",
+  "tipoSanguineo": "A+ | A- | B+ | B- | AB+ | AB- | O+ | O-",
+  "quantidade": 2,
+  "prioridade": "NORMAL | URGENTE | EMERGENCIA",
+  "justificativa": "string"
+}
+```
+
+Campos obrigatórios: `instituicao`, `tipoSanguineo`, `quantidade` (maior que zero) e `prioridade`.
+
+### SolicitacaoResponse
+
+Retornado pelo backend nas operações de cadastro, consulta e mudança de status.
+
+```json
+{
+  "id": 1,
+  "instituicao": "string",
+  "setor": "string",
+  "tipoSanguineo": "A+",
+  "quantidade": 2,
+  "prioridade": "NORMAL | URGENTE | EMERGENCIA",
+  "justificativa": "string",
+  "dataSolicitacao": "YYYY-MM-DDTHH:mm:ss",
+  "status": "PENDENTE | EM_ATENDIMENTO | ATENDIDA | CANCELADA",
+  "bolsasReservadas": [3, 7],
+  "bolsasCompativeisDisponiveis": 4
+}
+```
+
+- `dataSolicitacao` é preenchida pelo backend no momento do cadastro.
+- `bolsasReservadas` traz os ids das bolsas separadas para a solicitação (lista vazia enquanto ela está pendente).
+- `bolsasCompativeisDisponiveis` informa quantas bolsas compatíveis estão disponíveis no estoque naquele momento.
+
+### Regras das solicitações
+
+- Toda solicitação nasce com o status `PENDENTE`.
+- Só são usadas bolsas de `SANGUE_TOTAL`, com status `DISPONIVEL` e dentro da validade.
+- A compatibilidade segue a tabela de transfusão de hemácias:
+
+| Tipo do paciente | Pode receber de |
+|---|---|
+| O- | O- |
+| O+ | O+, O- |
+| A- | A-, O- |
+| A+ | A+, A-, O+, O- |
+| B- | B-, O- |
+| B+ | B+, B-, O+, O- |
+| AB- | AB-, A-, B-, O- |
+| AB+ | todos os tipos |
+
+- Ao atender, o backend escolhe primeiro as bolsas do mesmo tipo sanguíneo da solicitação e depois as dos outros tipos compatíveis. Dentro de cada grupo, escolhe as que vencem primeiro.
+- Fluxo de status:
+
+| Ação | Status de origem | Status final | Efeito nas bolsas |
+|---|---|---|---|
+| Atender | `PENDENTE` | `EM_ATENDIMENTO` | As bolsas escolhidas passam para `RESERVADA` |
+| Concluir | `EM_ATENDIMENTO` | `ATENDIDA` | As bolsas reservadas passam para `UTILIZADA` |
+| Cancelar | `PENDENTE` ou `EM_ATENDIMENTO` | `CANCELADA` | As bolsas reservadas voltam para `DISPONIVEL` |
+
+---
+
+## Endpoints de Solicitações
+
+### GET `/solicitacoes`
+
+Lista todas as solicitações cadastradas.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: lista de `SolicitacaoResponse`. Caso não existam solicitações, é retornada uma lista vazia.
+
+---
+
+### GET `/solicitacoes/{id}`
+
+Busca uma solicitação pelo identificador.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `SolicitacaoResponse`
+
+**Possível resposta de erro:**
+
+- Status: `404 Not Found`, caso a solicitação não seja encontrada.
+
+---
+
+### POST `/solicitacoes`
+
+Cadastra uma nova solicitação.
+
+**Corpo da requisição:**
+
+Utiliza o contrato `SolicitacaoRequest`.
+
+**Resposta de sucesso:**
+
+- Status: `201 Created`
+- Corpo: `SolicitacaoResponse`
+
+**Possível resposta de erro:**
+
+- Status: `400 Bad Request`, quando algum campo obrigatório é inválido ou não foi informado.
+
+```json
+{
+  "quantidade": "Quantidade deve ser maior que zero."
+}
+```
+
+---
+
+### PATCH `/solicitacoes/{id}/atender`
+
+Reserva as bolsas compatíveis e altera o status da solicitação para `EM_ATENDIMENTO`.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `SolicitacaoResponse`
+
+**Possíveis respostas de erro:**
+
+- Status: `404 Not Found`, caso a solicitação não seja encontrada.
+- Status: `409 Conflict`, caso a solicitação não esteja pendente.
+- Status: `409 Conflict`, caso não existam bolsas compatíveis suficientes.
+
+```json
+{
+  "erro": "Há apenas 2 bolsas compatíveis disponíveis para 3 solicitadas."
+}
+```
+
+---
+
+### PATCH `/solicitacoes/{id}/concluir`
+
+Altera o status da solicitação para `ATENDIDA` e marca as bolsas reservadas como `UTILIZADA`.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `SolicitacaoResponse`
+
+**Possíveis respostas de erro:**
+
+- Status: `404 Not Found`, caso a solicitação não seja encontrada.
+- Status: `409 Conflict`, caso a solicitação não esteja em atendimento.
+
+---
+
+### PATCH `/solicitacoes/{id}/cancelar`
+
+Altera o status da solicitação para `CANCELADA` e devolve ao estoque as bolsas reservadas.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: `SolicitacaoResponse`
+
+**Possíveis respostas de erro:**
+
+- Status: `404 Not Found`, caso a solicitação não seja encontrada.
+- Status: `409 Conflict`, caso a solicitação já tenha sido atendida ou cancelada.
+
+---
+
+## Tipos de solicitação utilizados no frontend
+
+Os tipos TypeScript relacionados a solicitações ficam em `frontend/src/types/solicitacao.ts`:
+
+```ts
+import type { TipoSanguineo } from './doador'
+
+export type PrioridadeSolicitacao = 'NORMAL' | 'URGENTE' | 'EMERGENCIA'
+
+export type StatusSolicitacao = 'PENDENTE' | 'EM_ATENDIMENTO' | 'ATENDIDA' | 'CANCELADA'
+
+export interface SolicitacaoRequest {
+  instituicao: string
+  setor: string
+  tipoSanguineo: TipoSanguineo
+  quantidade: number
+  prioridade: PrioridadeSolicitacao
+  justificativa: string
+}
+
+export interface SolicitacaoResponse {
+  id: number
+  instituicao: string
+  setor: string
+  tipoSanguineo: TipoSanguineo
+  quantidade: number
+  prioridade: PrioridadeSolicitacao
+  justificativa: string
+  dataSolicitacao: string
+  status: StatusSolicitacao
+  bolsasReservadas: number[]
+  bolsasCompativeisDisponiveis: number
+}
+
+export type Solicitacao = SolicitacaoResponse
+```

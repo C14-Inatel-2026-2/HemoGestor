@@ -1,0 +1,142 @@
+.estoque__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.estoque__card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 15px 17px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-card);
+}
+
+.estoque__card--alerta {
+  border-left: 3px solid var(--cor-alerta);
+}
+
+.estoque__card-titulo {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+}
+
+.estoque__card-valor {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--cor-texto);
+}
+
+.estoque__card-valor--sucesso {
+  color: var(--cor-sucesso);
+}
+
+.estoque__card-valor--alerta {
+  color: var(--cor-alerta);
+}
+
+.estoque__card-valor--neutro {
+  color: var(--cor-texto-secundario);
+}
+
+.estoque__card-detalhe {
+  font-size: 11.5px;
+  color: var(--cor-placeholder);
+}
+
+.estoque__abas {
+  display: flex;
+  gap: 4px;
+  width: fit-content;
+  padding: 4px;
+  margin-bottom: 16px;
+  background: #eef0f3;
+  border-radius: 10px;
+}
+
+.estoque__aba {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #6e7681;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.estoque__aba--ativa {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-weight: 650;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.1);
+}
+
+.estoque__filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.estoque__filtro {
+  padding: 9px 11px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  background: var(--cor-superficie);
+  font-size: 13.5px;
+  color: var(--cor-texto-secundario);
+}
+
+.estoque__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.estoque__checkbox input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--cor-primaria);
+}
+
+.tabela tbody tr.estoque__linha--alerta {
+  background: #fffaf1;
+}
+
+.estoque__data {
+  color: var(--cor-texto);
+}
+
+.estoque__aviso {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--cor-placeholder);
+}
+
+.estoque__aviso--alerta {
+  color: var(--cor-alerta);
+}
+
+.estoque__aviso--vencida {
+  color: var(--cor-perigo);
+}
+
+.selo-status--reservada {
+  background: #eaf1fd;
+  color: #2a5bb8;
+}
+
+.selo-status--neutro {
+  background: var(--cor-borda-suave);
+  color: var(--cor-texto-secundario);
+}

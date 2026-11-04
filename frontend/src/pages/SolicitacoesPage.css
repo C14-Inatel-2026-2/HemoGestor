@@ -1,0 +1,32 @@
+.tabela tbody tr.solicitacoes__linha--emergencia {
+  background: #fff7f8;
+}
+
+.solicitacoes__sem-quebra {
+  white-space: nowrap;
+}
+
+.solicitacoes__ponto {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--cor-perigo);
+  vertical-align: 1px;
+}
+
+.selo-prioridade--emergencia {
+  background: var(--cor-perigo);
+  color: #fff;
+}
+
+.selo-prioridade--urgente {
+  background: var(--cor-alerta-suave);
+  color: var(--cor-alerta);
+}
+
+.selo-prioridade--normal {
+  background: var(--cor-borda-suave);
+  color: var(--cor-texto-secundario);
+}
