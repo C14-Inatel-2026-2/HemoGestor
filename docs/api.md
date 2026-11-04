@@ -158,7 +158,7 @@ Remove um doador pelo identificador.
 
 - Status: `204 No Content`
 
-**Possíveid respostas de erro:**
+**Possíveis respostas de erro:**
 
 - Status: `404 Not Found`, caso o doador não seja encontrado.
 - Status: `409 Conflict`, caso o doador possua doações registradas e não possa ser removido.
