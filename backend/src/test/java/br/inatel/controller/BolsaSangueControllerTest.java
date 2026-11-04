@@ -2,6 +2,7 @@ package br.inatel.controller;
 
 import br.inatel.enumeracao.SituacaoBolsa;
 import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.exception.BolsaNaoEncontradaException;
 import br.inatel.model.BolsaSangue;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
@@ -204,5 +205,23 @@ public class BolsaSangueControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.erro")
                         .value("Só é possível descartar bolsas disponíveis."));
+    }
+
+    @Test
+    void retornar404AoBuscarBolsaInexistente() throws Exception {
+        when(service.buscarPorId(99L)).thenThrow(new BolsaNaoEncontradaException("Bolsa não encontrada."));
+
+        mockMvc.perform(get("/bolsas/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro").value("Bolsa não encontrada."));
+    }
+
+    @Test
+    void retornar404AoDescartarBolsaInexistente() throws Exception {
+        when(service.descartar(99L)).thenThrow(new BolsaNaoEncontradaException("Bolsa não encontrada."));
+
+        mockMvc.perform(patch("/bolsas/99/descartar"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro").value("Bolsa não encontrada."));
     }
 }
