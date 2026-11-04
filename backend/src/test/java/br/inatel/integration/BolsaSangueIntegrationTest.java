@@ -43,7 +43,7 @@ public class BolsaSangueIntegrationTest {
     }
 
     @Test
-    void deveListarBolsasSalvas() {
+    void listarBolsasSalvas() {
         Doador doador = new Doador();
         doador.setNome("Teste");
         doador.setCpf("12345678900");
@@ -70,5 +70,33 @@ public class BolsaSangueIntegrationTest {
 
         assertEquals(1, resultado.size());
         assertEquals("A+", resultado.getFirst().getTipoSanguineo());
+    }
+
+    @Test
+    void filtrarBolsasPorSituacao() {
+        Doador doador = new Doador();
+        doador.setNome("Teste");
+        doador.setCpf("12345678901");
+        doador.setTipo_sanguineo("A+");
+        doador = doadorRepository.save(doador);
+
+        Doacao doacao = new Doacao();
+        doacao.setDoador(doador);
+        doacao.setTipoDoacao(TipoDoacao.SANGUE_TOTAL);
+        doacao.setDataColeta(LocalDate.now());
+        doacao.setHemoglobina(BigDecimal.valueOf(13.5));
+        doacao.setHoraColeta(LocalTime.of(10, 0));
+        doacao.setVolume_ml(450);
+        doacao.setResponsavel("Responsável Teste");
+        doacao.concluirDoacao();
+        doacao = doacaoRepository.save(doacao);
+
+        BolsaSangue disponivel = new BolsaSangue(doacao, "A+", LocalDate.now(), SituacaoBolsa.DISPONIVEL);
+        bolsaSangueRepository.save(disponivel);
+
+        List<BolsaSangue> resultado = service.listarPorSituacao(SituacaoBolsa.DISPONIVEL);
+
+        assertEquals(1, resultado.size());
+        assertEquals(SituacaoBolsa.DISPONIVEL, resultado.getFirst().getSituacao());
     }
 }
