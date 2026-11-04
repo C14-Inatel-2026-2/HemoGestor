@@ -11,7 +11,11 @@ public class BolsaSangueMapper {
                 bolsa.getDataColeta(),
                 bolsa.getDataValidade(),
                 bolsa.getSituacao(),
-                bolsa.estaVencida()
+                bolsa.estaVencida(),
+                bolsa.getDoacao().getDoador().getId(),
+                bolsa.getDoacao().getDoador().getNome(),
+                bolsa.getDoacao().getTipoDoacao(),
+                bolsa.getDoacao().getVolume_ml()
         );
     }
 }
