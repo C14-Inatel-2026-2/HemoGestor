@@ -46,6 +46,27 @@ describe('DoadoresPage', () => {
     expect(getDoadores).toHaveBeenCalledTimes(1)
   })
 
+  it('exibe o telefone formatado, mesmo quando a API devolve só os números', async () => {
+    vi.mocked(getDoadores).mockResolvedValue(
+      respostaComLista([{ ...doadoraAna, telefone: '35992243243' }]),
+    )
+
+    render(<DoadoresPage />)
+
+    expect(await screen.findByText('(35) 99224-3243')).toBeInTheDocument()
+  })
+
+  it('exibe um traço quando o doador não tem telefone', async () => {
+    vi.mocked(getDoadores).mockResolvedValue(
+      respostaComLista([{ ...doadoraAna, telefone: '', ultima_doacao: '2026-08-18' }]),
+    )
+
+    render(<DoadoresPage />)
+
+    const linha = (await screen.findByText('Ana Souza')).closest('tr') as HTMLElement
+    expect(within(linha).getByText('—')).toBeInTheDocument()
+  })
+
   it('cadastra um doador pelo formulário e atualiza a lista', async () => {
     const usuario = userEvent.setup()
     vi.mocked(getDoadores)

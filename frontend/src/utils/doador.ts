@@ -19,6 +19,18 @@ export function formatarCpf(cpf: string): string {
   return digitos.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
 }
 
+export function formatarTelefone(telefone: string): string {
+  const digitos = somenteDigitos(telefone)
+  if (digitos.length === 11) return digitos.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
+  if (digitos.length === 10) return digitos.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
+  return telefone
+}
+
+export function validarTelefone(telefone: string): boolean {
+  const digitos = somenteDigitos(telefone)
+  return digitos.length === 0 || digitos.length === 10 || digitos.length === 11
+}
+
 function calcularDigito(base: string, pesoInicial: number): number {
   const soma = base
     .split('')
@@ -65,7 +77,7 @@ export function paraDadosDoFormulario(doador: Doador): NovoDoador {
     data_nascimento: doador.data_nascimento,
     sexo: doador.sexo,
     tipo_sanguineo: doador.tipo_sanguineo,
-    telefone: doador.telefone ?? '',
+    telefone: formatarTelefone(doador.telefone ?? ''),
     email: doador.email ?? '',
     cidade: doador.cidade ?? '',
     bairro: doador.bairro ?? '',

@@ -4,14 +4,7 @@ import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
 import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
 import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
-import {
-  formatarCpf,
-  formatarData,
-  montarRequisicaoDeEdicao,
-  obterIniciais,
-  obterMensagemErro,
-  paraDadosDoFormulario,
-} from '../utils/doador'
+import { formatarCpf, formatarData, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, obterMensagemErro, paraDadosDoFormulario } from '../utils/doador'
 import './DoadoresPage.css'
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
@@ -224,7 +217,7 @@ async function removerDoador() {
                       '—'
                     )}
                   </td>
-                  <td>{doador.telefone}</td>
+                  <td>{formatarTelefone(doador.telefone ?? '') || '—'}</td>
                   <td>{formatarData(doador.ultima_doacao)}</td>
                   <td>
                     <span className={`selo-status selo-status--${doador.status.toLowerCase()}`}>

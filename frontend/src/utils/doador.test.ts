@@ -2,6 +2,7 @@ import { AxiosError } from 'axios'
 import type { AxiosResponse } from 'axios'
 import { formatarCpf, montarRequisicaoDeEdicao, normalizarTexto, obterMensagemErro, paraDadosDoFormulario, validarCpf } from './doador'
 import type { Doador } from '../types/doador'
+import { formatarTelefone, validarTelefone } from './doador'
 
 describe('normalizarTexto', () => {
   it('remove acentos, espaços nas pontas e letras maiúsculas', () => {
@@ -107,5 +108,46 @@ describe('montarRequisicaoDeEdicao', () => {
     expect(requisicao.nome).toBe('Ana Souza Lima')
     expect(requisicao.ultima_doacao).toBe('2026-08-18')
     expect(requisicao.qtd_doacoes).toBe(9)
+  })
+})
+
+describe('formatarTelefone', () => {
+  it('formata um celular com 11 dígitos', () => {
+    expect(formatarTelefone('35992243243')).toBe('(35) 99224-3243')
+  })
+
+  it('formata um telefone fixo com 10 dígitos', () => {
+    expect(formatarTelefone('3234567890')).toBe('(32) 3456-7890')
+  })
+
+  it('padroniza um telefone que já veio com outra formatação', () => {
+    expect(formatarTelefone('(32)9921-7788')).toBe('(32) 9921-7788')
+  })
+
+  it('devolve o valor original quando a quantidade de dígitos é inesperada', () => {
+    expect(formatarTelefone('99221')).toBe('99221')
+  })
+})
+
+describe('validarTelefone', () => {
+  it('aceita telefone em branco, porque o campo é opcional', () => {
+    expect(validarTelefone('')).toBe(true)
+  })
+
+  it('aceita telefone com 10 ou 11 dígitos, com ou sem formatação', () => {
+    expect(validarTelefone('3234567890')).toBe(true)
+    expect(validarTelefone('(35) 99224-3243')).toBe(true)
+  })
+
+  it('rejeita telefone sem DDD', () => {
+    expect(validarTelefone('99224-3243')).toBe(false)
+  })
+})
+
+describe('paraDadosDoFormulario com telefone', () => {
+  it('abre o telefone formatado na edição', () => {
+    const dados = paraDadosDoFormulario({ ...doadoraAna, telefone: '35992243243' })
+
+    expect(dados.telefone).toBe('(35) 99224-3243')
   })
 })
