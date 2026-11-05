@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -88,5 +89,42 @@ public class SolicitacaoControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.erro")
                         .value("Quantidade deve ser maior que zero."));
+    }
+
+    @Test
+    void listarSolicitacoes() throws Exception {
+        SolicitacaoResponseDTO response = new SolicitacaoResponseDTO(
+                1L,
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico.",
+                LocalDateTime.now(),
+                StatusSolicitacao.PENDENTE,
+                List.of(),
+                0
+        );
+        when(service.listarTodas()).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/solicitacoes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].instituicao").value("Hospital Santa Casa"))
+                .andExpect(jsonPath("$[0].tipoSanguineo").value("A+"))
+                .andExpect(jsonPath("$[0].status").value("PENDENTE"));
+    }
+
+    @Test
+    void retornarListaVaziaQuandoNaoTemSolicitacoes() throws Exception {
+        when(service.listarTodas()).thenReturn(List.of());
+
+        mockMvc.perform(get("/solicitacoes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 }

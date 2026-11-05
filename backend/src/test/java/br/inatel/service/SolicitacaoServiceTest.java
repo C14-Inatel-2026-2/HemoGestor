@@ -9,6 +9,8 @@ import br.inatel.model.Solicitacao;
 import br.inatel.repository.SolicitacaoRepository;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -61,4 +63,32 @@ public class SolicitacaoServiceTest {
         verify(repository, never()).save(any(Solicitacao.class));
     }
 
+    @Test
+    void listarTodasSolicitacoes() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository);
+        Solicitacao solicitacao = new Solicitacao("Hospital Santa Casa", "UTI", "A+", 2, PrioridadeSolicitacao.URGENTE, "Paciente em procedimento cirúrgico.");
+
+        when(repository.findAll()).thenReturn(List.of(solicitacao));
+
+        List<SolicitacaoResponseDTO> resultado = service.listarTodas();
+
+        assertEquals(1, resultado.size());
+        assertEquals("Hospital Santa Casa", resultado.get(0).getInstituicao());
+        assertEquals("A+", resultado.get(0).getTipoSanguineo());
+        assertEquals(StatusSolicitacao.PENDENTE, resultado.get(0).getStatus());
+        verify(repository).findAll();
+    }
+
+    @Test
+    void retornarListaVaziaQuandoNaoExistiremSolicitacoes() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository);
+
+        when(repository.findAll()).thenReturn(List.of());
+
+        List<SolicitacaoResponseDTO> resultado = service.listarTodas();
+        assertTrue(resultado.isEmpty());
+        verify(repository).findAll();
+    }
 }
