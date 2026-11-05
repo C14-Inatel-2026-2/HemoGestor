@@ -28,4 +28,9 @@ public class SolicitacaoController {
     public ResponseEntity<List<SolicitacaoResponseDTO>> listarTodas() {
         return ResponseEntity.ok(service.listarTodas());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SolicitacaoResponseDTO> buscarPorId(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
 }

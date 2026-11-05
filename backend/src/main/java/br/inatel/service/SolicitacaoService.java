@@ -2,6 +2,7 @@ package br.inatel.service;
 
 import br.inatel.dto.SolicitacaoRequestDTO;
 import br.inatel.dto.SolicitacaoResponseDTO;
+import br.inatel.exception.SolicitacaoNaoEncontradaException;
 import br.inatel.model.BolsaSangue;
 import br.inatel.model.Solicitacao;
 import br.inatel.repository.SolicitacaoRepository;
@@ -51,5 +52,10 @@ public class SolicitacaoService {
                         .toList(),
                 0
         );
+    }
+
+    public SolicitacaoResponseDTO buscarPorId(Long id) {
+        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada."));
+        return toResponseDTO(solicitacao);
     }
 }
