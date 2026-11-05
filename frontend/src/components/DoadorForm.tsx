@@ -22,6 +22,8 @@ const DOADOR_VAZIO: NovoDoador = {
 interface ErrosFormulario {
   nome?: string
   cpf?: string
+  data_nascimento?: string
+  tipo_sanguineo?: string
 }
 
 interface DoadorFormProps {
@@ -41,14 +43,20 @@ function DoadorForm({ onSubmit, onCancelar, salvando = false, doadorInicial, tex
   }
 
   function validar(): ErrosFormulario {
-    const novosErros: ErrosFormulario = {}
-    if (!dados.nome.trim()) {
-      novosErros.nome = 'Informe o nome do doador.'
-    }
-    if (!validarCpf(dados.cpf)) {
-      novosErros.cpf = 'CPF inválido.'
-    }
-    return novosErros
+  const novosErros: ErrosFormulario = {}
+  if (!dados.nome.trim()) {
+    novosErros.nome = 'Informe o nome do doador.'
+  }
+  if (!validarCpf(dados.cpf)) {
+    novosErros.cpf = 'CPF inválido.'
+  }
+  if (!dados.data_nascimento) {
+    novosErros.data_nascimento = 'Informe a data de nascimento.'
+  }
+  if (!dados.tipo_sanguineo) {
+    novosErros.tipo_sanguineo = 'Selecione o tipo sanguíneo.'
+  }
+  return novosErros
   }
 
   function handleSubmit(evento: FormEvent<HTMLFormElement>) {
@@ -99,7 +107,10 @@ function DoadorForm({ onSubmit, onCancelar, salvando = false, doadorInicial, tex
             type="date"
             value={dados.data_nascimento ?? ''}
             onChange={(e) => atualizar('data_nascimento', e.target.value || null)}
+            aria-invalid={Boolean(erros.data_nascimento)}
           />
+          {erros.data_nascimento && <span className="campo__erro">
+        {erros.data_nascimento}</span>}
         </div>
 
         <div className="campo">
@@ -123,14 +134,17 @@ function DoadorForm({ onSubmit, onCancelar, salvando = false, doadorInicial, tex
             onChange={(e) =>
               atualizar('tipo_sanguineo', (e.target.value || null) as TipoSanguineo | null)
             }
+            aria-invalid={Boolean(erros.tipo_sanguineo)}
           >
-            <option value="">Não informado</option>
+            <option value="">Selecione o tipo</option>
             {TIPOS_SANGUINEOS.map((tipo) => (
               <option key={tipo} value={tipo}>
                 {tipo}
               </option>
             ))}
           </select>
+          {erros.tipo_sanguineo && <span className="campo__erro">
+        {erros.tipo_sanguineo}</span>}
         </div>
 
         <div className="campo">
@@ -188,7 +202,9 @@ function DoadorForm({ onSubmit, onCancelar, salvando = false, doadorInicial, tex
       </div>
 
       <div className="doador-form__rodape">
-        <span className="doador-form__dica">Campos obrigatórios: nome e CPF</span>
+        <span className="doador-form__dica">
+          Campos obrigatórios: nome, CPF, data de nascimento e tipo sanguíneo
+        </span>
         <button type="button" className="botao botao--secundario" onClick={onCancelar}>
           Cancelar
         </button>
