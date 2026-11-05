@@ -59,6 +59,8 @@ describe('DoadoresPage', () => {
     await usuario.click(screen.getByRole('button', { name: 'Novo doador' }))
     await usuario.type(screen.getByLabelText('Nome completo'), 'Ana Souza')
     await usuario.type(screen.getByLabelText('CPF'), '529.982.247-25')
+    await usuario.type(screen.getByLabelText('Data de nascimento'), '1995-04-12')
+    await usuario.selectOptions(screen.getByLabelText('Tipo sanguíneo'), 'O-')
     await usuario.click(screen.getByRole('button', { name: 'Salvar doador' }))
 
     expect(await screen.findByText('Doador cadastrado com sucesso.')).toBeInTheDocument()
@@ -86,6 +88,8 @@ describe('DoadoresPage', () => {
     await usuario.click(screen.getByRole('button', { name: 'Novo doador' }))
     await usuario.type(screen.getByLabelText('Nome completo'), 'Ana Souza')
     await usuario.type(screen.getByLabelText('CPF'), '529.982.247-25')
+    await usuario.type(screen.getByLabelText('Data de nascimento'), '1995-04-12')
+    await usuario.selectOptions(screen.getByLabelText('Tipo sanguíneo'), 'O-')
     await usuario.click(screen.getByRole('button', { name: 'Salvar doador' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
