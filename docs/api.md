@@ -349,149 +349,6 @@ Altera o status da doação para `DESCARTADA`.
 - Status: `409 Conflict`, caso a doação não esteja em triagem.
 
 
-## Bolsas de Sangue
-
-### Listar todas as bolsas
-
-**GET** `/bolsas`
-
-Retorna todas as bolsas cadastradas no estoque.
-
-**Resposta de sucesso:**
-
-```json
-[
-  {
-    "id": 1,
-    "doacaoId": 3,
-    "tipoSanguineo": "O+",
-    "dataColeta": "2026-11-03",
-    "dataValidade": "2026-12-08",
-    "situacao": "DISPONIVEL",
-    "vencida": false
-  }
-]
-```
-Caso não existam bolsas cadastradas:
-```json
-{
-  "mensagem": "Não existem bolsas cadastradas."
-}
-```
-
----
-
-### Filtrar bolsas por tipo sanguíneo
-
-**GET** `/bolsas/tipo?tipoSanguineo={tipo}`
-Exemplo:
-
-```text
-GET /bolsas/tipo?tipoSanguineo=O+
-```
-
-Retorna as bolsas correspondentes ao tipo sanguíneo informado.
-
-Caso não existam bolsas do tipo informado:
-```json
-{
-  "mensagem": "Não existem bolsas cadastradas para este tipo sanguíneo."
-}
-```
-
----
-
-### Listar bolsas válidas
-
-**GET** `/bolsas/validas`
-
-Retorna somente as bolsas cuja data de validade ainda não foi ultrapassada.
-
-Caso não existam bolsas válidas:
-```json
-{
-  "mensagem": "Não existem bolsas válidas cadastradas."
-}
-```
-
----
-
-### Listar bolsas vencidas
-
-**GET** `/bolsas/vencidas`
-
-Retorna somente as bolsas cuja data de validade já foi ultrapassada.
-
-Caso não existam bolsas vencidas:
-```json
-{
-  "mensagem": "Não existem bolsas vencidas cadastradas."
-}
-```
-
----
-
-### Filtrar bolsas por situação
-
-**GET** `/bolsas/situacao?situacao={situacao}`
-
-Situações disponíveis:
-
-```text
-DISPONIVEL
-UTILIZADA
-DESCARTADA
-```
-
-Exemplo:
-```text
-GET /bolsas/situacao?situacao=DISPONIVEL
-```
-
-Retorna as bolsas correspondentes à situação informada.
-
-Caso não existam bolsas com a situação informada:
-```json
-{
-  "mensagem": "Não existem bolsas cadastradas com esta situação."
-}
-```
-
----
-
-### Regras de validade das bolsas
-
-A data de validade é calculada automaticamente no momento da geração da bolsa:
-
-- `SANGUE_TOTAL`: 35 dias após a coleta;
-- `PLAQUETA_POR_AFERESE`: 5 dias após a coleta;
-- `PLASMA`: 365 dias após a coleta.
-
-A condição de bolsa vencida não é armazenada como uma situação no banco de dados. Ela é calculada dinamicamente a partir da `dataValidade`.
-
----
-
-### Geração da bolsa
-
-A bolsa é criada automaticamente quando uma doação é concluída.
-
-A bolsa é inicialmente registrada com a situação:
-
-```text
-DISPONIVEL
-```
-
-Os principais dados retornados na consulta são:
-```text
-id
-doacaoId
-tipoSanguineo
-dataColeta
-dataValidade
-situacao
-vencida
-```
-
 ## Tipos utilizados no frontend
 
 Os tipos TypeScript relacionados a doadores estão definidos em:
@@ -529,7 +386,8 @@ Retornado pelo backend nas operações de consulta e de descarte.
   "volume_ml": 450,
   "dataColeta": "YYYY-MM-DD",
   "dataValidade": "YYYY-MM-DD",
-  "status": "DISPONIVEL | RESERVADA | UTILIZADA | DESCARTADA"
+  "status": "DISPONIVEL | RESERVADA | UTILIZADA | DESCARTADA",
+  "vencida": false
 }
 ```
 
@@ -547,7 +405,7 @@ Retornado pelo backend nas operações de consulta e de descarte.
 
 - Toda bolsa nasce com o status `DISPONIVEL`.
 - `RESERVADA` e `UTILIZADA` são definidos pelo fluxo de solicitações.
-- "Vencida" não é um status armazenado: uma bolsa está vencida quando `dataValidade` é anterior à data atual. O frontend faz essa verificação na exibição.
+- "Vencida" não é um status armazenado: uma bolsa está vencida quando `dataValidade` é anterior à data atual.
 
 ---
 
@@ -561,6 +419,61 @@ Lista todas as bolsas cadastradas, ordenadas pela data de validade (da mais pró
 
 - Status: `200 OK`
 - Corpo: lista de `BolsaResponse`. Caso não existam bolsas, é retornada uma lista vazia.
+
+---
+
+### GET `/bolsas/tipo?tipoSanguineo={tipo}`
+
+Filtra as bolsas pelo tipo sanguíneo informado.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: lista de `BolsaResponse`.
+- Caso não existam bolsas do tipo informado, é retornada uma lista vazia.
+
+---
+
+### GET `/bolsas/validas`
+
+Lista somente as bolsas cuja data de validade ainda não foi ultrapassada.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: lista de `BolsaResponse`.
+- Caso não existam bolsas válidas, é retornada uma lista vazia.
+
+---
+
+### GET `/bolsas/vencidas`
+
+Lista somente as bolsas cuja data de validade já foi ultrapassada.
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: lista de `BolsaResponse`.
+- Caso não existam bolsas vencidas, é retornada uma lista vazia.
+
+---
+
+### GET `/bolsas/situacao?situacao={situacao}`
+
+Filtra as bolsas pelo status informado.
+
+Os valores disponíveis são:
+
+- `DISPONIVEL`
+- `RESERVADA`
+- `UTILIZADA`
+- `DESCARTADA`
+
+**Resposta de sucesso:**
+
+- Status: `200 OK`
+- Corpo: lista de `BolsaResponse`.
+- Caso não existam bolsas com o status informado, é retornada uma lista vazia.
 
 ---
 
