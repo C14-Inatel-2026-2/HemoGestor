@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  dataDeHoje,
-  dataLiberadaParaDoar,
-  formatarHora,
-  montarRequisicaoDeDoacao,
-  validarDoacao,
-  verificarElegibilidade,
-} from './doacao'
+import { dataDeHoje, dataLiberadaParaDoar, filtrarDoacoes, formatarHora, montarRequisicaoDeDoacao, validarDoacao, verificarElegibilidade } from './doacao'
+import { FILTROS_INICIAIS_DOACOES } from './doacao'
 import type { DadosDoacaoFormulario } from './doacao'
 import type { Doacao, StatusDoacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
@@ -207,5 +201,50 @@ describe('verificarElegibilidade', () => {
 describe('dataDeHoje', () => {
   it('devolve a data atual no formato AAAA-MM-DD', () => {
     expect(dataDeHoje()).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+})
+describe('filtrarDoacoes', () => {
+  const doacoes = [
+    { id: 1, nomeDoador: 'Ana Souza', status: 'CONCLUIDA' },
+    { id: 3, nomeDoador: 'João Conceição', status: 'EM_TRIAGEM' },
+    { id: 2, nomeDoador: 'Ana Lima', status: 'DESCARTADA' },
+  ] as Doacao[]
+
+  function idsDe(lista: Doacao[]) {
+    return lista.map((doacao) => doacao.id)
+  }
+
+  it('mostra todas, com as mais recentes primeiro, quando não há filtro', () => {
+    expect(idsDe(filtrarDoacoes(doacoes, FILTROS_INICIAIS_DOACOES))).toEqual([3, 2, 1])
+  })
+
+  it('não altera a ordem da lista original', () => {
+    filtrarDoacoes(doacoes, FILTROS_INICIAIS_DOACOES)
+
+    expect(idsDe(doacoes)).toEqual([1, 3, 2])
+  })
+
+  it('busca pelo nome do doador, sem diferenciar maiúsculas e acentos', () => {
+    const filtros = { ...FILTROS_INICIAIS_DOACOES, busca: ' joao conc ' }
+
+    expect(idsDe(filtrarDoacoes(doacoes, filtros))).toEqual([3])
+  })
+
+  it('filtra pelo status', () => {
+    const filtros = { ...FILTROS_INICIAIS_DOACOES, status: 'CONCLUIDA' as const }
+
+    expect(idsDe(filtrarDoacoes(doacoes, filtros))).toEqual([1])
+  })
+
+  it('combina a busca e o status', () => {
+    const filtros = { busca: 'ana', status: 'DESCARTADA' as const }
+
+    expect(idsDe(filtrarDoacoes(doacoes, filtros))).toEqual([2])
+  })
+
+  it('devolve uma lista vazia quando nada corresponde', () => {
+    const filtros = { ...FILTROS_INICIAIS_DOACOES, busca: 'Pedro' }
+
+    expect(filtrarDoacoes(doacoes, filtros)).toEqual([])
   })
 })
