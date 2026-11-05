@@ -10,9 +10,11 @@ import {
 import { getDoadores } from '../services/doadorService'
 import type { Doacao, DoacaoRequest, StatusDoacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
-import { ROTULO_STATUS_DOACAO, ROTULO_TIPO_DOACAO, formatarHora } from '../utils/doacao'
+import { FILTROS_INICIAIS_DOACOES, ROTULO_STATUS_DOACAO, ROTULO_TIPO_DOACAO, filtrarDoacoes, formatarHora } from '../utils/doacao'
+import type { FiltrosDoacoes } from '../utils/doacao'
 import { formatarData, obterMensagemErro } from '../utils/doador'
 import './DoadoresPage.css'
+import './EstoquePage.css'
 
 // Reaproveita o visual da tela de Doadores (tabela, selos, avisos e cartão do formulário).
 const CLASSE_STATUS: Record<StatusDoacao, string> = {
@@ -20,6 +22,8 @@ const CLASSE_STATUS: Record<StatusDoacao, string> = {
   CONCLUIDA: 'apto',
   DESCARTADA: 'inapto',
 }
+
+const STATUS_DOACAO = Object.keys(ROTULO_STATUS_DOACAO) as StatusDoacao[]
 
 async function buscarLista<T>(requisicao: Promise<{ data: T[] }>): Promise<T[]> {
   const resposta = await requisicao
@@ -51,6 +55,7 @@ function RegistrarDoacaoPage() {
   const [erroCadastro, setErroCadastro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState<string | null>(null)
   const [acaoEmAndamento, setAcaoEmAndamento] = useState(false)
+  const [filtros, setFiltros] = useState<FiltrosDoacoes>(FILTROS_INICIAIS_DOACOES)
 
   function aplicarDados(dados: { doacoes: Doacao[]; doadores: Doador[] }) {
     setDoacoes(dados.doacoes)
@@ -127,15 +132,18 @@ function RegistrarDoacaoPage() {
     await recarregar()
   }
 
-  const doacoesOrdenadas = [...doacoes].sort((a, b) => b.id - a.id)
+  function atualizarFiltro<K extends keyof FiltrosDoacoes>(campo: K, valor: FiltrosDoacoes[K]) {
+    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
+  }
+
+  const doacoesVisiveis = filtrarDoacoes(doacoes, filtros)
 
   return (
     <section className="doadores">
       <CabecalhoPagina titulo="Registrar doação" subtitulo="Registro de coleta de sangue" />
       <div className="doadores__conteudo">
         <div className="doadores__barra">
-          <span className="doadores__contagem">{doacoes.length} doações</span>
-          {!exibindoFormulario && (
+          <span className="doadores__contagem">{doacoesVisiveis.length} doações</span>          {!exibindoFormulario && (
             <button
               type="button"
               className="botao botao--primario doadores__novo"
@@ -175,7 +183,30 @@ function RegistrarDoacaoPage() {
             />
           </div>
         )}
+        <div className="estoque__filtros">
+          <input
+            type="search"
+            aria-label="Buscar por doador"
+            className="estoque__filtro estoque__filtro--busca"
+            placeholder="Buscar por doador"
+            value={filtros.busca}
+            onChange={(e) => atualizarFiltro('busca', e.target.value)}
+          />
 
+          <select
+            aria-label="Status"
+            className="estoque__filtro"
+            value={filtros.status}
+            onChange={(e) => atualizarFiltro('status', e.target.value as StatusDoacao | '')}
+          >
+            <option value="">Status: todos</option>
+            {STATUS_DOACAO.map((status) => (
+              <option key={status} value={status}>
+                {ROTULO_STATUS_DOACAO[status]}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="tabela-card">
           <table className="tabela">
             <thead>
@@ -191,7 +222,7 @@ function RegistrarDoacaoPage() {
               </tr>
             </thead>
             <tbody>
-              {doacoesOrdenadas.map((doacao) => (
+              {doacoesVisiveis.map((doacao) => (
                 <tr key={doacao.id}>
                   <td>
                     <div className="doador__nome">{doacao.nomeDoador}</div>
@@ -254,6 +285,9 @@ function RegistrarDoacaoPage() {
 
           {!carregando && !erro && doacoes.length === 0 && (
             <p className="tabela__vazia">Nenhuma doação registrada.</p>
+          )}
+          {doacoes.length > 0 && doacoesVisiveis.length === 0 && (
+            <p className="tabela__vazia">Nenhuma doação encontrada.</p>
           )}
           {carregando && <p className="tabela__vazia">Carregando doações...</p>}
         </div>
