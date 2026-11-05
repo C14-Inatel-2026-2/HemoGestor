@@ -95,6 +95,11 @@
   color: var(--cor-texto-secundario);
 }
 
+.estoque__filtro--busca {
+  width: 280px;
+  max-width: 100%;
+}
+
 .estoque__checkbox {
   display: flex;
   align-items: center;

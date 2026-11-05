@@ -1,7 +1,13 @@
 import { AxiosError } from 'axios'
 import type { AxiosResponse } from 'axios'
-import {formatarCpf, montarRequisicaoDeEdicao, obterMensagemErro, paraDadosDoFormulario, validarCpf,} from './doador'
+import { formatarCpf, montarRequisicaoDeEdicao, normalizarTexto, obterMensagemErro, paraDadosDoFormulario, validarCpf } from './doador'
 import type { Doador } from '../types/doador'
+
+describe('normalizarTexto', () => {
+  it('remove acentos, espaços nas pontas e letras maiúsculas', () => {
+    expect(normalizarTexto('  JOÃO Conceição ')).toBe('joao conceicao')
+  })
+})
 
 describe('formatarCpf', () => {
   it('formata um CPF com 11 dígitos no padrão 000.000.000-00', () => {

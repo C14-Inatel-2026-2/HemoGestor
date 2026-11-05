@@ -1,6 +1,6 @@
 import type { Doacao, DoacaoRequest, StatusDoacao, TipoDoacao } from '../types/doacao'
 import type { Doador, Sexo } from '../types/doador'
-import { formatarData } from './doador'
+import { formatarData, normalizarTexto } from './doador'
 
 export const ROTULO_TIPO_DOACAO: Record<TipoDoacao, string> = {
   SANGUE_TOTAL: 'Sangue total',
@@ -12,6 +12,25 @@ export const ROTULO_STATUS_DOACAO: Record<StatusDoacao, string> = {
   EM_TRIAGEM: 'Em triagem',
   CONCLUIDA: 'Concluída',
   DESCARTADA: 'Descartada',
+}
+
+export interface FiltrosDoacoes {
+  busca: string
+  status: StatusDoacao | ''
+}
+
+export const FILTROS_INICIAIS_DOACOES: FiltrosDoacoes = {
+  busca: '',
+  status: '',
+}
+
+export function filtrarDoacoes(doacoes: Doacao[], filtros: FiltrosDoacoes): Doacao[] {
+  const busca = normalizarTexto(filtros.busca)
+
+  return doacoes
+    .filter((doacao) => normalizarTexto(doacao.nomeDoador).includes(busca))
+    .filter((doacao) => !filtros.status || doacao.status === filtros.status)
+    .sort((a, b) => b.id - a.id)
 }
 
 export interface DadosDoacaoFormulario {
