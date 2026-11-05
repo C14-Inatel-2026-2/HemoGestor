@@ -3,6 +3,7 @@ package br.inatel.controller;
 import br.inatel.enumeracao.Sexo;
 import br.inatel.enumeracao.TipoDoacao;
 import br.inatel.exception.ConflitoException;
+import br.inatel.exception.DadosInvalidosException;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
 import br.inatel.service.DoacaoService;
@@ -357,5 +358,15 @@ public class DoacaoControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.erro")
                         .value("Só é possível descartar doações em triagem."));
+    }
+
+    @Test
+    void retornar400AoConcluirDoacaoSemTipoSanguineo() throws Exception {
+        when(doacaoService.concluir(1L)).thenThrow(new DadosInvalidosException("Informe o tipo sanguíneo do doador antes de concluir a doação."));
+
+        mockMvc.perform(patch("/doacoes/1/concluir"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro")
+                        .value("Informe o tipo sanguíneo do doador antes de concluir a doação."));
     }
 }

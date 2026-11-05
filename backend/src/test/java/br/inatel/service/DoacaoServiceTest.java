@@ -277,6 +277,27 @@ public class DoacaoServiceTest {
     }
 
     @Test
+    void naoConcluirDoacaoSemTipoSanguineo() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doador doador = criarDoador();
+        doador.setTipo_sanguineo(null);
+
+        Doacao doacao = criarDoacao();
+        doacao.setDoador(doador);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        DadosInvalidosException exception = assertThrows(DadosInvalidosException.class, () -> service.concluir(1L));
+
+        assertEquals("Informe o tipo sanguíneo do doador antes de concluir a doação.", exception.getMessage());
+        verify(repository).findById(1L);
+        verify(repository, never()).save(any(Doacao.class));
+        verify(bolsaSangueRepository, never()).save(any(BolsaSangue.class));
+    }
+    @Test
     void naoConcluirDoacaoConcluida(){
         DoacaoRepository repository = mock(DoacaoRepository.class);
         BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
