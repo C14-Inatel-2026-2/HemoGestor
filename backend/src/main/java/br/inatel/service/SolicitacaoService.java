@@ -2,12 +2,14 @@ package br.inatel.service;
 
 import br.inatel.dto.SolicitacaoRequestDTO;
 import br.inatel.dto.SolicitacaoResponseDTO;
+import br.inatel.enumeracao.PrioridadeSolicitacao;
 import br.inatel.exception.SolicitacaoNaoEncontradaException;
 import br.inatel.model.BolsaSangue;
 import br.inatel.model.Solicitacao;
 import br.inatel.repository.SolicitacaoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -31,8 +33,23 @@ public class SolicitacaoService {
         return toResponseDTO(salva);
     }
 
+    private int ordemPrioridade(PrioridadeSolicitacao prioridade) {
+        return switch (prioridade) {
+            case EMERGÊNCIA -> 1;
+            case URGENTE -> 2;
+            case NORMAL -> 3;
+        };
+    }
+
     public List<SolicitacaoResponseDTO> listarTodas() {
-        return repository.findAll().stream().map(this::toResponseDTO).toList();
+        return repository.findAll()
+                .stream()
+                .sorted(Comparator
+                        .comparingInt((Solicitacao s) -> ordemPrioridade(s.getPrioridade()))
+                        .thenComparing(Solicitacao::getDataSolicitacao)
+                )
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     private SolicitacaoResponseDTO toResponseDTO(Solicitacao solicitacao) {
