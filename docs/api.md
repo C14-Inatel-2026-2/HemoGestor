@@ -158,7 +158,7 @@ Remove um doador pelo identificador.
 
 - Status: `204 No Content`
 
-**Possíveid respostas de erro:**
+**Possíveis respostas de erro:**
 
 - Status: `404 Not Found`, caso o doador não seja encontrado.
 - Status: `409 Conflict`, caso o doador possua doações registradas e não possa ser removido.
@@ -347,6 +347,150 @@ Altera o status da doação para `DESCARTADA`.
 
 - Status: `404 Not Found`, caso a doação não seja encontrada.
 - Status: `409 Conflict`, caso a doação não esteja em triagem.
+
+
+## Bolsas de Sangue
+
+### Listar todas as bolsas
+
+**GET** `/bolsas`
+
+Retorna todas as bolsas cadastradas no estoque.
+
+**Resposta de sucesso:**
+
+```json
+[
+  {
+    "id": 1,
+    "doacaoId": 3,
+    "tipoSanguineo": "O+",
+    "dataColeta": "2026-11-03",
+    "dataValidade": "2026-12-08",
+    "situacao": "DISPONIVEL",
+    "vencida": false
+  }
+]
+```
+Caso não existam bolsas cadastradas:
+```json
+{
+  "mensagem": "Não existem bolsas cadastradas."
+}
+```
+
+---
+
+### Filtrar bolsas por tipo sanguíneo
+
+**GET** `/bolsas/tipo?tipoSanguineo={tipo}`
+Exemplo:
+
+```text
+GET /bolsas/tipo?tipoSanguineo=O+
+```
+
+Retorna as bolsas correspondentes ao tipo sanguíneo informado.
+
+Caso não existam bolsas do tipo informado:
+```json
+{
+  "mensagem": "Não existem bolsas cadastradas para este tipo sanguíneo."
+}
+```
+
+---
+
+### Listar bolsas válidas
+
+**GET** `/bolsas/validas`
+
+Retorna somente as bolsas cuja data de validade ainda não foi ultrapassada.
+
+Caso não existam bolsas válidas:
+```json
+{
+  "mensagem": "Não existem bolsas válidas cadastradas."
+}
+```
+
+---
+
+### Listar bolsas vencidas
+
+**GET** `/bolsas/vencidas`
+
+Retorna somente as bolsas cuja data de validade já foi ultrapassada.
+
+Caso não existam bolsas vencidas:
+```json
+{
+  "mensagem": "Não existem bolsas vencidas cadastradas."
+}
+```
+
+---
+
+### Filtrar bolsas por situação
+
+**GET** `/bolsas/situacao?situacao={situacao}`
+
+Situações disponíveis:
+
+```text
+DISPONIVEL
+UTILIZADA
+DESCARTADA
+```
+
+Exemplo:
+```text
+GET /bolsas/situacao?situacao=DISPONIVEL
+```
+
+Retorna as bolsas correspondentes à situação informada.
+
+Caso não existam bolsas com a situação informada:
+```json
+{
+  "mensagem": "Não existem bolsas cadastradas com esta situação."
+}
+```
+
+---
+
+### Regras de validade das bolsas
+
+A data de validade é calculada automaticamente no momento da geração da bolsa:
+
+- `SANGUE_TOTAL`: 35 dias após a coleta;
+- `PLAQUETA_POR_AFERESE`: 5 dias após a coleta;
+- `PLASMA`: 365 dias após a coleta.
+
+A condição de bolsa vencida não é armazenada como uma situação no banco de dados. Ela é calculada dinamicamente a partir da `dataValidade`.
+
+---
+
+### Geração da bolsa
+
+A bolsa é criada automaticamente quando uma doação é concluída.
+
+A bolsa é inicialmente registrada com a situação:
+
+```text
+DISPONIVEL
+```
+
+Os principais dados retornados na consulta são:
+```text
+id
+doacaoId
+tipoSanguineo
+dataColeta
+dataValidade
+situacao
+vencida
+```
 
 ## Tipos utilizados no frontend
 

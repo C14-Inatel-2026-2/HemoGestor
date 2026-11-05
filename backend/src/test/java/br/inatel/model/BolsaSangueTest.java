@@ -90,4 +90,16 @@ public class BolsaSangueTest {
         BolsaSangue bolsa = new BolsaSangue(doacao, doador.getTipo_sanguineo(), doacao.getDataColeta(), SituacaoBolsa.DISPONIVEL);
         assertFalse(bolsa.estaVencida());
     }
+
+    @Test
+    void naoDescartarBolsaQueNaoEstaDisponivel() {
+        Doacao doacao = new Doacao();
+        doacao.setTipoDoacao(TipoDoacao.SANGUE_TOTAL);
+
+        BolsaSangue bolsa = new BolsaSangue(doacao, "O+", LocalDate.now(), SituacaoBolsa.RESERVADA);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, bolsa::descartar);
+
+        assertEquals("Só é possível descartar bolsas disponíveis.", exception.getMessage());
+    }
 }

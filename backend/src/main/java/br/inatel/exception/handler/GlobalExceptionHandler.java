@@ -1,5 +1,6 @@
 package br.inatel.exception.handler;
 
+import br.inatel.exception.BolsaNaoEncontradaException;
 import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.TipoSanguineoException;
@@ -85,5 +86,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflitoException.class)
     public ResponseEntity<Map<String, String>> tratarConflito(ConflitoException exception){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", exception.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> tratarIllegalStateException(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(BolsaNaoEncontradaException.class)
+    public ResponseEntity<Map<String, String>> tratarBolsaNaoEncontrada(BolsaNaoEncontradaException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
     }
 }
