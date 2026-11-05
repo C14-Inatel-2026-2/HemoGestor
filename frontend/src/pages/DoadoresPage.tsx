@@ -1,7 +1,8 @@
 import CabecalhoPagina from '../components/CabecalhoPagina'
+import ConfirmarRemocaoDoador from '../components/ConfirmarRemocaoDoador'
 import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
-import { atualizarDoador, criarDoador, getDoadores } from '../services/doadorService'
+import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
 import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
 import {
   formatarCpf,
@@ -36,6 +37,9 @@ function DoadoresPage() {
   const [salvando, setSalvando] = useState(false)
   const [erroCadastro, setErroCadastro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState<string | null>(null)
+  const [doadorEmRemocao, setDoadorEmRemocao] = useState<Doador | null>(null)
+  const [removendo, setRemovendo] = useState(false)
+  const [erroRemocao, setErroRemocao] = useState<string | null>(null)
 
   useEffect(() => {
     buscarDoadores()
@@ -66,6 +70,15 @@ function DoadoresPage() {
     setDoadorEmEdicao(null)
   }
 
+  async function recarregarDoadores() {
+    try {
+      setDoadores(await buscarDoadores())
+      setErro(null)
+    } catch {
+      setErro('Não foi possível carregar os doadores.')
+    }
+  }
+
   async function salvarDoador(dados: NovoDoador) {
     const editando = doadorEmEdicao !== null
     setSalvando(true)
@@ -89,14 +102,42 @@ function DoadoresPage() {
     fecharFormulario()
     setSucesso(editando ? 'Doador atualizado com sucesso.' : 'Doador cadastrado com sucesso.')
     setSalvando(false)
-
-    try {
-      setDoadores(await buscarDoadores())
-      setErro(null)
-    } catch {
-      setErro('Não foi possível carregar os doadores.')
-    }
+    await recarregarDoadores()
   }
+
+function pedirRemocao(doador: Doador) {
+  setSucesso(null)
+  setErroRemocao(null)
+  setDoadorEmRemocao(doador)
+}
+
+function fecharRemocao() {
+  setErroRemocao(null)
+  setDoadorEmRemocao(null)
+}
+
+async function removerDoador() {
+  if (!doadorEmRemocao) return
+
+  setRemovendo(true)
+  setErroRemocao(null)
+
+  try {
+    await deletarDoador(doadorEmRemocao.id)
+  } catch (falha) {
+    setErroRemocao(obterMensagemErro(falha, 'Não foi possível remover o doador.'))
+    setRemovendo(false)
+    return
+  }
+
+  if (doadorEmEdicao?.id === doadorEmRemocao.id) {
+    fecharFormulario()
+  }
+  fecharRemocao()
+  setSucesso('Doador removido com sucesso.')
+  setRemovendo(false)
+  await recarregarDoadores()
+}
 
   return (
     <section className="doadores">
@@ -191,14 +232,24 @@ function DoadoresPage() {
                     </span>
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="botao botao--secundario doadores__editar"
-                      aria-label={`Editar ${doador.nome}`}
-                      onClick={() => editarDoador(doador)}
-                    >
-                      Editar
-                    </button>
+                    <div className="doacoes__acoes">
+                      <button
+                        type="button"
+                        className="botao botao--secundario doadores__editar"
+                        aria-label={`Editar ${doador.nome}`}
+                        onClick={() => editarDoador(doador)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="botao botao--secundario doadores__remover"
+                        aria-label={`Remover ${doador.nome}`}
+                        onClick={() => pedirRemocao(doador)}
+                      >
+                        Remover
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -211,6 +262,15 @@ function DoadoresPage() {
           {carregando && <p className="tabela__vazia">Carregando doadores...</p>}
         </div>
       </div>
+      {doadorEmRemocao && (
+        <ConfirmarRemocaoDoador
+          nome={doadorEmRemocao.nome}
+          removendo={removendo}
+          erro={erroRemocao}
+          onConfirmar={removerDoador}
+          onCancelar={fecharRemocao}
+        />
+      )}
     </section>
   )
 }

@@ -15,7 +15,7 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 | RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue |
 | RF02 | Listar doadores | Entregue |
 | RF03 | Editar doador | Entregue |
-| RF04 | Remover doador | Parcial (API pronta, falta a tela) |
+| RF04 | Remover doador | Entregue |
 | RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Parcial (tela pronta; falta o back-end travar a conclusão repetida) |
 | RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Planejado |
 | RF07 | Cadastrar solicitações de sangue | Planejado |
