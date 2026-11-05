@@ -7,6 +7,8 @@ import br.inatel.model.Solicitacao;
 import br.inatel.repository.SolicitacaoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SolicitacaoService {
     private final SolicitacaoRepository repository;
@@ -26,6 +28,10 @@ public class SolicitacaoService {
         );
         Solicitacao salva = repository.save(solicitacao);
         return toResponseDTO(salva);
+    }
+
+    public List<SolicitacaoResponseDTO> listarTodas() {
+        return repository.findAll().stream().map(this::toResponseDTO).toList();
     }
 
     private SolicitacaoResponseDTO toResponseDTO(Solicitacao solicitacao) {

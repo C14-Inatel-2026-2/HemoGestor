@@ -5,10 +5,9 @@ import br.inatel.dto.SolicitacaoResponseDTO;
 import br.inatel.service.SolicitacaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/solicitacoes")
@@ -23,5 +22,10 @@ public class SolicitacaoController {
     public ResponseEntity<SolicitacaoResponseDTO> cadastrar(@RequestBody SolicitacaoRequestDTO dto){
         SolicitacaoResponseDTO resposta = service.salvar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SolicitacaoResponseDTO>> listarTodas() {
+        return ResponseEntity.ok(service.listarTodas());
     }
 }
