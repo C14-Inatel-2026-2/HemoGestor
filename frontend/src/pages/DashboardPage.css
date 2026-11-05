@@ -1,0 +1,141 @@
+.dashboard__secao {
+  margin-bottom: 20px;
+}
+
+.dashboard__secao-topo,
+.dashboard__cartao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard__secao-topo {
+  margin-bottom: 12px;
+}
+
+.dashboard__cartao-topo {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--cor-borda-suave);
+}
+
+.dashboard__titulo {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.dashboard__subtitulo {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--cor-placeholder);
+}
+
+.dashboard__link {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cor-primaria);
+  text-decoration: none;
+}
+
+.dashboard__link:hover {
+  text-decoration: underline;
+}
+
+.dashboard__tipos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.dashboard__tipo {
+  padding: 14px 16px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-card);
+}
+
+.dashboard__tipo-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dashboard__tipo-quantidade {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--cor-texto-secundario);
+}
+
+.dashboard__tipo-quantidade strong {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.dashboard__colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .dashboard__colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.tabela.dashboard__tabela {
+  min-width: 480px;
+}
+
+.dashboard__tabela th,
+.dashboard__tabela td {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.dashboard__alertas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard__alertas li + li {
+  border-top: 1px solid var(--cor-borda-suave);
+}
+
+.dashboard__alerta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  text-decoration: none;
+}
+
+.dashboard__alerta:hover {
+  background: var(--cor-superficie-alt);
+}
+
+.dashboard__alerta-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dashboard__alerta-titulo {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.dashboard__alerta-detalhe {
+  font-size: 12px;
+  color: var(--cor-placeholder);
+}
