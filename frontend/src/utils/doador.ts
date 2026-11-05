@@ -5,6 +5,14 @@ function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, '')
 }
 
+export function normalizarTexto(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim()
+}
+
 export function formatarCpf(cpf: string): string {
   const digitos = somenteDigitos(cpf)
   if (digitos.length !== 11) return cpf
