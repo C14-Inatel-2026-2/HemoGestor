@@ -23,53 +23,30 @@ public class BolsaSangueController {
     @GetMapping
     public ResponseEntity<?> listarTodas(){
         List<BolsaSangueResponseDTO> resposta = service.listarTodas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
-
-        if (resposta.isEmpty()) {
-            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas cadastradas."));
-        }
-
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/tipo")
     public ResponseEntity<?> listarPorTipoSanguineo(@RequestParam("tipoSanguineo") String tipoSanguineo){
         List<BolsaSangueResponseDTO> resposta = service.listarPorTipoSanguineo(tipoSanguineo).stream().map(BolsaSangueMapper::toResponseDTO).toList();
-
-        if (resposta.isEmpty()) {
-            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas cadastradas para este tipo sanguíneo."));
-        }
-
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/validas")
     public ResponseEntity<?> listarValidas(){
         List<BolsaSangueResponseDTO> resposta = service.listarValidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
-
-        if (resposta.isEmpty()) {
-            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas válidas cadastradas."));
-        }
-
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/vencidas")
     public ResponseEntity<?> listarVencidas() {
         List<BolsaSangueResponseDTO> resposta = service.listarVencidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
-
-        if (resposta.isEmpty()) {
-            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas vencidas cadastradas."));
-        }
-
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/situacao")
     public ResponseEntity<?> listarPorSituacao(@RequestParam("situacao")SituacaoBolsa situacao){
         List<BolsaSangueResponseDTO> resposta = service.listarPorSituacao(situacao).stream().map(BolsaSangueMapper::toResponseDTO).toList();
-        if(resposta.isEmpty()){
-            return ResponseEntity.ok(Map.of("mensagem", "Não existem bolsas cadastradas com esta situação."));
-        }
         return ResponseEntity.ok(resposta);
     }
 
