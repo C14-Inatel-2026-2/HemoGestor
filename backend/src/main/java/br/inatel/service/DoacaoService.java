@@ -90,12 +90,11 @@ public class DoacaoService {
 
             Doador doador = doacao.getDoador();
             doador.registrarDoacao(doacao.getDataColeta());
+            if(doacao.getDoador().getTipo_sanguineo() == null || doacao.getDoador().getTipo_sanguineo().isBlank()){
+                throw new DadosInvalidosException("Informe o tipo sanguíneo do doador antes de concluir a doação.");
+            }
 
-            BolsaSangue bolsa = new BolsaSangue(
-                    doacao,
-                    doador.getTipo_sanguineo(),
-                    doacao.getDataColeta(),
-                    SituacaoBolsa.DISPONIVEL);
+            BolsaSangue bolsa = new BolsaSangue(doacao, doador.getTipo_sanguineo(), doacao.getDataColeta(), SituacaoBolsa.DISPONIVEL);
             bolsaSangueRepository.save(bolsa);
 
             return repository.save(doacao);
