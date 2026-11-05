@@ -10,6 +10,7 @@ import br.inatel.model.Solicitacao;
 import br.inatel.repository.SolicitacaoRepository;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,5 +123,42 @@ public class SolicitacaoServiceTest {
 
         assertEquals("Solicitação não encontrada.", exception.getMessage());
         verify(repository).findById(99L);
+    }
+
+    @Test
+    void listarSolicitacoesEmOrdemPorPrioridade() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository);
+
+        Solicitacao normal = new Solicitacao("Hospital A", "UTI", "A+", 1, PrioridadeSolicitacao.NORMAL, "Caso normal");
+        Solicitacao urgente = new Solicitacao("Hospital B", "UTI", "O+", 1, PrioridadeSolicitacao.URGENTE, "Caso urgente");
+        Solicitacao emergencia = new Solicitacao("Hospital C", "UTI", "O-", 1, PrioridadeSolicitacao.EMERGÊNCIA, "Caso de emergência");
+
+        when(repository.findAll()).thenReturn(List.of(normal, urgente, emergencia));
+
+        List<SolicitacaoResponseDTO> resultado = service.listarTodas();
+
+        assertEquals(PrioridadeSolicitacao.EMERGÊNCIA, resultado.get(0).getPrioridade());
+        assertEquals(PrioridadeSolicitacao.URGENTE, resultado.get(1).getPrioridade());
+        assertEquals(PrioridadeSolicitacao.NORMAL, resultado.get(2).getPrioridade());
+    }
+
+    @Test
+    void listarSolicitacoesDaMesmaPrioridadePorDataMaisAntiga() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository);
+
+        Solicitacao maisRecente = new Solicitacao("Hospital A", "UTI", "A+", 1, PrioridadeSolicitacao.URGENTE, "Solicitação mais recente");
+        maisRecente.setDataSolicitacao(LocalDateTime.of(2026, 11, 5, 14, 0));
+
+        Solicitacao maisAntiga = new Solicitacao("Hospital B", "UTI", "O+", 1, PrioridadeSolicitacao.URGENTE, "Solicitação mais antiga");
+        maisAntiga.setDataSolicitacao(LocalDateTime.of(2026, 11, 5, 10, 0));
+
+        when(repository.findAll()).thenReturn(List.of(maisRecente, maisAntiga));
+
+        List<SolicitacaoResponseDTO> resultado = service.listarTodas();
+
+        assertEquals("Hospital B", resultado.get(0).getInstituicao());
+        assertEquals("Hospital A", resultado.get(1).getInstituicao());
     }
 }
