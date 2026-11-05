@@ -5,6 +5,7 @@ import br.inatel.dto.SolicitacaoResponseDTO;
 import br.inatel.enumeracao.PrioridadeSolicitacao;
 import br.inatel.enumeracao.StatusSolicitacao;
 import br.inatel.exception.DadosInvalidosException;
+import br.inatel.exception.SolicitacaoNaoEncontradaException;
 import br.inatel.service.SolicitacaoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,5 +127,41 @@ public class SolicitacaoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void buscarSolicitacaoPorId() throws Exception {
+        SolicitacaoResponseDTO response = new SolicitacaoResponseDTO(
+                1L,
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico.",
+                LocalDateTime.now(),
+                StatusSolicitacao.PENDENTE,
+                List.of(),
+                0
+        );
+
+        when(service.buscarPorId(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/solicitacoes/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.instituicao").value("Hospital Santa Casa"))
+                .andExpect(jsonPath("$.tipoSanguineo").value("A+"))
+                .andExpect(jsonPath("$.status").value("PENDENTE"));
+    }
+
+    @Test
+    void retornar404QuandoSolicitacaoNaoExistir() throws Exception {
+        when(service.buscarPorId(99L)).thenThrow(new SolicitacaoNaoEncontradaException("Solicitação não encontrada."));
+
+        mockMvc.perform(get("/solicitacoes/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro")
+                        .value("Solicitação não encontrada."));
     }
 }

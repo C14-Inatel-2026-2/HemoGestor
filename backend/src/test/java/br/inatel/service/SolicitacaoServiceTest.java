@@ -5,11 +5,13 @@ import br.inatel.dto.SolicitacaoResponseDTO;
 import br.inatel.enumeracao.PrioridadeSolicitacao;
 import br.inatel.enumeracao.StatusSolicitacao;
 import br.inatel.exception.DadosInvalidosException;
+import br.inatel.exception.SolicitacaoNaoEncontradaException;
 import br.inatel.model.Solicitacao;
 import br.inatel.repository.SolicitacaoRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -90,5 +92,35 @@ public class SolicitacaoServiceTest {
         List<SolicitacaoResponseDTO> resultado = service.listarTodas();
         assertTrue(resultado.isEmpty());
         verify(repository).findAll();
+    }
+
+    @Test
+    void buscarSolicitacaoPorId() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository);
+
+        Solicitacao solicitacao = new Solicitacao("Hospital Santa Casa", "UTI", "A+", 2, PrioridadeSolicitacao.URGENTE, "Paciente em procedimento cirúrgico.");
+
+        when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
+
+        SolicitacaoResponseDTO resultado = service.buscarPorId(1L);
+
+        assertEquals("Hospital Santa Casa", resultado.getInstituicao());
+        assertEquals("A+", resultado.getTipoSanguineo());
+        assertEquals(StatusSolicitacao.PENDENTE, resultado.getStatus());
+        verify(repository).findById(1L);
+    }
+
+    @Test
+    void naoBuscarSolicitacaoInexistente() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository);
+
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        SolicitacaoNaoEncontradaException exception = assertThrows(SolicitacaoNaoEncontradaException.class, () -> service.buscarPorId(99L));
+
+        assertEquals("Solicitação não encontrada.", exception.getMessage());
+        verify(repository).findById(99L);
     }
 }
