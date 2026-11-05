@@ -1,9 +1,6 @@
 package br.inatel.exception.handler;
 
-import br.inatel.exception.BolsaNaoEncontradaException;
-import br.inatel.exception.ConflitoException;
-import br.inatel.exception.DadosInvalidosException;
-import br.inatel.exception.TipoSanguineoException;
+import br.inatel.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,6 +92,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BolsaNaoEncontradaException.class)
     public ResponseEntity<Map<String, String>> tratarBolsaNaoEncontrada(BolsaNaoEncontradaException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SolicitacaoNaoEncontradaException.class)
+    public ResponseEntity<Map<String, String>> handleSolicitacaoNaoEncontrada(SolicitacaoNaoEncontradaException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
     }
 }
