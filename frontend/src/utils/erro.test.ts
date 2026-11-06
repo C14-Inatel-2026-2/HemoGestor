@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { AxiosError } from 'axios'
 import type { AxiosResponse } from 'axios'
-import { obterMensagemErro } from './erro'
+import { obterMensagemErro, validarRespostaLista } from './erro'
 
 describe('obterMensagemErro', () => {
   it('retorna a mensagem da API quando ela existe', () => {
@@ -45,5 +45,18 @@ describe('obterMensagemErro', () => {
     expect(
       obterMensagemErro(new Error('Network Error'), 'Falha ao salvar.'),
     ).toBe('Falha ao salvar.')
+  })
+})
+
+describe('validarRespostaLista', () => {
+  it('retorna a lista quando a resposta da API é um array', () => {
+    const dados = [{ id: 1 }, { id: 2 }]
+
+    expect(validarRespostaLista(dados)).toEqual(dados)
+  })
+
+  it('lança erro quando a resposta da API não é uma lista', () => {
+    expect(() => validarRespostaLista({ mensagem: 'Resposta inválida' }))
+      .toThrow('Resposta inesperada da API')
   })
 })
