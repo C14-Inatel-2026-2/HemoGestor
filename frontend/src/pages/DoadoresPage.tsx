@@ -18,8 +18,7 @@ import type { FiltrosDoadores } from '../utils/doador'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
-
-const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
   APTO: 'Apto',
