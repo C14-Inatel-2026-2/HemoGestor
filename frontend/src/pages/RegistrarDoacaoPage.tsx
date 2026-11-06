@@ -140,7 +140,7 @@ function RegistrarDoacaoPage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Doações" subtitulo="Histórico e registros de coletas" />
+      <CabecalhoPagina titulo="Doações" subtitulo="Histórico e registro de coletas" />
       <div className="doadores__conteudo">
         <div className="doadores__barra">
           <span className="doadores__contagem">{doacoesVisiveis.length} doações</span>          {!exibindoFormulario && (
