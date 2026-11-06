@@ -48,4 +48,24 @@ CREATE TABLE IF NOT EXISTS bolsa_sangue (
         REFERENCES Doacao(id)
 );
 
+CREATE TABLE IF NOT EXISTS solicitacao(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    instituicao VARCHAR(150) NOT NULL,
+    setor VARCHAR(100),
+    tipo_sanguineo VARCHAR(3) NOT NULL,
+    quantidade INT NOT NULL,
+    prioridade ENUM('NORMAL', 'URGENTE', 'EMERGENCIA') NOT NULL,
+    justificativa TEXT,
+    data_solicitacao DATETIME NOT NULL,
+    status ENUM('PENDENTE', 'EM_ATENDIMENTO', 'ATENDIDA', 'CANCELADA') NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS solicitacao_bolsa(
+    solicitacao_id BIGINT NOT NULL,
+    bolsa_id BIGINT NOT NULL,
+    PRIMARY KEY(solicitacao_id, bolsa_id),
+    FOREIGN KEY (solicitacao_id) REFERENCES solicitacao(id),
+    FOREIGN KEY (bolsa_id) REFERENCES bolsa_sangue(id)
+);
+
 
