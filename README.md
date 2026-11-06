@@ -16,11 +16,11 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 | RF02 | Listar doadores | Entregue |
 | RF03 | Editar doador | Entregue |
 | RF04 | Remover doador | Entregue |
-| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Parcial (tela pronta; falta o back-end travar a conclusão repetida) |
-| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Planejado |
-| RF07 | Cadastrar solicitações de sangue | Planejado |
-| RF08 | Verificar compatibilidade e disponibilidade | Planejado |
-| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Planejado |
+| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Entregue |
+| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Entregue |
+| RF07 | Cadastrar solicitações de sangue | Entregue |
+| RF08 | Verificar compatibilidade e disponibilidade | Parcial (tela pronta; falta o back-end) |
+| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Entregue |
 
 **Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
@@ -100,9 +100,15 @@ O front-end deve rodar na porta 5173, porque o CORS do back-end só aceita essa 
 
 ## Como usar
 
-No menu lateral, a tela **Doadores** mostra a lista de doadores cadastrados. O botão **Novo doador** abre o formulário de cadastro, em que nome e CPF são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. O botão **Editar**, em cada linha da lista, abre o mesmo formulário preenchido com os dados do doador para alterá-los.
+No menu lateral, o **Dashboard** mostra o resumo do estoque por tipo sanguíneo, as solicitações que exigem ação e os alertas operacionais. Cada alerta leva à área correspondente.
 
-A tela **Registrar Doação** lista as doações já registradas e, pelo botão **Nova doação**, abre o formulário de registro, em que o doador, a data, a hora, o volume, a hemoglobina e o responsável são obrigatórios. A tela impede uma nova doação antes do intervalo mínimo (60 dias para homens e 90 dias para mulheres) e do limite de 12 meses (4 doações para homens e 3 para mulheres), e mostra a data em que o doador poderá doar novamente. Cada doação começa **Em triagem** e pode ser concluída ou descartada na própria tabela, pelos botões **Concluir** e **Descartar**. As telas de **Estoque**, **Solicitações** e **Dashboard** ainda estão em desenvolvimento, conforme a tabela de requisitos funcionais.
+A tela **Doadores** mostra a lista de doadores cadastrados, com busca por nome ou CPF e filtros por tipo sanguíneo e status. O botão **Novo doador** abre o formulário de cadastro, em que nome, CPF, data de nascimento e tipo sanguíneo são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. Em cada linha, o botão **Editar** abre o formulário preenchido, e o botão **Remover** pede uma confirmação antes de apagar. Um doador com doações registradas não pode ser removido.
+
+A tela **Registrar Doação** lista as doações já registradas, com busca por doador e filtro por status. O botão **Nova doação** abre o formulário de registro, em que o doador, a data, a hora, o volume, a hemoglobina e o responsável são obrigatórios. A tela impede uma nova doação antes do intervalo mínimo (60 dias para homens e 90 dias para mulheres) e do limite de 12 meses (4 doações para homens e 3 para mulheres), e mostra a data em que o doador poderá doar novamente. Cada doação começa **Em triagem** e pode ser concluída ou descartada na própria tabela. Ao concluir, uma bolsa é criada no estoque.
+
+A tela **Estoque** lista as bolsas, com filtros por tipo sanguíneo e status, e destaca as que vencem em breve. Uma bolsa pode ser descartada na própria tabela.
+
+A tela **Solicitações** lista os pedidos de sangue por prioridade e permite cadastrar novos pedidos. As ações de atender, concluir e cancelar dependem dos endpoints que ainda estão em desenvolvimento.
 
 ## Testes
 

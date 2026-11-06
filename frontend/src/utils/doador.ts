@@ -1,6 +1,5 @@
 import { isAxiosError } from 'axios'
-import type { Doador, DoadorRequest, NovoDoador } from '../types/doador'
-
+import type { Doador, DoadorRequest, NovoDoador, StatusDoador, TipoSanguineo } from '../types/doador'
 function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, '')
 }
@@ -11,6 +10,32 @@ export function normalizarTexto(texto: string): string {
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase()
     .trim()
+}
+
+export interface FiltrosDoadores {
+  busca: string
+  tipoSanguineo: TipoSanguineo | ''
+  status: StatusDoador | ''
+}
+
+export const FILTROS_INICIAIS_DOADORES: FiltrosDoadores = {
+  busca: '',
+  tipoSanguineo: '',
+  status: '',
+}
+
+export function filtrarDoadores(doadores: Doador[], filtros: FiltrosDoadores): Doador[] {
+  const busca = normalizarTexto(filtros.busca)
+  const buscaCpf = somenteDigitos(filtros.busca)
+
+  return doadores
+    .filter((doador) => {
+      const encontrouNome = normalizarTexto(doador.nome).includes(busca)
+      const encontrouCpf = buscaCpf !== '' && somenteDigitos(doador.cpf).includes(buscaCpf)
+      return encontrouNome || encontrouCpf
+    })
+    .filter((doador) => !filtros.tipoSanguineo || doador.tipo_sanguineo === filtros.tipoSanguineo)
+    .filter((doador) => !filtros.status || doador.status === filtros.status)
 }
 
 export function formatarCpf(cpf: string): string {

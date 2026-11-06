@@ -42,7 +42,7 @@ describe('DoadoresPage', () => {
     expect(await screen.findByText('Ana Souza')).toBeInTheDocument()
     expect(screen.getByText('529.982.247-25')).toBeInTheDocument()
     expect(screen.getByText('18/08/2026')).toBeInTheDocument()
-    expect(screen.getByText('Apto')).toBeInTheDocument()
+    expect(screen.getByText('Apto', { selector: '.selo-status' })).toBeInTheDocument()
     expect(getDoadores).toHaveBeenCalledTimes(1)
   })
 
@@ -353,5 +353,81 @@ describe('DoadoresPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Não foi possível carregar os doadores.',
     )
+  })
+
+    describe('filtros', () => {
+    const doadorJoao: Doador = {
+      ...doadoraAna,
+      id: 2,
+      nome: 'João Conceição',
+      cpf: '11144477735',
+      tipo_sanguineo: 'A+',
+      status: 'INAPTO',
+    }
+
+    beforeEach(() => {
+      vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna, doadorJoao]))
+    })
+
+    it('busca por nome e atualiza a contagem', async () => {
+      const usuario = userEvent.setup()
+
+      render(<DoadoresPage />)
+      await screen.findByText('Ana Souza')
+
+      await usuario.type(screen.getByRole('searchbox', { name: 'Buscar por nome ou CPF' }), 'joao')
+
+      expect(screen.getByText('João Conceição')).toBeInTheDocument()
+      expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
+      expect(screen.getByText('1 doadores')).toBeInTheDocument()
+    })
+
+    it('busca por CPF', async () => {
+      const usuario = userEvent.setup()
+
+      render(<DoadoresPage />)
+      await screen.findByText('Ana Souza')
+
+      await usuario.type(screen.getByRole('searchbox', { name: 'Buscar por nome ou CPF' }), '529.982')
+
+      expect(screen.getByText('Ana Souza')).toBeInTheDocument()
+      expect(screen.queryByText('João Conceição')).not.toBeInTheDocument()
+    })
+
+    it('filtra por tipo sanguíneo', async () => {
+      const usuario = userEvent.setup()
+
+      render(<DoadoresPage />)
+      await screen.findByText('Ana Souza')
+
+      await usuario.selectOptions(screen.getByRole('combobox', { name: 'Filtrar por tipo sanguíneo' }), 'A+')
+
+      expect(screen.getByText('João Conceição')).toBeInTheDocument()
+      expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
+    })
+
+    it('filtra por status', async () => {
+      const usuario = userEvent.setup()
+
+      render(<DoadoresPage />)
+      await screen.findByText('Ana Souza')
+
+      await usuario.selectOptions(screen.getByRole('combobox', { name: 'Filtrar por status' }), 'APTO')
+
+      expect(screen.getByText('Ana Souza')).toBeInTheDocument()
+      expect(screen.queryByText('João Conceição')).not.toBeInTheDocument()
+    })
+
+    it('avisa quando nenhum doador corresponde aos filtros', async () => {
+      const usuario = userEvent.setup()
+
+      render(<DoadoresPage />)
+      await screen.findByText('Ana Souza')
+
+      await usuario.type(screen.getByRole('searchbox', { name: 'Buscar por nome ou CPF' }), 'Pedro')
+
+      expect(screen.getByText('Nenhum doador encontrado.')).toBeInTheDocument()
+      expect(screen.queryByText('Nenhum doador cadastrado.')).not.toBeInTheDocument()
+    })
   })
 })
