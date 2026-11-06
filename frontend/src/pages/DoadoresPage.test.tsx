@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AxiosError } from 'axios'
 import type { AxiosResponse } from 'axios'
 import DoadoresPage from './DoadoresPage'
-import { atualizarDoador, criarDoador, getDoadores } from '../services/doadorService'
+import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
 import type { Doador } from '../types/doador'
 
 vi.mock('../services/doadorService')
@@ -44,6 +44,27 @@ describe('DoadoresPage', () => {
     expect(screen.getByText('18/08/2026')).toBeInTheDocument()
     expect(screen.getByText('Apto')).toBeInTheDocument()
     expect(getDoadores).toHaveBeenCalledTimes(1)
+  })
+
+  it('exibe o telefone formatado, mesmo quando a API devolve só os números', async () => {
+    vi.mocked(getDoadores).mockResolvedValue(
+      respostaComLista([{ ...doadoraAna, telefone: '35992243243' }]),
+    )
+
+    render(<DoadoresPage />)
+
+    expect(await screen.findByText('(35) 99224-3243')).toBeInTheDocument()
+  })
+
+  it('exibe um traço quando o doador não tem telefone', async () => {
+    vi.mocked(getDoadores).mockResolvedValue(
+      respostaComLista([{ ...doadoraAna, telefone: '', ultima_doacao: '2026-08-18' }]),
+    )
+
+    render(<DoadoresPage />)
+
+    const linha = (await screen.findByText('Ana Souza')).closest('tr') as HTMLElement
+    expect(within(linha).getByText('—')).toBeInTheDocument()
   })
 
   it('cadastra um doador pelo formulário e atualiza a lista', async () => {
@@ -180,5 +201,157 @@ describe('DoadoresPage', () => {
     expect(screen.getByRole('button', { name: 'Salvar alterações' })).toBeInTheDocument()
     expect(screen.queryByText('Doador atualizado com sucesso.')).not.toBeInTheDocument()
     expect(getDoadores).toHaveBeenCalledTimes(1)
+  })
+
+    it('pede confirmação e não remove quando o usuário cancela', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna]))
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+    const confirmacao = within(screen.getByRole('alertdialog', { name: 'Remover doador' }))
+    await usuario.click(confirmacao.getByRole('button', { name: 'Cancelar' }))
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(deletarDoador).not.toHaveBeenCalled()
+  })
+
+  it('remove o doador depois da confirmação e atualiza a lista', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores)
+      .mockResolvedValueOnce(respostaComLista([doadoraAna]))
+      .mockResolvedValueOnce(respostaComLista([]))
+    vi.mocked(deletarDoador).mockResolvedValue({} as AxiosResponse)
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+    const confirmacao = within(screen.getByRole('alertdialog'))
+    await usuario.click(confirmacao.getByRole('button', { name: 'Remover' }))
+
+    expect(await screen.findByText('Doador removido com sucesso.')).toBeInTheDocument()
+    expect(deletarDoador).toHaveBeenCalledWith(1)
+    expect(await screen.findByText('Nenhum doador cadastrado.')).toBeInTheDocument()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(getDoadores).toHaveBeenCalledTimes(2)
+  })
+
+  it('mantém o doador e mostra o aviso quando ele já tem doações', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna]))
+    vi.mocked(deletarDoador).mockRejectedValue(
+      new AxiosError('Conflict', 'ERR_BAD_REQUEST', undefined, undefined, {
+        status: 409,
+        data: { erro: 'Não é possível remover um doador que já tem doações registradas.' },
+      } as AxiosResponse),
+    )
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+    const confirmacao = within(screen.getByRole('alertdialog'))
+    await usuario.click(confirmacao.getByRole('button', { name: 'Remover' }))
+
+    expect(await confirmacao.findByRole('alert')).toHaveTextContent(
+      'Não é possível remover um doador que já tem doações registradas.',
+    )
+    expect(screen.getByText('Ana Souza', { selector: '.doador__nome' })).toBeInTheDocument()
+    expect(screen.queryByText('Doador removido com sucesso.')).not.toBeInTheDocument()
+    expect(getDoadores).toHaveBeenCalledTimes(1)
+  })
+
+  it('usa a mensagem padrão quando a remoção falha sem resposta da API', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna]))
+    vi.mocked(deletarDoador).mockRejectedValue(new Error('Falha de rede'))
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+    const confirmacao = within(screen.getByRole('alertdialog'))
+    await usuario.click(confirmacao.getByRole('button', { name: 'Remover' }))
+
+    expect(await confirmacao.findByRole('alert')).toHaveTextContent(
+      'Não foi possível remover o doador.',
+    )
+  })
+
+  it('limpa o erro da tentativa anterior ao reabrir a confirmação', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna]))
+    vi.mocked(deletarDoador).mockRejectedValue(new Error('Falha de rede'))
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+    await usuario.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remover' }))
+    await screen.findByRole('alert')
+    await usuario.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancelar' }))
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('fecha o formulário de edição quando o doador editado é removido', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores)
+      .mockResolvedValueOnce(respostaComLista([doadoraAna]))
+      .mockResolvedValueOnce(respostaComLista([]))
+    vi.mocked(deletarDoador).mockResolvedValue({} as AxiosResponse)
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar Ana Souza' }))
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+    await usuario.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remover' }))
+
+    expect(await screen.findByText('Doador removido com sucesso.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Editar doador' })).not.toBeInTheDocument()
+  })
+
+  it('mantém o formulário aberto quando outro doador é removido', async () => {
+    const usuario = userEvent.setup()
+    const doadorBruno: Doador = { ...doadoraAna, id: 2, nome: 'Bruno Lima', cpf: '11144477735' }
+    vi.mocked(getDoadores)
+      .mockResolvedValueOnce(respostaComLista([doadoraAna, doadorBruno]))
+      .mockResolvedValueOnce(respostaComLista([doadoraAna]))
+    vi.mocked(deletarDoador).mockResolvedValue({} as AxiosResponse)
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Editar Ana Souza' }))
+    await usuario.click(screen.getByRole('button', { name: 'Remover Bruno Lima' }))
+    await usuario.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remover' }))
+
+    expect(await screen.findByText('Doador removido com sucesso.')).toBeInTheDocument()
+    expect(deletarDoador).toHaveBeenCalledWith(2)
+    expect(screen.getByRole('heading', { name: 'Editar doador' })).toBeInTheDocument()
+  })
+
+  it('avisa quando a lista não recarrega depois da remoção', async () => {
+    const usuario = userEvent.setup()
+    vi.mocked(getDoadores)
+      .mockResolvedValueOnce(respostaComLista([doadoraAna]))
+      .mockRejectedValueOnce(new Error('Falha de rede'))
+    vi.mocked(deletarDoador).mockResolvedValue({} as AxiosResponse)
+
+    render(<DoadoresPage />)
+    await screen.findByText('Ana Souza')
+
+    await usuario.click(screen.getByRole('button', { name: 'Remover Ana Souza' }))
+    await usuario.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remover' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível carregar os doadores.',
+    )
   })
 })

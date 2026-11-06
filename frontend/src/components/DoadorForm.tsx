@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { NovoDoador, Sexo, TipoSanguineo } from '../types/doador'
-import { validarCpf } from '../utils/doador'
+import { validarCpf, validarTelefone } from '../utils/doador'
 import './DoadorForm.css'
 
 const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
@@ -24,6 +24,7 @@ interface ErrosFormulario {
   cpf?: string
   data_nascimento?: string
   tipo_sanguineo?: string
+  telefone?: string
 }
 
 interface DoadorFormProps {
@@ -43,20 +44,23 @@ function DoadorForm({ onSubmit, onCancelar, salvando = false, doadorInicial, tex
   }
 
   function validar(): ErrosFormulario {
-  const novosErros: ErrosFormulario = {}
-  if (!dados.nome.trim()) {
-    novosErros.nome = 'Informe o nome do doador.'
-  }
-  if (!validarCpf(dados.cpf)) {
-    novosErros.cpf = 'CPF inválido.'
-  }
-  if (!dados.data_nascimento) {
-    novosErros.data_nascimento = 'Informe a data de nascimento.'
-  }
-  if (!dados.tipo_sanguineo) {
-    novosErros.tipo_sanguineo = 'Selecione o tipo sanguíneo.'
-  }
-  return novosErros
+    const novosErros: ErrosFormulario = {}
+    if (!dados.nome.trim()) {
+      novosErros.nome = 'Informe o nome do doador.'
+    }
+    if (!validarCpf(dados.cpf)) {
+      novosErros.cpf = 'CPF inválido.'
+    }
+    if (!dados.data_nascimento) {
+      novosErros.data_nascimento = 'Informe a data de nascimento.'
+    }
+    if (!dados.tipo_sanguineo) {
+      novosErros.tipo_sanguineo = 'Selecione o tipo sanguíneo.'
+    }
+    if (!validarTelefone(dados.telefone)) {
+      novosErros.telefone = 'Informe o telefone com DDD.'
+    }
+    return novosErros
   }
 
   function handleSubmit(evento: FormEvent<HTMLFormElement>) {
@@ -69,6 +73,7 @@ function DoadorForm({ onSubmit, onCancelar, salvando = false, doadorInicial, tex
       ...dados,
       nome: dados.nome.trim(),
       cpf: dados.cpf.replace(/\D/g, ''),
+      telefone: dados.telefone.replace(/\D/g, ''),
     })
   }
 
@@ -155,7 +160,9 @@ function DoadorForm({ onSubmit, onCancelar, salvando = false, doadorInicial, tex
             placeholder="(00) 00000-0000"
             value={dados.telefone}
             onChange={(e) => atualizar('telefone', e.target.value)}
+            aria-invalid={Boolean(erros.telefone)}
           />
+          {erros.telefone && <span className="campo__erro">{erros.telefone}</span>}
         </div>
 
         <div className="campo">
