@@ -3,16 +3,31 @@ import ConfirmarRemocaoDoador from '../components/ConfirmarRemocaoDoador'
 import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
 import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
-import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
-import { formatarCpf, formatarData, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, paraDadosDoFormulario } from '../utils/doador'
+import type { Doador, NovoDoador, StatusDoador, TipoSanguineo } from '../types/doador'
+import {
+  FILTROS_INICIAIS_DOADORES,
+  filtrarDoadores,
+  formatarCpf,
+  formatarData,
+  formatarTelefone,
+  montarRequisicaoDeEdicao,
+  obterIniciais,
+  paraDadosDoFormulario,
+} from '../utils/doador'
+import type { FiltrosDoadores } from '../utils/doador'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
+import './EstoquePage.css'
+
+const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
   APTO: 'Apto',
   AGUARDANDO: 'Aguardando',
   INAPTO: 'Inapto',
 }
+
+const STATUS_DOADOR = Object.keys(ROTULO_STATUS) as StatusDoador[]
 
 async function buscarDoadores(): Promise<Doador[]> {
   const resposta = await getDoadores()
@@ -31,6 +46,7 @@ function DoadoresPage() {
   const [doadorEmRemocao, setDoadorEmRemocao] = useState<Doador | null>(null)
   const [removendo, setRemovendo] = useState(false)
   const [erroRemocao, setErroRemocao] = useState<string | null>(null)
+  const [filtros, setFiltros] = useState<FiltrosDoadores>(FILTROS_INICIAIS_DOADORES)
 
   useEffect(() => {
     buscarDoadores()
@@ -40,6 +56,14 @@ function DoadoresPage() {
   }, [])
 
   const formularioAberto = exibindoFormulario || doadorEmEdicao !== null
+  const doadoresVisiveis = filtrarDoadores(doadores, filtros)
+
+  function atualizarFiltro<K extends keyof FiltrosDoadores>(
+    campo: K,
+    valor: FiltrosDoadores[K],
+  ) {
+    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
+  }
 
   function abrirFormulario() {
     setSucesso(null)
@@ -77,7 +101,10 @@ function DoadoresPage() {
 
     try {
       if (doadorEmEdicao) {
-        await atualizarDoador(doadorEmEdicao.id, montarRequisicaoDeEdicao(doadorEmEdicao, dados))
+        await atualizarDoador(
+          doadorEmEdicao.id,
+          montarRequisicaoDeEdicao(doadorEmEdicao, dados),
+        )
       } else {
         await criarDoador(dados)
       }
@@ -85,57 +112,72 @@ function DoadoresPage() {
       const mensagemPadrao = editando
         ? 'Não foi possível atualizar o doador.'
         : 'Não foi possível cadastrar o doador.'
+
       setErroCadastro(obterMensagemErro(falha, mensagemPadrao))
       setSalvando(false)
       return
     }
 
     fecharFormulario()
-    setSucesso(editando ? 'Doador atualizado com sucesso.' : 'Doador cadastrado com sucesso.')
+    setSucesso(
+      editando
+        ? 'Doador atualizado com sucesso.'
+        : 'Doador cadastrado com sucesso.',
+    )
     setSalvando(false)
     await recarregarDoadores()
   }
 
-function pedirRemocao(doador: Doador) {
-  setSucesso(null)
-  setErroRemocao(null)
-  setDoadorEmRemocao(doador)
-}
+  function pedirRemocao(doador: Doador) {
+    setSucesso(null)
+    setErroRemocao(null)
+    setDoadorEmRemocao(doador)
+  }
 
-function fecharRemocao() {
-  setErroRemocao(null)
-  setDoadorEmRemocao(null)
-}
+  function fecharRemocao() {
+    setErroRemocao(null)
+    setDoadorEmRemocao(null)
+  }
 
-async function removerDoador() {
-  if (!doadorEmRemocao) return
+  async function removerDoador() {
+    if (!doadorEmRemocao) return
 
-  setRemovendo(true)
-  setErroRemocao(null)
+    setRemovendo(true)
+    setErroRemocao(null)
 
-  try {
-    await deletarDoador(doadorEmRemocao.id)
-  } catch (falha) {
-    setErroRemocao(obterMensagemErro(falha, 'Não foi possível remover o doador.'))
+    try {
+      await deletarDoador(doadorEmRemocao.id)
+    } catch (falha) {
+      setErroRemocao(
+        obterMensagemErro(falha, 'Não foi possível remover o doador.'),
+      )
+      setRemovendo(false)
+      return
+    }
+
+    if (doadorEmEdicao?.id === doadorEmRemocao.id) {
+      fecharFormulario()
+    }
+
+    fecharRemocao()
+    setSucesso('Doador removido com sucesso.')
     setRemovendo(false)
-    return
+    await recarregarDoadores()
   }
-
-  if (doadorEmEdicao?.id === doadorEmRemocao.id) {
-    fecharFormulario()
-  }
-  fecharRemocao()
-  setSucesso('Doador removido com sucesso.')
-  setRemovendo(false)
-  await recarregarDoadores()
-}
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Doadores" subtitulo="Cadastro e acompanhamento de doadores" />
+      <CabecalhoPagina
+        titulo="Doadores"
+        subtitulo="Cadastro e acompanhamento de doadores"
+      />
+
       <div className="doadores__conteudo">
         <div className="doadores__barra">
-          <span className="doadores__contagem">{doadores.length} doadores</span>
+          <span className="doadores__contagem">
+            {doadoresVisiveis.length} doadores
+          </span>
+
           {!formularioAberto && (
             <button
               type="button"
@@ -164,21 +206,80 @@ async function removerDoador() {
             <h2 className="doadores__formulario-titulo">
               {doadorEmEdicao ? 'Editar doador' : 'Novo doador'}
             </h2>
+
             {erroCadastro && (
               <p role="alert" className="doadores__erro">
                 {erroCadastro}
               </p>
             )}
+
             <DoadorForm
               key={doadorEmEdicao?.id ?? 'novo'}
               onSubmit={salvarDoador}
               onCancelar={fecharFormulario}
               salvando={salvando}
-              doadorInicial={doadorEmEdicao ? paraDadosDoFormulario(doadorEmEdicao) : undefined}
-              textoSalvar={doadorEmEdicao ? 'Salvar alterações' : undefined}
+              doadorInicial={
+                doadorEmEdicao
+                  ? paraDadosDoFormulario(doadorEmEdicao)
+                  : undefined
+              }
+              textoSalvar={
+                doadorEmEdicao ? 'Salvar alterações' : undefined
+              }
             />
           </div>
         )}
+
+        <div className="estoque__filtros">
+          <input
+            type="search"
+            aria-label="Buscar por nome ou CPF"
+            className="estoque__filtro estoque__filtro--busca"
+            placeholder="Buscar por nome ou CPF"
+            value={filtros.busca}
+            onChange={(e) => atualizarFiltro('busca', e.target.value)}
+          />
+
+          <select
+            aria-label="Filtrar por tipo sanguíneo"
+            className="estoque__filtro"
+            value={filtros.tipoSanguineo}
+            onChange={(e) =>
+              atualizarFiltro(
+                'tipoSanguineo',
+                e.target.value as TipoSanguineo | '',
+              )
+            }
+          >
+            <option value="">Tipo sanguíneo: todos</option>
+
+            {TIPOS_SANGUINEOS.map((tipo) => (
+              <option key={tipo} value={tipo}>
+                {tipo}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label="Filtrar por status"
+            className="estoque__filtro"
+            value={filtros.status}
+            onChange={(e) =>
+              atualizarFiltro(
+                'status',
+                e.target.value as StatusDoador | '',
+              )
+            }
+          >
+            <option value="">Status: todos</option>
+
+            {STATUS_DOADOR.map((status) => (
+              <option key={status} value={status}>
+                {ROTULO_STATUS[status]}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="tabela-card">
           <table className="tabela">
@@ -193,35 +294,58 @@ async function removerDoador() {
                 <th>Ações</th>
               </tr>
             </thead>
+
             <tbody>
-              {doadores.map((doador) => (
+              {doadoresVisiveis.map((doador) => (
                 <tr key={doador.id}>
                   <td>
                     <div className="doador">
-                      <span className="doador__avatar">{obterIniciais(doador.nome)}</span>
+                      <span className="doador__avatar">
+                        {obterIniciais(doador.nome)}
+                      </span>
+
                       <div>
-                        <div className="doador__nome">{doador.nome}</div>
+                        <div className="doador__nome">
+                          {doador.nome}
+                        </div>
+
                         <div className="doador__local">
                           {doador.cidade} · {doador.bairro}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="tabela__mono">{formatarCpf(doador.cpf)}</td>
+
+                  <td className="tabela__mono">
+                    {formatarCpf(doador.cpf)}
+                  </td>
+
                   <td>
                     {doador.tipo_sanguineo ? (
-                      <span className="selo-tipo">{doador.tipo_sanguineo}</span>
+                      <span className="selo-tipo">
+                        {doador.tipo_sanguineo}
+                      </span>
                     ) : (
                       '—'
                     )}
                   </td>
-                  <td>{formatarTelefone(doador.telefone ?? '') || '—'}</td>
-                  <td>{formatarData(doador.ultima_doacao)}</td>
+
                   <td>
-                    <span className={`selo-status selo-status--${doador.status.toLowerCase()}`}>
+                    {formatarTelefone(doador.telefone ?? '') || '—'}
+                  </td>
+
+                  <td>
+                    {formatarData(doador.ultima_doacao)}
+                  </td>
+
+                  <td>
+                    <span
+                      className={`selo-status selo-status--${doador.status.toLowerCase()}`}
+                    >
                       {ROTULO_STATUS[doador.status]}
                     </span>
                   </td>
+
                   <td>
                     <div className="doacoes__acoes">
                       <button
@@ -232,6 +356,7 @@ async function removerDoador() {
                       >
                         Editar
                       </button>
+
                       <button
                         type="button"
                         className="botao botao--secundario doadores__remover"
@@ -248,11 +373,25 @@ async function removerDoador() {
           </table>
 
           {!carregando && !erro && doadores.length === 0 && (
-            <p className="tabela__vazia">Nenhum doador cadastrado.</p>
+            <p className="tabela__vazia">
+              Nenhum doador cadastrado.
+            </p>
           )}
-          {carregando && <p className="tabela__vazia">Carregando doadores...</p>}
+
+          {doadores.length > 0 && doadoresVisiveis.length === 0 && (
+            <p className="tabela__vazia">
+              Nenhum doador encontrado.
+            </p>
+          )}
+
+          {carregando && (
+            <p className="tabela__vazia">
+              Carregando doadores...
+            </p>
+          )}
         </div>
       </div>
+
       {doadorEmRemocao && (
         <ConfirmarRemocaoDoador
           nome={doadorEmRemocao.nome}

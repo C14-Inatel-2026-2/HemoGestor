@@ -1,5 +1,7 @@
 import type { Doador } from '../types/doador'
 import {
+  FILTROS_INICIAIS_DOADORES,
+  filtrarDoadores,
   formatarCpf,
   formatarTelefone,
   montarRequisicaoDeEdicao,
@@ -130,5 +132,96 @@ describe('paraDadosDoFormulario com telefone', () => {
     })
 
     expect(dados.telefone).toBe('(35) 99224-3243')
+  })
+})
+
+describe('filtrarDoadores', () => {
+  const doadores = [
+    { ...doadoraAna, id: 1 },
+    {
+      ...doadoraAna,
+      id: 2,
+      nome: 'João Conceição',
+      cpf: '11144477735',
+      tipo_sanguineo: 'A+',
+      status: 'INAPTO',
+    },
+    {
+      ...doadoraAna,
+      id: 3,
+      nome: 'Ana Lima',
+      cpf: '12345678909',
+      tipo_sanguineo: null,
+      status: 'AGUARDANDO',
+    },
+  ] as Doador[]
+
+  function idsDe(lista: Doador[]) {
+    return lista.map((doador) => doador.id)
+  }
+
+  it('mostra todos quando não há filtro', () => {
+    expect(idsDe(filtrarDoadores(doadores, FILTROS_INICIAIS_DOADORES))).toEqual([1, 2, 3])
+  })
+
+  it('busca pelo nome, sem diferenciar maiúsculas e acentos', () => {
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: ' joao conc ',
+    }
+
+    expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([2])
+  })
+
+  it('busca pelo CPF, com ou sem formatação', () => {
+    const semFormatacao = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: '111444',
+    }
+
+    const comFormatacao = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: '111.444.777-35',
+    }
+
+    expect(idsDe(filtrarDoadores(doadores, semFormatacao))).toEqual([2])
+    expect(idsDe(filtrarDoadores(doadores, comFormatacao))).toEqual([2])
+  })
+
+  it('filtra pelo tipo sanguíneo', () => {
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      tipoSanguineo: 'A+' as const,
+    }
+
+    expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([2])
+  })
+
+  it('filtra pelo status', () => {
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      status: 'AGUARDANDO' as const,
+    }
+
+    expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([3])
+  })
+
+  it('combina todos os filtros', () => {
+    const filtros = {
+      busca: 'ana',
+      tipoSanguineo: 'O-' as const,
+      status: 'APTO' as const,
+    }
+
+    expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([1])
+  })
+
+  it('devolve uma lista vazia quando nada corresponde', () => {
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: 'Pedro',
+    }
+
+    expect(filtrarDoadores(doadores, filtros)).toEqual([])
   })
 })
