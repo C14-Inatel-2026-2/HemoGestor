@@ -3,15 +3,21 @@ import ConfirmarRemocaoDoador from '../components/ConfirmarRemocaoDoador'
 import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
 import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
-import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
-import { formatarCpf, formatarData, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, obterMensagemErro, paraDadosDoFormulario } from '../utils/doador'
+import type { Doador, NovoDoador, StatusDoador, TipoSanguineo } from '../types/doador'
+import { FILTROS_INICIAIS_DOADORES, filtrarDoadores, formatarCpf, formatarData, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, obterMensagemErro, paraDadosDoFormulario } from '../utils/doador'
+import type { FiltrosDoadores } from '../utils/doador'
 import './DoadoresPage.css'
+import './EstoquePage.css'
+
+const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
   APTO: 'Apto',
   AGUARDANDO: 'Aguardando',
   INAPTO: 'Inapto',
 }
+
+const STATUS_DOADOR = Object.keys(ROTULO_STATUS) as StatusDoador[]
 
 async function buscarDoadores(): Promise<Doador[]> {
   const resposta = await getDoadores()
@@ -33,6 +39,7 @@ function DoadoresPage() {
   const [doadorEmRemocao, setDoadorEmRemocao] = useState<Doador | null>(null)
   const [removendo, setRemovendo] = useState(false)
   const [erroRemocao, setErroRemocao] = useState<string | null>(null)
+  const [filtros, setFiltros] = useState<FiltrosDoadores>(FILTROS_INICIAIS_DOADORES)
 
   useEffect(() => {
     buscarDoadores()
@@ -42,6 +49,11 @@ function DoadoresPage() {
   }, [])
 
   const formularioAberto = exibindoFormulario || doadorEmEdicao !== null
+  const doadoresVisiveis = filtrarDoadores(doadores, filtros)
+
+  function atualizarFiltro<K extends keyof FiltrosDoadores>(campo: K, valor: FiltrosDoadores[K]) {
+    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
+  }
 
   function abrirFormulario() {
     setSucesso(null)
@@ -137,7 +149,7 @@ async function removerDoador() {
       <CabecalhoPagina titulo="Doadores" subtitulo="Cadastro e acompanhamento de doadores" />
       <div className="doadores__conteudo">
         <div className="doadores__barra">
-          <span className="doadores__contagem">{doadores.length} doadores</span>
+          <span className="doadores__contagem">{doadoresVisiveis.length} doadores</span>
           {!formularioAberto && (
             <button
               type="button"
@@ -182,6 +194,45 @@ async function removerDoador() {
           </div>
         )}
 
+        <div className="estoque__filtros">
+          <input
+            type="search"
+            aria-label="Buscar por nome ou CPF"
+            className="estoque__filtro estoque__filtro--busca"
+            placeholder="Buscar por nome ou CPF"
+            value={filtros.busca}
+            onChange={(e) => atualizarFiltro('busca', e.target.value)}
+          />
+
+          <select
+            aria-label="Filtrar por tipo sanguíneo"
+            className="estoque__filtro"
+            value={filtros.tipoSanguineo}
+            onChange={(e) => atualizarFiltro('tipoSanguineo', e.target.value as TipoSanguineo | '')}
+          >
+            <option value="">Tipo sanguíneo: todos</option>
+            {TIPOS_SANGUINEOS.map((tipo) => (
+              <option key={tipo} value={tipo}>
+                {tipo}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label="Filtrar por status"
+            className="estoque__filtro"
+            value={filtros.status}
+            onChange={(e) => atualizarFiltro('status', e.target.value as StatusDoador | '')}
+          >
+            <option value="">Status: todos</option>
+            {STATUS_DOADOR.map((status) => (
+              <option key={status} value={status}>
+                {ROTULO_STATUS[status]}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="tabela-card">
           <table className="tabela">
             <thead>
@@ -196,7 +247,7 @@ async function removerDoador() {
               </tr>
             </thead>
             <tbody>
-              {doadores.map((doador) => (
+              {doadoresVisiveis.map((doador) => (
                 <tr key={doador.id}>
                   <td>
                     <div className="doador">
@@ -251,6 +302,9 @@ async function removerDoador() {
 
           {!carregando && !erro && doadores.length === 0 && (
             <p className="tabela__vazia">Nenhum doador cadastrado.</p>
+          )}
+          {doadores.length > 0 && doadoresVisiveis.length === 0 && (
+            <p className="tabela__vazia">Nenhum doador encontrado.</p>
           )}
           {carregando && <p className="tabela__vazia">Carregando doadores...</p>}
         </div>
