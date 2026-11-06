@@ -3,13 +3,19 @@ package br.inatel.service;
 import br.inatel.dto.SolicitacaoRequestDTO;
 import br.inatel.dto.SolicitacaoResponseDTO;
 import br.inatel.enumeracao.PrioridadeSolicitacao;
+import br.inatel.enumeracao.SituacaoBolsa;
 import br.inatel.enumeracao.StatusSolicitacao;
+import br.inatel.enumeracao.TipoDoacao;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.SolicitacaoNaoEncontradaException;
+import br.inatel.model.BolsaSangue;
+import br.inatel.model.Doacao;
 import br.inatel.model.Solicitacao;
+import br.inatel.repository.BolsaSangueRepository;
 import br.inatel.repository.SolicitacaoRepository;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +24,21 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class SolicitacaoServiceTest {
+
+    private BolsaSangue criarBolsa(String tipoSanguineo, SituacaoBolsa situacao, TipoDoacao tipoDoacao, LocalDate dataValidade) {
+        Doacao doacao = new Doacao();
+        doacao.setTipoDoacao(tipoDoacao);
+
+        BolsaSangue bolsa = new BolsaSangue(doacao, tipoSanguineo, LocalDate.now(), situacao);
+        bolsa.setDataValidade(dataValidade);
+        return bolsa;
+    }
+
     @Test
     void cadastrarSolicitacao(){
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
 
         SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
         dto.setInstituicao("Hospital Santa Casa");
@@ -50,7 +67,8 @@ public class SolicitacaoServiceTest {
     @Test
     void naoCadastrarSolicitacaoComQuantidadeInvalida() {
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
 
         SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
         dto.setInstituicao("Hospital Santa Casa");
@@ -69,7 +87,8 @@ public class SolicitacaoServiceTest {
     @Test
     void listarTodasSolicitacoes() {
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
         Solicitacao solicitacao = new Solicitacao("Hospital Santa Casa", "UTI", "A+", 2, PrioridadeSolicitacao.URGENTE, "Paciente em procedimento cirúrgico.");
 
         when(repository.findAll()).thenReturn(List.of(solicitacao));
@@ -86,7 +105,8 @@ public class SolicitacaoServiceTest {
     @Test
     void retornarListaVaziaQuandoNaoExistiremSolicitacoes() {
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
 
         when(repository.findAll()).thenReturn(List.of());
 
@@ -98,7 +118,8 @@ public class SolicitacaoServiceTest {
     @Test
     void buscarSolicitacaoPorId() {
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
 
         Solicitacao solicitacao = new Solicitacao("Hospital Santa Casa", "UTI", "A+", 2, PrioridadeSolicitacao.URGENTE, "Paciente em procedimento cirúrgico.");
 
@@ -115,7 +136,8 @@ public class SolicitacaoServiceTest {
     @Test
     void naoBuscarSolicitacaoInexistente() {
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
 
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
@@ -128,7 +150,8 @@ public class SolicitacaoServiceTest {
     @Test
     void listarSolicitacoesEmOrdemPorPrioridade() {
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
 
         Solicitacao normal = new Solicitacao("Hospital A", "UTI", "A+", 1, PrioridadeSolicitacao.NORMAL, "Caso normal");
         Solicitacao urgente = new Solicitacao("Hospital B", "UTI", "O+", 1, PrioridadeSolicitacao.URGENTE, "Caso urgente");
@@ -146,7 +169,8 @@ public class SolicitacaoServiceTest {
     @Test
     void listarSolicitacoesDaMesmaPrioridadePorDataMaisAntiga() {
         SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
 
         Solicitacao maisRecente = new Solicitacao("Hospital A", "UTI", "A+", 1, PrioridadeSolicitacao.URGENTE, "Solicitação mais recente");
         maisRecente.setDataSolicitacao(LocalDateTime.of(2026, 11, 5, 14, 0));
@@ -160,5 +184,92 @@ public class SolicitacaoServiceTest {
 
         assertEquals("Hospital B", resultado.get(0).getInstituicao());
         assertEquals("Hospital A", resultado.get(1).getInstituicao());
+    }
+
+    @Test
+    void buscarBolsasCompativeisDisponiveisValidasESangueTotal() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        BolsaSangue compativel = criarBolsa("A+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        BolsaSangue incompatível = criarBolsa("B+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        BolsaSangue reservada = criarBolsa("A+", SituacaoBolsa.RESERVADA, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        BolsaSangue vencida = criarBolsa("A+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().minusDays(1));
+        BolsaSangue plasma = criarBolsa("A+", SituacaoBolsa.DISPONIVEL, TipoDoacao.PLASMA, LocalDate.now().plusDays(10));
+
+        when(bolsaSangueRepository.findAll()).thenReturn(List.of(compativel, incompatível, reservada, vencida, plasma));
+
+        int resultado = service.contarBolsasCompativeis(solicitacao);
+        assertEquals(1, resultado);
+    }
+
+    @Test
+    void listarBolsasCompativeisPriorizaMesmoTipoEValidade() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                3,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        BolsaSangue mesmoTipoMaisTarde = criarBolsa("A+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(20));
+        mesmoTipoMaisTarde.setId(1L);
+        BolsaSangue compativelOutroTipo = criarBolsa("O+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(5));
+        compativelOutroTipo.setId(2L);
+        BolsaSangue mesmoTipoMaisCedo = criarBolsa("A+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        mesmoTipoMaisCedo.setId(3L);
+
+        when(bolsaSangueRepository.findAll()).thenReturn(List.of(
+                        compativelOutroTipo,
+                        mesmoTipoMaisTarde,
+                        mesmoTipoMaisCedo));
+        List<Long> resultado = service.listarIdsBolsasCompativeis(solicitacao);
+
+        assertEquals(List.of(3L, 1L, 2L), resultado);
+    }
+
+    @Test
+    void retornarQuantidadeDeBolsasCompativeisDisponiveis() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        BolsaSangue bolsaA = criarBolsa("A+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        BolsaSangue bolsaO = criarBolsa("O+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(15));
+        BolsaSangue bolsaIncompativel = criarBolsa("B+", SituacaoBolsa.DISPONIVEL, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(20));
+
+        when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
+        when(bolsaSangueRepository.findAll()).thenReturn(List.of(
+                        bolsaA,
+                        bolsaO,
+                        bolsaIncompativel));
+
+        SolicitacaoResponseDTO resultado = service.buscarPorId(1L);
+        assertEquals(2, resultado.getBolsasCompativeisDisponiveis());
     }
 }
