@@ -80,7 +80,7 @@ function DashboardPage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Dashboard" subtitulo="Resumo do estoque e das solicitações" />
+      <CabecalhoPagina titulo="Dashboard" subtitulo="Visão geral do banco de sangue" />
       <div className="doadores__conteudo">
         {!carregando && falhas.length > 0 && (
           <p role="alert" className="doadores__erro">

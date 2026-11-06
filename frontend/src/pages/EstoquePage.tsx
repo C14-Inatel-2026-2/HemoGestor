@@ -110,7 +110,7 @@ function EstoquePage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Estoque" subtitulo="Bolsas de sangue por tipo, validade e situação" />
+      <CabecalhoPagina titulo="Estoque" subtitulo="Controle de bolsas e validade" />
       <div className="doadores__conteudo">
         <div className="estoque__cards">
           <div className="estoque__card" role="group" aria-label="Bolsas no estoque">
