@@ -35,7 +35,7 @@ public class SolicitacaoService {
 
     private int ordemPrioridade(PrioridadeSolicitacao prioridade) {
         return switch (prioridade) {
-            case EMERGÊNCIA -> 1;
+            case EMERGENCIA -> 1;
             case URGENTE -> 2;
             case NORMAL -> 3;
         };
