@@ -15,7 +15,8 @@ import {
   venceEmBreve,
 } from '../utils/bolsa'
 import type { AbaEstoque, FiltrosEstoque } from '../utils/bolsa'
-import { formatarData, obterMensagemErro } from '../utils/doador'
+import { formatarData } from '../utils/doador'
+import { obterMensagemErro } from '../utils/erro'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'

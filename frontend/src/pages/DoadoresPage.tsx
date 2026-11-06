@@ -4,7 +4,8 @@ import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
 import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
 import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
-import { formatarCpf, formatarData, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, obterMensagemErro, paraDadosDoFormulario } from '../utils/doador'
+import { formatarCpf, formatarData, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, paraDadosDoFormulario } from '../utils/doador'
+import { obterMensagemErro } from '../utils/erro'
 import './DoadoresPage.css'
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {

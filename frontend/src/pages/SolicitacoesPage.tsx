@@ -16,7 +16,7 @@ import type {
   SolicitacaoRequest,
   StatusSolicitacao,
 } from '../types/solicitacao'
-import { obterMensagemErro } from '../utils/doador'
+import { obterMensagemErro } from '../utils/erro'
 import {
   FILTROS_INICIAIS_SOLICITACOES,
   ROTULO_PRIORIDADE,
