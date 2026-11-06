@@ -163,7 +163,7 @@ function SolicitacoesPage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Solicitações" subtitulo="Pedidos de sangue e atendimento" />
+      <CabecalhoPagina titulo="Solicitações" subtitulo="Requisições de instituições de saúde" />
       <div className="doadores__conteudo">
         <div className="estoque__cards">
           <div className="estoque__card" role="group" aria-label="Pendentes">

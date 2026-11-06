@@ -6,7 +6,7 @@ Aplicação web para o gerenciamento básico de um banco de sangue, desenvolvida
 
 O HemoGestor é uma aplicação web interna, voltada aos funcionários de um banco de sangue, para auxiliar o gerenciamento básico de doadores, doações, estoque de bolsas e solicitações de sangue. O projeto dá continuidade a um trabalho de Programação Orientada a Objetos em Java feito no semestre anterior, cuja lógica foi adaptada para uma aplicação web.
 
-A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**, **Solicitações** e **Dashboard**. O front-end em React se comunica por HTTP e JSON com uma API REST em Spring Boot, que acessa o banco de dados MySQL. O código fica em um único repositório (monorepo), com as pastas `frontend/` e `backend/`.
+A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solicitações** e **Dashboard**. O front-end em React se comunica por HTTP e JSON com uma API REST em Spring Boot, que acessa o banco de dados MySQL. O código fica em um único repositório (monorepo), com as pastas `frontend/` e `backend/`.
 
 ## Funcionalidades e requisitos funcionais
 
@@ -67,13 +67,17 @@ A aplicação tem cinco telas: **Doadores**, **Registrar Doação**, **Estoque**
 ### Com Docker (recomendado)
 
 1. Na raiz do repositório, crie o arquivo de variáveis de ambiente a partir do modelo:
+
 ```bash
-   cp .env.example .env
+cp .env.example .env
 ```
+
 2. Suba o banco, o back-end e o front-end:
+
 ```bash
-   docker compose up -d --build mysql backend frontend
+docker compose up -d --build mysql backend frontend
 ```
+
 3. Abra a aplicação em `http://localhost:5173`.
 
 | Serviço | Endereço |
@@ -104,7 +108,7 @@ No menu lateral, o **Dashboard** mostra o resumo do estoque por tipo sanguíneo,
 
 A tela **Doadores** mostra a lista de doadores cadastrados, com busca por nome ou CPF e filtros por tipo sanguíneo e status. O botão **Novo doador** abre o formulário de cadastro, em que nome, CPF, data de nascimento e tipo sanguíneo são obrigatórios. O CPF é validado, e a aplicação avisa quando ele já está cadastrado. Em cada linha, o botão **Editar** abre o formulário preenchido, e o botão **Remover** pede uma confirmação antes de apagar. Um doador com doações registradas não pode ser removido.
 
-A tela **Registrar Doação** lista as doações já registradas, com busca por doador e filtro por status. O botão **Nova doação** abre o formulário de registro, em que o doador, a data, a hora, o volume, a hemoglobina e o responsável são obrigatórios. A tela impede uma nova doação antes do intervalo mínimo (60 dias para homens e 90 dias para mulheres) e do limite de 12 meses (4 doações para homens e 3 para mulheres), e mostra a data em que o doador poderá doar novamente. Cada doação começa **Em triagem** e pode ser concluída ou descartada na própria tabela. Ao concluir, uma bolsa é criada no estoque.
+A tela **Doações** lista as doações já registradas, com busca por doador e filtro por status. O botão **Nova doação** abre o formulário de registro, em que o doador, a data, a hora, o volume, a hemoglobina e o responsável são obrigatórios. A tela impede uma nova doação antes do intervalo mínimo (60 dias para homens e 90 dias para mulheres) e do limite de 12 meses (4 doações para homens e 3 para mulheres), e mostra a data em que o doador poderá doar novamente. Cada doação começa **Em triagem** e pode ser concluída ou descartada na própria tabela. Ao concluir, uma bolsa é criada no estoque.
 
 A tela **Estoque** lista as bolsas, com filtros por tipo sanguíneo e status, e destaca as que vencem em breve. Uma bolsa pode ser descartada na própria tabela.
 
@@ -157,13 +161,17 @@ A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositóri
 ### Como rodar
 
 1. Na raiz do repositório, crie o arquivo de variáveis de ambiente a partir do modelo:
+
 ```bash
-   cp .env.example .env
+cp .env.example .env
 ```
+
 2. Suba o Jenkins:
+
 ```bash
-   docker compose up -d --build jenkins
+docker compose up -d --build jenkins
 ```
+
 3. Acesse `http://localhost:8080` e entre com o usuário e a senha definidos no `.env` (`JENKINS_ADMIN_ID` e `JENKINS_ADMIN_PASSWORD`).
 4. Abra o job **HemoGestor** e clique em **Construir agora** (Build Now).
 
