@@ -4,7 +4,9 @@ import {
   concluirDoacao,
   criarDoacao,
   descartarDoacao,
+  getDoacaoPorId,
   getDoacoes,
+  getDoacoesPorDoador,
 } from "./doacaoService"
 import type { DoacaoRequest } from "../types/doacao"
 
@@ -20,6 +22,24 @@ describe("doacaoService", () => {
 
     expect(getSpy).toHaveBeenCalledTimes(1)
     expect(getSpy).toHaveBeenCalledWith("/doacoes")
+  })
+
+  it("busca uma doação pelo id", async () => {
+    const getSpy = vi.spyOn(api, "get").mockResolvedValue({})
+
+    await getDoacaoPorId(7)
+
+    expect(getSpy).toHaveBeenCalledTimes(1)
+    expect(getSpy).toHaveBeenCalledWith("/doacoes/7")
+  })
+
+  it("busca as doações de um doador", async () => {
+    const getSpy = vi.spyOn(api, "get").mockResolvedValue({})
+
+    await getDoacoesPorDoador(3)
+
+    expect(getSpy).toHaveBeenCalledTimes(1)
+    expect(getSpy).toHaveBeenCalledWith("/doacoes/doador/3")
   })
 
   it("envia uma nova doação para a API", async () => {
