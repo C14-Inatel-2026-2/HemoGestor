@@ -86,17 +86,16 @@ public class DoacaoService {
                 throw new ConflitoException("Só é possível concluir doações em triagem.");
             }
 
-            doacao.concluirDoacao();
-
             Doador doador = doacao.getDoador();
-            doador.registrarDoacao(doacao.getDataColeta());
             if(doacao.getDoador().getTipo_sanguineo() == null || doacao.getDoador().getTipo_sanguineo().isBlank()){
                 throw new DadosInvalidosException("Informe o tipo sanguíneo do doador antes de concluir a doação.");
             }
 
+            doacao.concluirDoacao();
+            doador.registrarDoacao(doacao.getDataColeta());
+
             BolsaSangue bolsa = new BolsaSangue(doacao, doador.getTipo_sanguineo(), doacao.getDataColeta(), SituacaoBolsa.DISPONIVEL);
             bolsaSangueRepository.save(bolsa);
-
             return repository.save(doacao);
         });
     }
