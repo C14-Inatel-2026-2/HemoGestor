@@ -1,6 +1,8 @@
 package br.inatel.service;
 import br.inatel.enumeracao.Sexo;
+import br.inatel.exception.ConflitoException;
 import br.inatel.model.Doador;
+import br.inatel.repository.DoacaoRepository;
 import br.inatel.repository.DoadorRepository;
 import org.junit.jupiter.api.Test;
 
@@ -8,8 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
@@ -20,7 +21,8 @@ public class DoadorServiceTest {
         //verifica se o service retorna corretamente o doador fornecido pelo mock
         //fixture
         DoadorRepository repository = mock(DoadorRepository.class);
-        DoadorService service = new DoadorService(repository);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
 
         Doador doador = new Doador(
                 1L,
@@ -55,7 +57,8 @@ public class DoadorServiceTest {
         //verifica se o service retorna o doador salvo e se o metodo salvar do repository foi chamado corretamente
         //fixture
         DoadorRepository repository = mock(DoadorRepository.class);
-        DoadorService service = new DoadorService(repository);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
 
         Doador doador = new Doador(
                 1L,
@@ -87,7 +90,8 @@ public class DoadorServiceTest {
     void listarTodosOsDoadores() {
         // fixture
         DoadorRepository repository = mock(DoadorRepository.class);
-        DoadorService service = new DoadorService(repository);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
 
         Doador doador = new Doador(
                 1L,
@@ -121,7 +125,8 @@ public class DoadorServiceTest {
     void deletarDoador() {
         // fixture
         DoadorRepository repository = mock(DoadorRepository.class);
-        DoadorService service = new DoadorService(repository);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
 
         // processamento
         service.deletar(1L);
@@ -134,7 +139,8 @@ public class DoadorServiceTest {
     void atualizarDoador() {
         // fixture
         DoadorRepository repository = mock(DoadorRepository.class);
-        DoadorService service = new DoadorService(repository);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
 
         Doador doadorExistente = new Doador(
                 1L,
@@ -192,7 +198,8 @@ public class DoadorServiceTest {
     void atualizarDoadorInexistente() {
         // fixture
         DoadorRepository repository = mock(DoadorRepository.class);
-        DoadorService service = new DoadorService(repository);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
 
         Doador novosDados = new Doador(
                 null,
@@ -220,5 +227,30 @@ public class DoadorServiceTest {
 
         verify(repository).findById(99L);
         verify(repository, never()).save(any(Doador.class));
+    }
+
+    @Test
+    void naoRemoverDoadorComDoacoesRegistradas() {
+        DoadorRepository repository = mock(DoadorRepository.class);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
+
+        when(doacaoRepository.existsByDoadorId(1L)).thenReturn(true);
+
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.deletar(1L));
+
+        assertEquals("Não é possível remover um doador que já tem doações registradas.", exception.getMessage());
+        verify(repository, never()).deleteById(1L);
+    }
+
+    @Test
+    void removerDoadorSemDoacoesRegistradas() {
+        DoadorRepository repository = mock(DoadorRepository.class);
+        DoacaoRepository doacaoRepository = mock(DoacaoRepository.class);
+        DoadorService service = new DoadorService(repository, doacaoRepository);
+
+        when(doacaoRepository.existsByDoadorId(1L)).thenReturn(false);
+        service.deletar(1L);
+        verify(repository).deleteById(1L);
     }
 }

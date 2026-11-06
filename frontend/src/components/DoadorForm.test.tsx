@@ -30,6 +30,72 @@ describe('DoadorForm', () => {
     expect(screen.getByText('CPF inválido.')).toBeInTheDocument()
   })
 
+  it('não envia o cadastro sem data de nascimento e tipo sanguíneo', async () => {
+  const usuario = userEvent.setup()
+  const onSubmit = vi.fn()
+  render(<DoadorForm onSubmit={onSubmit} onCancelar={vi.fn()} />)
+
+  await usuario.type(screen.getByLabelText('Nome completo'), 'Ana Souza')
+  await usuario.type(screen.getByLabelText('CPF'), '529.982.247-25')
+  await usuario.click(screen.getByRole('button', { name: 'Salvar doador' }))
+
+  expect(onSubmit).not.toHaveBeenCalled()
+  expect(screen.getByText('Informe a data de nascimento.')).toBeInTheDocument()
+  expect(screen.getByText('Selecione o tipo sanguíneo.')).toBeInTheDocument()
+  })
+
+  it('envia o cadastro quando todos os campos obrigatórios estão preenchidos', async () => {
+  const usuario = userEvent.setup()
+  const onSubmit = vi.fn()
+  render(<DoadorForm onSubmit={onSubmit} onCancelar={vi.fn()} />)
+
+  await usuario.type(screen.getByLabelText('Nome completo'), 'Ana Souza')
+  await usuario.type(screen.getByLabelText('CPF'), '529.982.247-25')
+  await usuario.type(screen.getByLabelText('Data de nascimento'), '1995-04-12')
+  await usuario.selectOptions(screen.getByLabelText('Tipo sanguíneo'), 'O-')
+  await usuario.click(screen.getByRole('button', { name: 'Salvar doador' }))
+
+  expect(onSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({ data_nascimento: '1995-04-12', tipo_sanguineo: 'O-' }),
+  )
+  })
+
+  it('envia o telefone só com os números, mesmo digitado com formatação', async () => {
+    const usuario = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<DoadorForm onSubmit={onSubmit} onCancelar={vi.fn()} doadorInicial={doadoraAna} />)
+
+    await usuario.clear(screen.getByLabelText('Telefone'))
+    await usuario.type(screen.getByLabelText('Telefone'), '(35) 99224-3243')
+    await usuario.click(screen.getByRole('button', { name: 'Salvar doador' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ telefone: '35992243243' }))
+  })
+
+  it('não envia o cadastro quando o telefone está sem DDD', async () => {
+    const usuario = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<DoadorForm onSubmit={onSubmit} onCancelar={vi.fn()} doadorInicial={doadoraAna} />)
+
+    await usuario.clear(screen.getByLabelText('Telefone'))
+    await usuario.type(screen.getByLabelText('Telefone'), '99224-3243')
+    await usuario.click(screen.getByRole('button', { name: 'Salvar doador' }))
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByText('Informe o telefone com DDD.')).toBeInTheDocument()
+  })
+
+  it('permite salvar sem telefone', async () => {
+    const usuario = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<DoadorForm onSubmit={onSubmit} onCancelar={vi.fn()} doadorInicial={doadoraAna} />)
+
+    await usuario.clear(screen.getByLabelText('Telefone'))
+    await usuario.click(screen.getByRole('button', { name: 'Salvar doador' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ telefone: '' }))
+  })
+
   it('desabilita o botão de salvar enquanto o cadastro está em andamento', () => {
     render(<DoadorForm onSubmit={vi.fn()} onCancelar={vi.fn()} salvando />)
 

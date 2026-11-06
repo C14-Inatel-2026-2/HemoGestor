@@ -1,7 +1,6 @@
 package br.inatel.exception.handler;
 
-import br.inatel.exception.DadosInvalidosException;
-import br.inatel.exception.TipoSanguineoException;
+import br.inatel.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,14 +69,34 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> tratarDadosDuplicados(
+    public ResponseEntity<Map<String, String>> tratarIntegridadeDados(
             DataIntegrityViolationException exception) {
 
         Map<String, String> erro = new HashMap<>();
-        erro.put("erro", "Já existe um doador cadastrado com esse CPF.");
+        erro.put("erro", "Não foi possível concluir a operação devido a um conflito de integridade dos dados.");
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(erro);
+    }
+
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<Map<String, String>> tratarConflito(ConflitoException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", exception.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> tratarIllegalStateException(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(BolsaNaoEncontradaException.class)
+    public ResponseEntity<Map<String, String>> tratarBolsaNaoEncontrada(BolsaNaoEncontradaException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SolicitacaoNaoEncontradaException.class)
+    public ResponseEntity<Map<String, String>> handleSolicitacaoNaoEncontrada(SolicitacaoNaoEncontradaException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
     }
 }

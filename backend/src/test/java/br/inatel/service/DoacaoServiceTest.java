@@ -1,14 +1,16 @@
 package br.inatel.service;
 
-import br.inatel.enumeracao.Sexo;
-import br.inatel.enumeracao.StatusDoacao;
-import br.inatel.enumeracao.StatusDoador;
-import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.enumeracao.*;
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
+import br.inatel.model.BolsaSangue;
 import br.inatel.model.Doacao;
 import br.inatel.model.Doador;
+import br.inatel.repository.BolsaSangueRepository;
 import br.inatel.repository.DoacaoRepository;
+import br.inatel.repository.DoadorRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,8 +59,9 @@ public class DoacaoServiceTest {
     @Test
     void salvarDoacao(){
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
 
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
         Doacao doacao = criarDoacao();
         when(repository.save(doacao)).thenReturn(doacao);
 
@@ -70,7 +73,10 @@ public class DoacaoServiceTest {
     @Test
     void naoSalvarDoacaoAntesDoIntervaloMinimo() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
         Doador doador = criarDoador();
         doador.setUltima_doacao(LocalDate.now().minusDays(30));
 
@@ -100,7 +106,9 @@ public class DoacaoServiceTest {
     @Test
     void naoSalvarDoacaoQuandoAtingirLimiteAnual() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         Doador doador = criarDoador();
         Doacao doacao1 = new Doacao(
@@ -169,7 +177,9 @@ public class DoacaoServiceTest {
     @Test
     void salvarDoacaoQuandoRespeitarIntervaloELimiteAnual() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         Doador doador = criarDoador();
         Doacao doacaoAnterior = new Doacao(
@@ -210,7 +220,9 @@ public class DoacaoServiceTest {
     @Test
     void buscarDoacaoPorId() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         Doacao doacao = criarDoacao();
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));
@@ -225,8 +237,9 @@ public class DoacaoServiceTest {
     @Test
     void deveListarTodasAsDoacoes() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
 
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
         Doacao doacao = criarDoacao();
         when(repository.findAll()).thenReturn(List.of(doacao));
 
@@ -240,7 +253,8 @@ public class DoacaoServiceTest {
     @Test
     void concluirDoacao() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         Doacao doacao = criarDoacao();
 
@@ -252,14 +266,10 @@ public class DoacaoServiceTest {
         assertTrue(resultado.isPresent());
         assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
 
-        assertTrue(resultado.isPresent());
-        assertEquals(StatusDoacao.CONCLUIDA, resultado.get().getStatus());
-
         Doador doadorAtualizado = resultado.get().getDoador();
 
         assertEquals(doacao.getDataColeta(), doadorAtualizado.getUltima_doacao());
         assertEquals(1, doadorAtualizado.getQtd_doacoes());
-        assertEquals("AGUARDANDO", doadorAtualizado.getStatus().name());
         assertEquals(StatusDoador.AGUARDANDO, doadorAtualizado.getStatus());
 
         verify(repository).findById(1L);
@@ -267,9 +277,50 @@ public class DoacaoServiceTest {
     }
 
     @Test
+    void naoConcluirDoacaoSemTipoSanguineo() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doador doador = criarDoador();
+        doador.setTipo_sanguineo(null);
+
+        Doacao doacao = criarDoacao();
+        doacao.setDoador(doador);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        DadosInvalidosException exception = assertThrows(DadosInvalidosException.class, () -> service.concluir(1L));
+
+        assertEquals("Informe o tipo sanguíneo do doador antes de concluir a doação.", exception.getMessage());
+        assertEquals(StatusDoacao.EM_TRIAGEM, doacao.getStatus());
+        assertNull(doador.getUltima_doacao());
+        assertEquals(0, doador.getQtd_doacoes());
+        verify(repository).findById(1L);
+        verify(repository, never()).save(any(Doacao.class));
+        verify(bolsaSangueRepository, never()).save(any(BolsaSangue.class));
+    }
+    @Test
+    void naoConcluirDoacaoConcluida(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doacao doacao = criarDoacao();
+        doacao.concluirDoacao();
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.concluir(1L));
+        assertEquals("Só é possível concluir doações em triagem.", exception.getMessage());
+        verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
     void descartarDoacao() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         Doacao doacao = criarDoacao();
 
@@ -287,7 +338,8 @@ public class DoacaoServiceTest {
     @Test
     void naoConcluirDoacaoInexistente() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
@@ -299,9 +351,42 @@ public class DoacaoServiceTest {
     }
 
     @Test
+    void naoConcluirDoacaoDescartada(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doacao doacao = criarDoacao();
+        doacao.descartarDoacao();
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.concluir(1L));
+
+        assertEquals("Só é possível concluir doações em triagem.", exception.getMessage());
+        verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
+    void naoDescartarDoacaoConcluida(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doacao doacao = criarDoacao();
+        doacao.concluirDoacao();
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.descartar(1L) );
+
+        assertEquals("Só é possível descartar doações em triagem.", exception.getMessage());
+        verify(repository, never()).save(any(Doacao.class));
+    }
+
+    @Test
     void naoDescartarDoacaoInexistente() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
@@ -315,7 +400,8 @@ public class DoacaoServiceTest {
     @Test
     void buscarDoacoesPorDoador() {
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         Doacao doacao = criarDoacao();
 
@@ -331,7 +417,8 @@ public class DoacaoServiceTest {
     @Test
     void retornarListaVaziaDoadorNaoPossuiDoacoes(){
         DoacaoRepository repository = mock(DoacaoRepository.class);
-        DoacaoService service = new DoacaoService(repository);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
 
         when(repository.findByDoadorId(1L)).thenReturn(List.of());
 
@@ -339,5 +426,69 @@ public class DoacaoServiceTest {
 
         assertTrue(resultado.isEmpty());
         verify(repository).findByDoadorId(1L);
+    }
+
+    @Test
+    void naoAtualizarUltimaDoacaoComDataMaisAntiga(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doacao doacao = criarDoacao();
+        Doador doador = doacao.getDoador();
+
+        LocalDate ultimaDoacaoAtual = LocalDate.now().minusDays(10);
+        doador.setUltima_doacao(ultimaDoacaoAtual);
+
+        LocalDate dataDoacaoAntiga = LocalDate.now().minusDays(30);
+        doacao.setDataColeta(dataDoacaoAntiga);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+        when(repository.save(doacao)).thenReturn(doacao);
+
+        service.concluir(1L);
+
+        assertEquals(ultimaDoacaoAtual, doador.getUltima_doacao());
+        assertEquals(1, doador.getQtd_doacoes());
+    }
+
+    @Test
+    void gerarBolsaAoConcluirDoacao(){
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doacao doacao = criarDoacao();
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+        when(repository.save(doacao)).thenReturn(doacao);
+
+        service.concluir(1L);
+
+        verify(bolsaSangueRepository).save(any(BolsaSangue.class));
+    }
+
+    @Test
+    void gerarBolsaComDadosCorretosAoConcluirDoacao() {
+        DoacaoRepository repository = mock(DoacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
+
+        Doacao doacao = criarDoacao();
+
+        when(repository.findById(1L)).thenReturn(Optional.of(doacao));
+        when(repository.save(doacao)).thenReturn(doacao);
+
+        service.concluir(1L);
+
+        ArgumentCaptor<BolsaSangue> captor = ArgumentCaptor.forClass(BolsaSangue.class);
+
+        verify(bolsaSangueRepository).save(captor.capture());
+
+        BolsaSangue bolsaSalva = captor.getValue();
+
+        assertEquals(doacao.getDoador().getTipo_sanguineo(), bolsaSalva.getTipoSanguineo());
+        assertEquals(doacao.getDataColeta(), bolsaSalva.getDataColeta());
+        assertEquals(SituacaoBolsa.DISPONIVEL, bolsaSalva.getSituacao());
     }
 }
