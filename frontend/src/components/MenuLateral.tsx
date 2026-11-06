@@ -4,7 +4,7 @@ import './MenuLateral.css'
 const ITENS_MENU = [
   { caminho: '/dashboard', rotulo: 'Dashboard' },
   { caminho: '/doadores', rotulo: 'Doadores' },
-  { caminho: '/doacoes', rotulo: 'Registrar doação' },
+  { caminho: '/doacoes', rotulo: 'Doações' },
   { caminho: '/estoque', rotulo: 'Estoque' },
   { caminho: '/solicitacoes', rotulo: 'Solicitações' },
 ]
