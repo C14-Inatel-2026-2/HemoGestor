@@ -3,8 +3,7 @@ import type { FormEvent } from 'react'
 import type { NovoDoador, Sexo, TipoSanguineo } from '../types/doador'
 import { validarCpf, validarTelefone } from '../utils/doador'
 import './DoadorForm.css'
-
-const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
 
 const DOADOR_VAZIO: NovoDoador = {
   nome: '',
