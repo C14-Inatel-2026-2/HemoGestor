@@ -132,13 +132,13 @@ public class SolicitacaoServiceTest {
 
         Solicitacao normal = new Solicitacao("Hospital A", "UTI", "A+", 1, PrioridadeSolicitacao.NORMAL, "Caso normal");
         Solicitacao urgente = new Solicitacao("Hospital B", "UTI", "O+", 1, PrioridadeSolicitacao.URGENTE, "Caso urgente");
-        Solicitacao emergencia = new Solicitacao("Hospital C", "UTI", "O-", 1, PrioridadeSolicitacao.EMERGÊNCIA, "Caso de emergência");
+        Solicitacao emergencia = new Solicitacao("Hospital C", "UTI", "O-", 1, PrioridadeSolicitacao.EMERGENCIA, "Caso de emergência");
 
         when(repository.findAll()).thenReturn(List.of(normal, urgente, emergencia));
 
         List<SolicitacaoResponseDTO> resultado = service.listarTodas();
 
-        assertEquals(PrioridadeSolicitacao.EMERGÊNCIA, resultado.get(0).getPrioridade());
+        assertEquals(PrioridadeSolicitacao.EMERGENCIA, resultado.get(0).getPrioridade());
         assertEquals(PrioridadeSolicitacao.URGENTE, resultado.get(1).getPrioridade());
         assertEquals(PrioridadeSolicitacao.NORMAL, resultado.get(2).getPrioridade());
     }
