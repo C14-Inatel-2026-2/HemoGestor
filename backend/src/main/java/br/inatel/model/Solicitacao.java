@@ -59,6 +59,13 @@ public class Solicitacao {
         this.status = StatusSolicitacao.PENDENTE;
     }
 
+    public void iniciarAtendimento(){
+        if(this.status != StatusSolicitacao.PENDENTE){
+            throw new IllegalStateException("Só é possível atender solicitações pendentes.");
+        }
+        this.status = StatusSolicitacao.EM_ATENDIMENTO;
+    }
+
     public Long getId() {
         return id;
     }

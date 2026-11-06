@@ -125,4 +125,32 @@ public class SolicitacaoService {
                 .map(BolsaSangue::getId)
                 .toList();
     }
+
+    public SolicitacaoResponseDTO atender(Long id) {
+        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada."));
+
+        List<BolsaSangue> bolsasCompativeis = buscarBolsasCompativeis(solicitacao);
+
+        if (bolsasCompativeis.size() < solicitacao.getQuantidade()) {
+            throw new IllegalStateException("Não há bolsas compatíveis suficientes para atender a solicitação.");
+        }
+
+        List<BolsaSangue> bolsasSelecionadas = bolsasCompativeis
+                .stream()
+                .limit(solicitacao.getQuantidade())
+                .toList();
+
+        solicitacao.iniciarAtendimento();
+
+        for (BolsaSangue bolsa : bolsasSelecionadas) {
+            bolsa.reservar();
+        }
+
+        solicitacao.setBolsasReservadas(bolsasSelecionadas);
+
+        bolsaSangueRepository.saveAll(bolsasSelecionadas);
+        repository.save(solicitacao);
+
+        return toResponseDTO(solicitacao);
+    }
 }

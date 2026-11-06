@@ -61,6 +61,13 @@ public class BolsaSangue {
         this.situacao = SituacaoBolsa.DESCARTADA;
     }
 
+    public void reservar(){
+        if(this.situacao != SituacaoBolsa.DISPONIVEL){
+            throw new IllegalStateException("Só é possível reservar bolsas disponíveis.");
+        }
+        this.situacao = SituacaoBolsa.RESERVADA;
+    }
+
     public Long getId() {
         return id;
     }
