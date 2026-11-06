@@ -16,7 +16,7 @@ import type {
   SolicitacaoRequest,
   StatusSolicitacao,
 } from '../types/solicitacao'
-import { obterMensagemErro } from '../utils/erro'
+import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import {
   FILTROS_INICIAIS_SOLICITACOES,
   ROTULO_PRIORIDADE,
@@ -48,10 +48,7 @@ function ehEmergenciaAtiva(solicitacao: Solicitacao): boolean {
 
 async function buscarSolicitacoes(): Promise<Solicitacao[]> {
   const resposta = await getSolicitacoes()
-  if (!Array.isArray(resposta.data)) {
-    throw new Error('Resposta inesperada da API')
-  }
-  return resposta.data
+  return validarRespostaLista<Solicitacao>(resposta.data)
 }
 
 function SolicitacoesPage() {

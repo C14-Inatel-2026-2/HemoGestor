@@ -16,7 +16,7 @@ import {
 } from '../utils/bolsa'
 import type { AbaEstoque, FiltrosEstoque } from '../utils/bolsa'
 import { formatarData } from '../utils/doador'
-import { obterMensagemErro } from '../utils/erro'
+import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'
@@ -54,10 +54,7 @@ function classeDoAviso(bolsa: Bolsa): string {
 
 async function buscarBolsas(): Promise<Bolsa[]> {
   const resposta = await getBolsas()
-  if (!Array.isArray(resposta.data)) {
-    throw new Error('Resposta inesperada da API')
-  }
-  return resposta.data
+  return validarRespostaLista<Bolsa>(resposta.data)
 }
 
 function EstoquePage() {

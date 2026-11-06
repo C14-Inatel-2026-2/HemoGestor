@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
 import type { Doador, NovoDoador, StatusDoador } from '../types/doador'
 import { formatarCpf, formatarData, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, paraDadosDoFormulario } from '../utils/doador'
-import { obterMensagemErro } from '../utils/erro'
+import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
@@ -16,10 +16,7 @@ const ROTULO_STATUS: Record<StatusDoador, string> = {
 
 async function buscarDoadores(): Promise<Doador[]> {
   const resposta = await getDoadores()
-  if (!Array.isArray(resposta.data)) {
-    throw new Error('Resposta inesperada da API')
-  }
-  return resposta.data
+  return validarRespostaLista<Doador>(resposta.data)
 }
 
 function DoadoresPage() {

@@ -13,3 +13,11 @@ export function obterMensagemErro(erro: unknown, mensagemPadrao: string): string
 
   return mensagens.length > 0 ? mensagens.join(' ') : mensagemPadrao
 }
+
+export function validarRespostaLista<T>(dados: unknown): T[] {
+  if (!Array.isArray(dados)) {
+    throw new Error('Resposta inesperada da API')
+  }
+
+  return dados as T[]
+}
