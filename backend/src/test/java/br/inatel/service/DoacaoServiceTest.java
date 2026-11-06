@@ -293,6 +293,9 @@ public class DoacaoServiceTest {
         DadosInvalidosException exception = assertThrows(DadosInvalidosException.class, () -> service.concluir(1L));
 
         assertEquals("Informe o tipo sanguíneo do doador antes de concluir a doação.", exception.getMessage());
+        assertEquals(StatusDoacao.EM_TRIAGEM, doacao.getStatus());
+        assertNull(doador.getUltima_doacao());
+        assertEquals(0, doador.getQtd_doacoes());
         verify(repository).findById(1L);
         verify(repository, never()).save(any(Doacao.class));
         verify(bolsaSangueRepository, never()).save(any(BolsaSangue.class));
