@@ -10,12 +10,11 @@ import {
 } from './bolsa'
 import { dataDeHoje } from './doacao'
 import { FILTROS_INICIAIS_SOLICITACOES, filtrarSolicitacoes } from './solicitacao'
+import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
 
 export const LIMITE_ESTOQUE_CRITICO = 10
 export const DIAS_DOACOES_RECENTES = 7
 export const MAXIMO_SOLICITACOES_EM_DESTAQUE = 5
-
-const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
 export interface EstoqueDoTipo {
   tipo: TipoSanguineo
