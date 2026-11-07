@@ -92,8 +92,12 @@ public class SolicitacaoService {
     }
 
     public SolicitacaoResponseDTO buscarPorId(Long id) {
-        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada."));
+        Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
         return toResponseDTO(solicitacao);
+    }
+
+    private Solicitacao buscarSolicitacaoOuFalhar(Long id) {
+        return repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada."));
     }
 
     private List<BolsaSangue> buscarBolsasCompativeis(Solicitacao solicitacao) {
@@ -128,7 +132,7 @@ public class SolicitacaoService {
     }
 
     public SolicitacaoResponseDTO atender(Long id) {
-        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada."));
+        Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
 
         List<BolsaSangue> bolsasCompativeis = buscarBolsasCompativeis(solicitacao);
 
@@ -156,7 +160,7 @@ public class SolicitacaoService {
     }
 
     public SolicitacaoResponseDTO concluir(Long id){
-        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada"));
+        Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
         solicitacao.concluirAtendimento();
 
         for(BolsaSangue bolsa: solicitacao.getBolsasReservadas()){
@@ -169,7 +173,7 @@ public class SolicitacaoService {
     }
 
     public SolicitacaoResponseDTO cancelar(Long id) {
-        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada."));
+        Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
         solicitacao.cancelar();
 
         for (BolsaSangue bolsa : solicitacao.getBolsasReservadas()) {
