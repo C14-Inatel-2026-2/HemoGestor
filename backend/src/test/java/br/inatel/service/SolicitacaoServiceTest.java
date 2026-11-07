@@ -14,6 +14,7 @@ import br.inatel.model.Doacao;
 import br.inatel.model.Solicitacao;
 import br.inatel.repository.BolsaSangueRepository;
 import br.inatel.repository.SolicitacaoRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -26,6 +27,17 @@ import static org.mockito.Mockito.*;
 
 public class SolicitacaoServiceTest {
 
+    private SolicitacaoRepository repository;
+    private BolsaSangueRepository bolsaSangueRepository;
+    private SolicitacaoService service;
+
+    @BeforeEach
+    void setUp() {
+        repository = mock(SolicitacaoRepository.class);
+        bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        service = new SolicitacaoService(repository, bolsaSangueRepository);
+    }
+
     private BolsaSangue criarBolsa(String tipoSanguineo, SituacaoBolsa situacao, TipoDoacao tipoDoacao, LocalDate dataValidade) {
         Doacao doacao = new Doacao();
         doacao.setTipoDoacao(tipoDoacao);
@@ -37,10 +49,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void cadastrarSolicitacao(){
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
         dto.setInstituicao("Hospital Santa Casa");
         dto.setSetor("UTI");
@@ -67,10 +75,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void naoCadastrarSolicitacaoComQuantidadeInvalida() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
         dto.setInstituicao("Hospital Santa Casa");
         dto.setSetor("UTI");
@@ -87,9 +91,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void listarTodasSolicitacoes() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
         Solicitacao solicitacao = new Solicitacao("Hospital Santa Casa", "UTI", "A+", 2, PrioridadeSolicitacao.URGENTE, "Paciente em procedimento cirúrgico.");
 
         when(repository.findAll()).thenReturn(List.of(solicitacao));
@@ -105,10 +106,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void retornarListaVaziaQuandoNaoExistiremSolicitacoes() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         when(repository.findAll()).thenReturn(List.of());
 
         List<SolicitacaoResponseDTO> resultado = service.listarTodas();
@@ -118,10 +115,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void buscarSolicitacaoPorId() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao("Hospital Santa Casa", "UTI", "A+", 2, PrioridadeSolicitacao.URGENTE, "Paciente em procedimento cirúrgico.");
 
         when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
@@ -136,10 +129,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void naoBuscarSolicitacaoInexistente() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
         SolicitacaoNaoEncontradaException exception = assertThrows(SolicitacaoNaoEncontradaException.class, () -> service.buscarPorId(99L));
@@ -150,10 +139,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void listarSolicitacoesEmOrdemPorPrioridade() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao normal = new Solicitacao("Hospital A", "UTI", "A+", 1, PrioridadeSolicitacao.NORMAL, "Caso normal");
         Solicitacao urgente = new Solicitacao("Hospital B", "UTI", "O+", 1, PrioridadeSolicitacao.URGENTE, "Caso urgente");
         Solicitacao emergencia = new Solicitacao("Hospital C", "UTI", "O-", 1, PrioridadeSolicitacao.EMERGENCIA, "Caso de emergência");
@@ -169,10 +154,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void listarSolicitacoesDaMesmaPrioridadePorDataMaisAntiga() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao maisRecente = new Solicitacao("Hospital A", "UTI", "A+", 1, PrioridadeSolicitacao.URGENTE, "Solicitação mais recente");
         maisRecente.setDataSolicitacao(LocalDateTime.of(2026, 11, 5, 14, 0));
 
@@ -189,11 +170,7 @@ public class SolicitacaoServiceTest {
 
     @Test
     void buscarBolsasCompativeisDisponiveisValidasESangueTotal() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
-        Solicitacao solicitacao = new Solicitacao(
+       Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
                 "A+",
@@ -216,10 +193,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void listarBolsasCompativeisPriorizaMesmoTipoEValidade() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -247,10 +220,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void retornarQuantidadeDeBolsasCompativeisDisponiveis() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -276,10 +245,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void atenderSolicitacaoComBolsasCompativeisSuficientes() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -310,10 +275,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void naoAtenderSolicitacaoSemBolsasCompativeisSuficientes() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -340,10 +301,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void naoAtenderSolicitacaoQueNaoEstaPendente() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -370,10 +327,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void concluirSolicitacaoEmAtendimento() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -405,10 +358,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void naoConcluirSolicitacaoQueNaoEstaEmAtendimento() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -435,10 +384,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void cancelarSolicitacaoPendente() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -459,10 +404,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void cancelarSolicitacaoEmAtendimentoELiberarBolsas() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
@@ -494,10 +435,6 @@ public class SolicitacaoServiceTest {
 
     @Test
     void naoCancelarSolicitacaoAtendida() {
-        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
-
         Solicitacao solicitacao = new Solicitacao(
                 "Hospital Santa Casa",
                 "UTI",
