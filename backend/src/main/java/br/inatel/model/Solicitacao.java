@@ -157,6 +157,6 @@ public class Solicitacao {
     }
 
     public void setBolsasReservadas(List<BolsaSangue> bolsasReservadas) {
-        this.bolsasReservadas = bolsasReservadas;
+        this.bolsasReservadas = new ArrayList<>(bolsasReservadas);
     }
 }
