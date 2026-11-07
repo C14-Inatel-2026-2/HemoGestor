@@ -432,4 +432,89 @@ public class SolicitacaoServiceTest {
         verify(repository, never()).save(any(Solicitacao.class));
         verify(bolsaSangueRepository, never()).saveAll(anyList());
     }
+
+    @Test
+    void cancelarSolicitacaoPendente() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                1,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
+        when(repository.save(any(Solicitacao.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        SolicitacaoResponseDTO resultado = service.cancelar(1L);
+
+        assertEquals(StatusSolicitacao.CANCELADA, resultado.getStatus());
+        verify(repository).save(solicitacao);
+    }
+
+    @Test
+    void cancelarSolicitacaoEmAtendimentoELiberarBolsas() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        BolsaSangue bolsa1 = criarBolsa("A+", SituacaoBolsa.RESERVADA, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        bolsa1.setId(1L);
+        BolsaSangue bolsa2 = criarBolsa("O+", SituacaoBolsa.RESERVADA, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(15));
+        bolsa2.setId(2L);
+
+        solicitacao.setStatus(StatusSolicitacao.EM_ATENDIMENTO);
+        solicitacao.setBolsasReservadas(List.of(bolsa1, bolsa2));
+
+        when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
+        when(repository.save(any(Solicitacao.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        SolicitacaoResponseDTO resultado = service.cancelar(1L);
+
+        assertEquals(StatusSolicitacao.CANCELADA, resultado.getStatus());
+        assertEquals(SituacaoBolsa.DISPONIVEL, bolsa1.getSituacao());
+        assertEquals(SituacaoBolsa.DISPONIVEL, bolsa2.getSituacao());
+        verify(bolsaSangueRepository).saveAll(solicitacao.getBolsasReservadas());
+        verify(repository).save(solicitacao);
+    }
+
+    @Test
+    void naoCancelarSolicitacaoAtendida() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                1,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        solicitacao.setStatus(StatusSolicitacao.ATENDIDA);
+        when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> service.cancelar(1L));
+
+        assertEquals("Só é possível cancelar solicitações pendentes ou em atendimento.", exception.getMessage());
+        assertEquals(StatusSolicitacao.ATENDIDA, solicitacao.getStatus());
+        verify(repository, never()).save(any(Solicitacao.class));
+        verify(bolsaSangueRepository, never()).saveAll(anyList());
+    }
 }

@@ -242,4 +242,42 @@ public class SolicitacaoControllerTest {
 
         verify(service).concluir(1L);
     }
+
+    @Test
+    void cancelarSolicitacaoComSucesso() throws Exception {
+        SolicitacaoResponseDTO response = new SolicitacaoResponseDTO(
+                1L,
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico.",
+                LocalDateTime.now(),
+                StatusSolicitacao.CANCELADA,
+                List.of(1L, 2L),
+                0
+        );
+
+        when(service.cancelar(1L)).thenReturn(response);
+
+        mockMvc.perform(patch("/solicitacoes/1/cancelar"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("CANCELADA"));
+
+        verify(service).cancelar(1L);
+    }
+
+    @Test
+    void naoCancelarSolicitacaoAtendida() throws Exception {
+        when(service.cancelar(1L)).thenThrow(new IllegalStateException("Só é possível cancelar solicitações pendentes ou em atendimento."));
+
+        mockMvc.perform(patch("/solicitacoes/1/cancelar"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro")
+                        .value("Só é possível cancelar solicitações pendentes ou em atendimento."));
+
+        verify(service).cancelar(1L);
+    }
 }
