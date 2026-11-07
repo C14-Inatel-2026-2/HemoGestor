@@ -5,6 +5,7 @@ import br.inatel.dto.SolicitacaoResponseDTO;
 import br.inatel.enumeracao.PrioridadeSolicitacao;
 import br.inatel.enumeracao.SituacaoBolsa;
 import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.SolicitacaoNaoEncontradaException;
 import br.inatel.model.BolsaSangue;
 import br.inatel.model.Solicitacao;
@@ -132,7 +133,7 @@ public class SolicitacaoService {
         List<BolsaSangue> bolsasCompativeis = buscarBolsasCompativeis(solicitacao);
 
         if (bolsasCompativeis.size() < solicitacao.getQuantidade()) {
-            throw new IllegalStateException("Não há bolsas compatíveis suficientes para atender a solicitação.");
+            throw new ConflitoException("Não há bolsas compatíveis suficientes para atender a solicitação.");
         }
 
         List<BolsaSangue> bolsasSelecionadas = bolsasCompativeis

@@ -33,4 +33,9 @@ public class SolicitacaoController {
     public ResponseEntity<SolicitacaoResponseDTO> buscarPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
+
+    @PatchMapping("/{id}/atender")
+    public ResponseEntity<SolicitacaoResponseDTO> atenderSolicitacao(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(service.atender(id));
+    }
 }
