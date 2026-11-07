@@ -66,6 +66,13 @@ public class Solicitacao {
         this.status = StatusSolicitacao.EM_ATENDIMENTO;
     }
 
+    public void concluirAtendimento(){
+        if(this.status != StatusSolicitacao.EM_ATENDIMENTO){
+            throw new IllegalStateException("Só é possível concluir solicitações em atendimento.");
+        }
+        this.status = StatusSolicitacao.ATENDIDA;
+    }
+
     public Long getId() {
         return id;
     }
