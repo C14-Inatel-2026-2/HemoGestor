@@ -203,4 +203,43 @@ public class SolicitacaoControllerTest {
                         .value("Não há bolsas compatíveis suficientes para atender a solicitação."));
         verify(service).atender(1L);
     }
+
+    @Test
+    void concluirSolicitacaoComSucesso() throws Exception {
+        SolicitacaoResponseDTO response = new SolicitacaoResponseDTO(
+                1L,
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico.",
+                LocalDateTime.now(),
+                StatusSolicitacao.ATENDIDA,
+                List.of(1L, 2L),
+                0
+        );
+
+        when(service.concluir(1L)).thenReturn(response);
+
+        mockMvc.perform(patch("/solicitacoes/1/concluir"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("ATENDIDA"))
+                .andExpect(jsonPath("$.bolsasReservadas.length()").value(2));
+
+        verify(service).concluir(1L);
+    }
+
+    @Test
+    void naoConcluirSolicitacaoQueNaoEstaEmAtendimento() throws Exception {
+        when(service.concluir(1L)).thenThrow(new IllegalStateException("Só é possível concluir solicitações em atendimento."));
+
+        mockMvc.perform(patch("/solicitacoes/1/concluir"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro")
+                        .value("Só é possível concluir solicitações em atendimento."));
+
+        verify(service).concluir(1L);
+    }
 }

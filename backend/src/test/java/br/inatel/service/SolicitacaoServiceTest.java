@@ -367,4 +367,69 @@ public class SolicitacaoServiceTest {
         verify(repository, never()).save(any(Solicitacao.class));
         verify(bolsaSangueRepository, never()).saveAll(anyList());
     }
+
+    @Test
+    void concluirSolicitacaoEmAtendimento() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        BolsaSangue bolsa1 = criarBolsa("A+", SituacaoBolsa.RESERVADA, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        bolsa1.setId(1L);
+        BolsaSangue bolsa2 = criarBolsa("O+", SituacaoBolsa.RESERVADA, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(15));
+        bolsa2.setId(2L);
+
+        solicitacao.setBolsasReservadas(List.of(bolsa1, bolsa2));
+        solicitacao.setStatus(StatusSolicitacao.EM_ATENDIMENTO);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
+        when(repository.save(any(Solicitacao.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        SolicitacaoResponseDTO resultado = service.concluir(1L);
+
+        assertEquals(StatusSolicitacao.ATENDIDA, resultado.getStatus());
+        assertEquals(SituacaoBolsa.UTILIZADA, bolsa1.getSituacao());
+        assertEquals(SituacaoBolsa.UTILIZADA, bolsa2.getSituacao());
+        verify(bolsaSangueRepository).saveAll(solicitacao.getBolsasReservadas());
+        verify(repository).save(solicitacao);
+    }
+
+    @Test
+    void naoConcluirSolicitacaoQueNaoEstaEmAtendimento() {
+        SolicitacaoRepository repository = mock(SolicitacaoRepository.class);
+        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        SolicitacaoService service = new SolicitacaoService(repository, bolsaSangueRepository);
+
+        Solicitacao solicitacao = new Solicitacao(
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                1,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico."
+        );
+
+        BolsaSangue bolsa = criarBolsa("A+", SituacaoBolsa.RESERVADA, TipoDoacao.SANGUE_TOTAL, LocalDate.now().plusDays(10));
+        bolsa.setId(1L);
+        solicitacao.setBolsasReservadas(List.of(bolsa));
+
+        when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> service.concluir(1L));
+
+        assertEquals("Só é possível concluir solicitações em atendimento.", exception.getMessage());
+        assertEquals(StatusSolicitacao.PENDENTE, solicitacao.getStatus());
+        assertEquals(SituacaoBolsa.RESERVADA, bolsa.getSituacao());
+        verify(repository, never()).save(any(Solicitacao.class));
+        verify(bolsaSangueRepository, never()).saveAll(anyList());
+    }
 }
