@@ -154,4 +154,17 @@ public class SolicitacaoService {
 
         return toResponseDTO(solicitacao);
     }
+
+    public SolicitacaoResponseDTO concluir(Long id){
+        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new SolicitacaoNaoEncontradaException("Solicitação não encontrada"));
+        solicitacao.concluirAtendimento();
+
+        for(BolsaSangue bolsa: solicitacao.getBolsasReservadas()){
+            bolsa.utilizar();
+        }
+
+        bolsaSangueRepository.saveAll(solicitacao.getBolsasReservadas());
+        repository.save(solicitacao);
+        return toResponseDTO(solicitacao);
+    }
 }
