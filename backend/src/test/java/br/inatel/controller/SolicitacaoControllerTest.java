@@ -4,6 +4,7 @@ import br.inatel.dto.SolicitacaoRequestDTO;
 import br.inatel.dto.SolicitacaoResponseDTO;
 import br.inatel.enumeracao.PrioridadeSolicitacao;
 import br.inatel.enumeracao.StatusSolicitacao;
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.SolicitacaoNaoEncontradaException;
 import br.inatel.service.SolicitacaoService;
@@ -18,9 +19,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SolicitacaoController.class)
@@ -163,5 +164,43 @@ public class SolicitacaoControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.erro")
                         .value("Solicitação não encontrada."));
+    }
+
+    @Test
+    void atenderSolicitacaoComSucesso() throws Exception {
+        SolicitacaoResponseDTO response = new SolicitacaoResponseDTO(
+                1L,
+                "Hospital Santa Casa",
+                "UTI",
+                "A+",
+                2,
+                PrioridadeSolicitacao.URGENTE,
+                "Paciente em procedimento cirúrgico.",
+                LocalDateTime.now(),
+                StatusSolicitacao.EM_ATENDIMENTO,
+                List.of(1L, 2L),
+                0
+        );
+
+        when(service.atender(1L)).thenReturn(response);
+
+        mockMvc.perform(patch("/solicitacoes/1/atender"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("EM_ATENDIMENTO"))
+                .andExpect(jsonPath("$.bolsasReservadas.length()").value(2));
+
+        verify(service).atender(1L);
+    }
+
+    @Test
+    void naoAtenderSolicitacaoSemBolsasSuficiente() throws Exception {
+        when(service.atender(1L)).thenThrow(new ConflitoException("Não há bolsas compatíveis suficientes para atender a solicitação."));
+
+        mockMvc.perform(patch("/solicitacoes/1/atender"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro")
+                        .value("Não há bolsas compatíveis suficientes para atender a solicitação."));
+        verify(service).atender(1L);
     }
 }

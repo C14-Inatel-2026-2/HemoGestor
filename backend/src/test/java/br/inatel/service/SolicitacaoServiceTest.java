@@ -6,6 +6,7 @@ import br.inatel.enumeracao.PrioridadeSolicitacao;
 import br.inatel.enumeracao.SituacaoBolsa;
 import br.inatel.enumeracao.StatusSolicitacao;
 import br.inatel.enumeracao.TipoDoacao;
+import br.inatel.exception.ConflitoException;
 import br.inatel.exception.DadosInvalidosException;
 import br.inatel.exception.SolicitacaoNaoEncontradaException;
 import br.inatel.model.BolsaSangue;
@@ -328,7 +329,7 @@ public class SolicitacaoServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(solicitacao));
         when(bolsaSangueRepository.findAll()).thenReturn(List.of(unicaBolsa));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> service.atender(1L));
+        ConflitoException exception = assertThrows(ConflitoException.class, () -> service.atender(1L));
 
         assertEquals("Não há bolsas compatíveis suficientes para atender a solicitação.", exception.getMessage());
         assertEquals(StatusSolicitacao.PENDENTE, solicitacao.getStatus());
