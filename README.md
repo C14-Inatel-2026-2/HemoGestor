@@ -49,6 +49,11 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 | RF08 — Verificar compatibilidade e disponibilidade | Sem história específica | Não possui uma história específica entre H1 e H6. |
 | RF09 — Exibir resumo do estoque e das solicitações | H2 | A H2 se relaciona ao resumo do estoque; o resumo de solicitações não possui uma história específica entre H1 e H6. |
 
+### Situação das histórias H5 e H6
+
+- **H5 — Agendar doação (#75):** permanece em backlog. A funcionalidade de agendamento ainda não foi implementada e não possui PRs ou testes associados.
+- **H6 — Consultar doadores cadastrados (#76):** concluída. Os critérios de aceite foram validados com base na listagem de doadores, tratamento de lista vazia e de erros, integração com a API e testes automatizados da funcionalidade.
+
 ## Requisitos não funcionais
 
 | ID | Requisito | Como o projeto atende |
