@@ -35,6 +35,20 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 | H5 — Agendar doação | #75 | — | — |
 | H6 — Consultar doadores cadastrados | #76 | #56, #64 | `frontend/src/services/doadorService.test.ts`, `frontend/src/pages/DoadoresPage.test.tsx` |
 
+### Relação entre requisitos funcionais e histórias
+
+| Requisito | Histórias relacionadas | Observação |
+|---|---|---|
+| RF01 — Cadastrar doador | H1 | A H1 cobre o cadastro de doadores pelo formulário. |
+| RF02 — Listar doadores | H6 | A H6 cobre a consulta dos doadores cadastrados. |
+| RF03 — Editar doador | Sem história específica | A edição foi implementada na tela de Doadores, mas não possui uma história própria entre H1 e H6. |
+| RF04 — Remover doador | Sem história específica | A remoção foi implementada na tela de Doadores, mas não possui uma história própria entre H1 e H6. |
+| RF05 — Registrar e consultar doações | H3, H4 | A H3 cobre o registro de doações e a H4 cobre a consulta do histórico. |
+| RF06 — Consultar bolsas por tipo sanguíneo, validade e situação | H2 | A H2 cobre a consulta do estoque e seus filtros. |
+| RF07 — Cadastrar solicitações de sangue | Sem história específica | Não possui uma história específica entre H1 e H6. |
+| RF08 — Verificar compatibilidade e disponibilidade | Sem história específica | Não possui uma história específica entre H1 e H6. |
+| RF09 — Exibir resumo do estoque e das solicitações | H2 | A H2 se relaciona ao resumo do estoque; o resumo de solicitações não possui uma história específica entre H1 e H6. |
+
 ## Requisitos não funcionais
 
 | ID | Requisito | Como o projeto atende |
