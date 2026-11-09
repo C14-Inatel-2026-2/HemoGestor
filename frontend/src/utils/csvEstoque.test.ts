@@ -4,11 +4,15 @@ import type { Bolsa } from '../types/bolsa'
 const bolsas: Bolsa[] = [
   {
     id: 1,
+    doacaoId: 1,
+    doadorId: 1,
+    nomeDoador: 'João da Silva',
     tipoSanguineo: 'A+',
+    tipoDoacao: 'SANGUE_TOTAL',
+    volume_ml: 450,
     dataColeta: '2026-11-01',
     dataValidade: '2026-12-01',
     status: 'DISPONIVEL',
-    nomeDoador: 'João da Silva',
   },
 ]
 
