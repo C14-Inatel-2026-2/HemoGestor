@@ -111,9 +111,7 @@ describe('SolicitacoesPage', () => {
     expect(screen.getByRole('button', { name: 'Histórico (2)' })).toBeInTheDocument()
   })
 
-  it('atualiza a contagem de solicitações no singular e no plural', async () => {
-    const usuario = userEvent.setup()
-
+  it('ordena as solicitações ativas por prioridade e destaca emergências', async () => {
     render(<SolicitacoesPage />)
 
     const linha = (await screen.findByText('SOL-002')).closest('tr')
@@ -123,6 +121,15 @@ describe('SolicitacoesPage', () => {
     expect(screen.getByText('SOL-001').closest('tr')).not.toHaveClass(
       'solicitacoes__linha--emergencia',
     )
+  })
+
+  it('atualiza a contagem de solicitações no singular e no plural', async () => {
+    const usuario = userEvent.setup()
+
+    render(<SolicitacoesPage />)
+
+    await screen.findByText('SOL-001')
+
     expect(screen.getByText('3 solicitações')).toBeInTheDocument()
 
     await usuario.selectOptions(

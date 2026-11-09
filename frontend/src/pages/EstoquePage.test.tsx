@@ -93,12 +93,19 @@ describe('EstoquePage', () => {
     expect(within(screen.getByRole('group', { name: 'Fora do estoque' })).getByText('2')).toBeInTheDocument()
   })
 
-  it('atualiza a contagem de bolsas no singular e no plural', async () => {
+  it('mostra no estoque atual só as bolsas válidas, das que vencem primeiro às últimas', async () => {
     render(<EstoquePage />)
 
     await screen.findByText('BOL-001')
 
     expect(codigosNaTabela()).toEqual(['BOL-002', 'BOL-001'])
+  })
+
+  it('atualiza a contagem de bolsas no singular e no plural', async () => {
+    render(<EstoquePage />)
+
+    await screen.findByText('BOL-001')
+
     expect(screen.getByText('2 bolsas')).toBeInTheDocument()
 
     await userEvent.selectOptions(
