@@ -247,8 +247,14 @@ function SolicitacoesPage() {
             ))}
           </select>
 
-          <span className="doadores__contagem">{solicitacoesVisiveis.length}{' '}
-                                               {pluralizar(solicitacoesVisiveis.length, 'solicitação', 'solicitações')}</span>
+          <span className="doadores__contagem">
+            {solicitacoesVisiveis.length}{' '}
+            {pluralizar(
+              solicitacoesVisiveis.length,
+              'solicitação',
+              'solicitações',
+            )}
+          </span>
 
           {!exibindoFormulario && (
             <button
