@@ -82,20 +82,44 @@ pipeline {
                 sh 'docker compose -p hemogestor up -d --build mysql backend frontend'
 
                 sh '''
+                    BASE_URL=""
+
                     for i in $(seq 1 30); do
-                        if curl -fs http://backend:8080/api/health ||
-                           curl -fs http://host.docker.internal:8081/api/health; then
-                            echo ""
-                            echo "Aplicação no ar: frontend em http://localhost:5173"
-                            exit 0
+                        if curl -fs http://backend:8080/api/health > /dev/null; then
+                            BASE_URL="http://backend:8080"
+                            break
+                        fi
+
+                        if curl -fs http://host.docker.internal:8081/api/health > /dev/null; then
+                            BASE_URL="http://host.docker.internal:8081"
+                            break
                         fi
 
                         echo "Aguardando o backend subir... ($i/30)"
                         sleep 5
                     done
 
-                    echo "O backend não respondeu ao health check."
-                    exit 1
+                    if [ -z "$BASE_URL" ]; then
+                        echo "O backend não respondeu ao health check."
+                        exit 1
+                    fi
+
+                    echo "Backend disponível em $BASE_URL"
+
+                    for rota in doadores doacoes bolsas solicitacoes; do
+                        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/$rota")
+
+                        if [ "$STATUS" -ne 200 ]; then
+                            echo "Falha na rota GET /$rota: HTTP $STATUS"
+                            exit 1
+                        fi
+
+                        echo "GET /$rota: HTTP 200"
+                    done
+
+                    echo ""
+                    echo "Todas as rotas principais responderam corretamente."
+                    echo "Aplicação no ar: frontend em http://localhost:5173"
                 '''
             }
         }
