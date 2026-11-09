@@ -111,15 +111,26 @@ describe('SolicitacoesPage', () => {
     expect(screen.getByRole('button', { name: 'Histórico (2)' })).toBeInTheDocument()
   })
 
-  it('mostra as solicitações ativas por prioridade e destaca as emergências', async () => {
+  it('atualiza a contagem de solicitações no singular e no plural', async () => {
+    const usuario = userEvent.setup()
+
     render(<SolicitacoesPage />)
 
     const linha = (await screen.findByText('SOL-002')).closest('tr')
 
     expect(codigosNaTabela()).toEqual(['SOL-002', 'SOL-003', 'SOL-001'])
     expect(linha).toHaveClass('solicitacoes__linha--emergencia')
-    expect(screen.getByText('SOL-001').closest('tr')).not.toHaveClass('solicitacoes__linha--emergencia')
+    expect(screen.getByText('SOL-001').closest('tr')).not.toHaveClass(
+      'solicitacoes__linha--emergencia',
+    )
     expect(screen.getByText('3 solicitações')).toBeInTheDocument()
+
+    await usuario.selectOptions(
+      screen.getByRole('combobox', { name: 'Prioridade' }),
+      'NORMAL',
+    )
+
+    expect(screen.getByText('1 solicitação')).toBeInTheDocument()
   })
 
   it('mostra as atendidas e canceladas na aba Histórico, sem destaque', async () => {
