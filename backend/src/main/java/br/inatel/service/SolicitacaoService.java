@@ -4,6 +4,7 @@ import br.inatel.dto.SolicitacaoRequestDTO;
 import br.inatel.dto.SolicitacaoResponseDTO;
 import br.inatel.enumeracao.PrioridadeSolicitacao;
 import br.inatel.enumeracao.SituacaoBolsa;
+import br.inatel.enumeracao.StatusSolicitacao;
 import br.inatel.enumeracao.TipoDoacao;
 import br.inatel.exception.ConflitoException;
 import br.inatel.exception.SolicitacaoNaoEncontradaException;
@@ -135,6 +136,12 @@ public class SolicitacaoService {
     @Transactional
     public SolicitacaoResponseDTO atender(Long id) {
         Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
+
+        if (solicitacao.getStatus() != StatusSolicitacao.PENDENTE) {
+            throw new IllegalStateException(
+                    "Só é possível atender solicitações pendentes."
+            );
+        }
 
         List<BolsaSangue> bolsasCompativeis = buscarBolsasCompativeis(solicitacao);
 
