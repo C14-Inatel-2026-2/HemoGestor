@@ -9,6 +9,7 @@ import br.inatel.model.Doador;
 import br.inatel.repository.BolsaSangueRepository;
 import br.inatel.repository.DoacaoRepository;
 import br.inatel.repository.DoadorRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -22,6 +23,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class DoacaoServiceTest {
+    private DoacaoRepository repository;
+    private BolsaSangueRepository bolsaSangueRepository;
+    private DoacaoService service;
+
+    @BeforeEach
+    void setUp() {
+        repository = mock(DoacaoRepository.class);
+        bolsaSangueRepository = mock(BolsaSangueRepository.class);
+        service = new DoacaoService(repository, bolsaSangueRepository);
+    }
+
     private Doador criarDoador(){
         return new Doador(
                 1L,
@@ -58,10 +70,6 @@ public class DoacaoServiceTest {
 
     @Test
     void salvarDoacao(){
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
         Doacao doacao = criarDoacao();
         when(repository.save(doacao)).thenReturn(doacao);
 
@@ -72,11 +80,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoSalvarDoacaoAntesDoIntervaloMinimo() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doador doador = criarDoador();
         doador.setUltima_doacao(LocalDate.now().minusDays(30));
 
@@ -105,11 +108,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoSalvarDoacaoQuandoAtingirLimiteAnual() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doador doador = criarDoador();
         Doacao doacao1 = new Doacao(
                 1L,
@@ -176,11 +174,6 @@ public class DoacaoServiceTest {
 
     @Test
     void salvarDoacaoQuandoRespeitarIntervaloELimiteAnual() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doador doador = criarDoador();
         Doacao doacaoAnterior = new Doacao(
                 1L,
@@ -219,11 +212,6 @@ public class DoacaoServiceTest {
 
     @Test
     void buscarDoacaoPorId() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));
 
@@ -236,10 +224,6 @@ public class DoacaoServiceTest {
 
     @Test
     void deveListarTodasAsDoacoes() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
         Doacao doacao = criarDoacao();
         when(repository.findAll()).thenReturn(List.of(doacao));
 
@@ -252,10 +236,6 @@ public class DoacaoServiceTest {
 
     @Test
     void concluirDoacao() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
 
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));
@@ -278,10 +258,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoConcluirDoacaoSemTipoSanguineo() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doador doador = criarDoador();
         doador.setTipo_sanguineo(null);
 
@@ -302,10 +278,6 @@ public class DoacaoServiceTest {
     }
     @Test
     void naoConcluirDoacaoConcluida(){
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
         doacao.concluirDoacao();
 
@@ -318,10 +290,6 @@ public class DoacaoServiceTest {
 
     @Test
     void descartarDoacao() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
 
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));
@@ -337,10 +305,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoConcluirDoacaoInexistente() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
         Optional<Doacao> resultado = service.concluir(99L);
@@ -352,10 +316,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoConcluirDoacaoDescartada(){
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
         doacao.descartarDoacao();
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));
@@ -368,10 +328,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoDescartarDoacaoConcluida(){
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
         doacao.concluirDoacao();
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));
@@ -384,10 +340,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoDescartarDoacaoInexistente() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
         Optional<Doacao> resultado = service.descartar(99L);
@@ -399,10 +351,6 @@ public class DoacaoServiceTest {
 
     @Test
     void buscarDoacoesPorDoador() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
 
         when(repository.findByDoadorId(1L)).thenReturn(List.of(doacao));
@@ -416,10 +364,6 @@ public class DoacaoServiceTest {
 
     @Test
     void retornarListaVaziaDoadorNaoPossuiDoacoes(){
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         when(repository.findByDoadorId(1L)).thenReturn(List.of());
 
         List<Doacao> resultado = service.buscarPorDoador(1L);
@@ -430,10 +374,6 @@ public class DoacaoServiceTest {
 
     @Test
     void naoAtualizarUltimaDoacaoComDataMaisAntiga(){
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
         Doador doador = doacao.getDoador();
 
@@ -454,10 +394,6 @@ public class DoacaoServiceTest {
 
     @Test
     void gerarBolsaAoConcluirDoacao(){
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
 
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));
@@ -470,10 +406,6 @@ public class DoacaoServiceTest {
 
     @Test
     void gerarBolsaComDadosCorretosAoConcluirDoacao() {
-        DoacaoRepository repository = mock(DoacaoRepository.class);
-        BolsaSangueRepository bolsaSangueRepository = mock(BolsaSangueRepository.class);
-        DoacaoService service = new DoacaoService(repository, bolsaSangueRepository);
-
         Doacao doacao = criarDoacao();
 
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));

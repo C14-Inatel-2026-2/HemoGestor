@@ -32,6 +32,30 @@ public class DoacaoService {
         Doador doador = doacao.getDoador();
         List<Doacao> doacoesValidas = repository.findByDoadorIdAndStatusNot(doador.getId(), StatusDoacao.DESCARTADA);
 
+        validarIntervaloDoacoes(doacao, doador, doacoesValidas);
+        validarLimiteAnual(doacao, doacoesValidas, doador);
+
+        return repository.save(doacao);
+    }
+
+    private static void validarLimiteAnual(Doacao doacao, List<Doacao> doacoesValidas, Doador doador) {
+        LocalDate inicioPeriodo = doacao.getDataColeta().minusMonths(12);
+        long quantidadeUltimos12Meses = doacoesValidas.stream()
+                .filter(doacaoAnterior ->
+                        !doacaoAnterior.getDataColeta().isBefore(inicioPeriodo) && !doacaoAnterior.getDataColeta().isAfter(doacao.getDataColeta())).count();
+
+        int limiteAnual;
+        if (doador.getSexo() == Sexo.MASCULINO) {
+            limiteAnual = 4;
+        } else {
+            limiteAnual = 3;
+        }
+        if (quantidadeUltimos12Meses >= limiteAnual) {
+            throw new DadosInvalidosException(doador.getNome() + " atingiu o limite de " + limiteAnual + " doações nos últimos 12 meses.");
+        }
+    }
+
+    private static void validarIntervaloDoacoes(Doacao doacao, Doador doador, List<Doacao> doacoesValidas) {
         LocalDate ultimaDoacaoValida = doador.getUltima_doacao();
         for (Doacao doacaoAnterior : doacoesValidas) {
             LocalDate data = doacaoAnterior.getDataColeta();
@@ -52,23 +76,6 @@ public class DoacaoService {
                         doador.getNome() + " só poderá doar novamente a partir de " + proximaDoacao.format(formato) + ".");
             }
         }
-
-        LocalDate inicioPeriodo = doacao.getDataColeta().minusMonths(12);
-        long quantidadeUltimos12Meses = doacoesValidas.stream()
-                .filter(doacaoAnterior ->
-                        !doacaoAnterior.getDataColeta().isBefore(inicioPeriodo) && !doacaoAnterior.getDataColeta().isAfter(doacao.getDataColeta())).count();
-
-        int limiteAnual;
-        if (doador.getSexo() == Sexo.MASCULINO) {
-            limiteAnual = 4;
-        } else {
-            limiteAnual = 3;
-        }
-        if (quantidadeUltimos12Meses >= limiteAnual) {
-            throw new DadosInvalidosException(doador.getNome() + " atingiu o limite de " + limiteAnual + " doações nos últimos 12 meses.");
-        }
-
-        return repository.save(doacao);
     }
 
     public List<Doacao> listarTodas(){
