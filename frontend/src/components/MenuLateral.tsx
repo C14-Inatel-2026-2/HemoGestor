@@ -1,12 +1,23 @@
 import { NavLink } from 'react-router-dom'
 import './MenuLateral.css'
+import {
+  IconeDashboard,
+  IconeDoacoes,
+  IconeDoadores,
+  IconeEstoque,
+  IconeSolicitacoes,
+} from './IconesMenu'
 
 const ITENS_MENU = [
-  { caminho: '/dashboard', rotulo: 'Dashboard' },
-  { caminho: '/doadores', rotulo: 'Doadores' },
-  { caminho: '/doacoes', rotulo: 'Doações' },
-  { caminho: '/estoque', rotulo: 'Estoque' },
-  { caminho: '/solicitacoes', rotulo: 'Solicitações' },
+  { caminho: '/dashboard', rotulo: 'Dashboard', icone: IconeDashboard },
+  { caminho: '/doadores', rotulo: 'Doadores', icone: IconeDoadores },
+  { caminho: '/doacoes', rotulo: 'Doações', icone: IconeDoacoes },
+  { caminho: '/estoque', rotulo: 'Estoque', icone: IconeEstoque },
+  {
+    caminho: '/solicitacoes',
+    rotulo: 'Solicitações',
+    icone: IconeSolicitacoes,
+  },
 ]
 
 function MenuLateral() {
@@ -22,7 +33,8 @@ function MenuLateral() {
           {ITENS_MENU.map((item) => (
             <li key={item.caminho}>
               <NavLink to={item.caminho} className="menu-lateral__link">
-                {item.rotulo}
+                <item.icone />
+                <span>{item.rotulo}</span>
               </NavLink>
             </li>
           ))}
