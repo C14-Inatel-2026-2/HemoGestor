@@ -204,12 +204,12 @@ No build do Jenkins:
 Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organização, legibilidade e manutenção do código, preservando o comportamento externo da aplicação.
 
 ### Luísa
-| Code smell | Refactoring aplicado | Motivo | PR |
-|---|---|---|---|
-| Método longo no `DoacaoService.salvar()` | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | A adicionar |
-| Setup duplicado em `SolicitacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | A adicionar |
-| Setup duplicado em `DoacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e facilitar sua manutenção | A adicionar |
-| Busca de solicitação por ID duplicada em vários métodos de `SolicitacaoService` | **Extract Method** para `buscarSolicitacaoOuFalhar()` | Centralizar a busca e o tratamento de solicitação inexistente, eliminando código duplicado | A adicionar |
+| Code smell | Refactoring aplicado | Motivo | PR   |
+|---|---|---|------|
+| Método longo no `DoacaoService.salvar()` | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | #128 |
+| Setup duplicado em `SolicitacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | #128 |
+| Setup duplicado em `DoacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e facilitar sua manutenção | #128 |
+| Busca de solicitação por ID duplicada em vários métodos de `SolicitacaoService` | **Extract Method** para `buscarSolicitacaoOuFalhar()` | Centralizar a busca e o tratamento de solicitação inexistente, eliminando código duplicado | #128 |
 
 > **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
 
