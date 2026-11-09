@@ -18,6 +18,7 @@ import type { FiltrosDoadores } from '../utils/doador'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
+import { pluralizar } from '../utils/texto'
 
 const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
@@ -175,7 +176,8 @@ function DoadoresPage() {
       <div className="doadores__conteudo">
         <div className="doadores__barra">
           <span className="doadores__contagem">
-            {doadoresVisiveis.length} doadores
+            {doadoresVisiveis.length}{' '}
+            {pluralizar(doadoresVisiveis.length, 'doador', 'doadores')}
           </span>
 
           {!formularioAberto && (
