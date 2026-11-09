@@ -255,21 +255,23 @@ describe('RegistrarDoacaoPage', () => {
       )
     })
 
-    it('mostra só as doações do doador buscado e atualiza a contagem', async () => {
-      const usuario = userEvent.setup()
+    it('atualiza a contagem de doações no singular e no plural', async () => {
+       const usuario = userEvent.setup()
 
-      render(<RegistrarDoacaoPage />)
+       render(<RegistrarDoacaoPage />)
 
-      await screen.findByText('Ana Souza')
+       await screen.findByText('Ana Souza')
 
-      await usuario.type(
-        screen.getByRole('searchbox', { name: 'Buscar por doador' }),
-        'joao',
-      )
+       expect(screen.getByText('2 doações')).toBeInTheDocument()
+
+       await usuario.type(
+         screen.getByRole('searchbox', { name: 'Buscar por doador' }),
+         'joao',
+    )
 
       expect(screen.getByText('João Conceição')).toBeInTheDocument()
       expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
-      expect(screen.getByText('1 doações')).toBeInTheDocument()
+      expect(screen.getByText('1 doação')).toBeInTheDocument()
     })
 
     it('mostra só as doações do status escolhido', async () => {
