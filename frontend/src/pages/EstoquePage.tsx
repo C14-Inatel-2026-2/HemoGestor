@@ -20,6 +20,7 @@ import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'
+import { pluralizar } from '../utils/texto'
 
 const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
@@ -202,7 +203,10 @@ function EstoquePage() {
             </label>
           )}
 
-          <span className="doadores__contagem">{bolsasVisiveis.length} bolsas</span>
+          <span className="doadores__contagem">
+            {bolsasVisiveis.length}{' '}
+            {pluralizar(bolsasVisiveis.length, 'bolsa', 'bolsas')}
+          </span>
         </div>
 
         {sucesso && (
