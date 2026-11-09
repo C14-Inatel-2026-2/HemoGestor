@@ -152,7 +152,9 @@ A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositóri
 | | Build Front | `npm ci`, `npm run lint` e `npm run build` |
 | **Testes** | Testes Back | `./mvnw verify`, com relatório JUnit e cobertura JaCoCo |
 | | Testes Front | `npm run test:ci`, com relatório JUnit e cobertura (Vitest) |
-| **Deploy** | — | Sobe MySQL, back-end e front-end com `docker compose` e faz o health check em `/api/health` |
+| **Deploy** | — | Sobe MySQL, back-end e front-end com `docker compose`, faz o health check em `/api/health` e valida as rotas principais `/doadores`, `/doacoes`, `/bolsas` e `/solicitacoes` |
+
+Após o health check, a pipeline executa requisições `GET` para as rotas principais da API. O deploy falha caso qualquer uma delas não responda com status HTTP `200`.
 
 ### Pré-requisitos
 
