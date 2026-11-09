@@ -10,17 +10,17 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 
 ## Funcionalidades e requisitos funcionais
 
-| ID | Requisito | Status |
-|---|---|---|
-| RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue |
-| RF02 | Listar doadores | Entregue |
-| RF03 | Editar doador | Entregue |
-| RF04 | Remover doador | Entregue |
-| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Entregue |
-| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Entregue |
-| RF07 | Cadastrar solicitações de sangue | Entregue |
-| RF08 | Verificar compatibilidade e disponibilidade | Parcial (tela pronta; falta o back-end) |
-| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Entregue |
+| ID | Requisito | Status                                      |
+|---|---|---------------------------------------------|
+| RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue                                    |
+| RF02 | Listar doadores | Entregue                                    |
+| RF03 | Editar doador | Entregue                                    |
+| RF04 | Remover doador | Entregue                                    |
+| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Entregue                                    |
+| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Entregue                                    |
+| RF07 | Cadastrar solicitações de sangue | Entregue                                    |
+| RF08 | Verificar compatibilidade e disponibilidade | Parcial (integração do front-back pendente) |
+| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Entregue                                    |
 
 **Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
