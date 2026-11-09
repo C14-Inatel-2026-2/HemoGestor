@@ -24,6 +24,17 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 
 **Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
+## Rastreabilidade das histórias de usuário
+
+| História | Issue | PRs relacionados | Arquivos de teste |
+|---|---|---|---|
+| H1 — Cadastrar doador pelo formulário | #65 | #64 | `frontend/src/pages/DoadoresPage.test.tsx`, `frontend/src/components/DoadorForm.test.tsx`, `frontend/src/utils/doador.test.ts` |
+| H2 — Consultar o estoque por tipo sanguíneo | #66 | #82, #91, #100 | `frontend/src/pages/EstoquePage.test.tsx`, `frontend/src/pages/DashboardPage.test.tsx`, `frontend/src/utils/bolsa.test.ts`, `frontend/src/utils/dashboard.test.ts` |
+| H3 — Registrar uma nova doação | #70 | #69, #73, #78 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java`, `backend/src/test/java/br/inatel/model/DoacaoTest.java` |
+| H4 — Consultar histórico de doações | #72 | #74, #81 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java` |
+| H5 — Agendar doação | #75 | — | — |
+| H6 — Consultar doadores cadastrados | #76 | #56, #64 | `frontend/src/services/doadorService.test.ts`, `frontend/src/pages/DoadoresPage.test.tsx` |
+
 ## Requisitos não funcionais
 
 | ID | Requisito | Como o projeto atende |
