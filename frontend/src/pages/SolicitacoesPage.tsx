@@ -32,6 +32,7 @@ import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'
 import './SolicitacoesPage.css'
+import { pluralizar } from '../utils/texto'
 
 const STATUS_POR_ABA: Record<AbaSolicitacoes, StatusSolicitacao[]> = {
   ATIVAS: ['PENDENTE', 'EM_ATENDIMENTO'],
@@ -246,7 +247,8 @@ function SolicitacoesPage() {
             ))}
           </select>
 
-          <span className="doadores__contagem">{solicitacoesVisiveis.length} solicitações</span>
+          <span className="doadores__contagem">{solicitacoesVisiveis.length}{' '}
+                                               {pluralizar(solicitacoesVisiveis.length, 'solicitação', 'solicitações')}</span>
 
           {!exibindoFormulario && (
             <button
