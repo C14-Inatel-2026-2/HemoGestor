@@ -24,6 +24,7 @@ import './DoadoresPage.css'
 import './EstoquePage.css'
 import './SolicitacoesPage.css'
 import './DashboardPage.css'
+import { validarRespostaLista } from '../utils/erro'
 
 interface DadosDashboard {
   bolsas: Bolsa[] | null
@@ -33,12 +34,9 @@ interface DadosDashboard {
 
 const SEM_DADOS: DadosDashboard = { bolsas: null, solicitacoes: null, doacoes: null }
 
-async function buscarLista<T>(buscar: () => Promise<{ data: T[] }>): Promise<T[]> {
+async function buscarLista<T>(buscar: () => Promise<{ data: unknown }>): Promise<T[]> {
   const resposta = await buscar()
-  if (!Array.isArray(resposta.data)) {
-    throw new Error('Resposta inesperada da API')
-  }
-  return resposta.data
+  return validarRespostaLista<T>(resposta.data)
 }
 
 function valorOuNulo<T>(resultado: PromiseSettledResult<T>): T | null {
@@ -80,7 +78,7 @@ function DashboardPage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Dashboard" subtitulo="Resumo do estoque e das solicitações" />
+      <CabecalhoPagina titulo="Dashboard" subtitulo="Visão geral do banco de sangue" />
       <div className="doadores__conteudo">
         {!carregando && falhas.length > 0 && (
           <p role="alert" className="doadores__erro">

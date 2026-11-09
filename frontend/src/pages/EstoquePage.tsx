@@ -15,7 +15,8 @@ import {
   venceEmBreve,
 } from '../utils/bolsa'
 import type { AbaEstoque, FiltrosEstoque } from '../utils/bolsa'
-import { formatarData, obterMensagemErro } from '../utils/doador'
+import { formatarData } from '../utils/doador'
+import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'
@@ -53,10 +54,7 @@ function classeDoAviso(bolsa: Bolsa): string {
 
 async function buscarBolsas(): Promise<Bolsa[]> {
   const resposta = await getBolsas()
-  if (!Array.isArray(resposta.data)) {
-    throw new Error('Resposta inesperada da API')
-  }
-  return resposta.data
+  return validarRespostaLista<Bolsa>(resposta.data)
 }
 
 function EstoquePage() {
@@ -110,7 +108,7 @@ function EstoquePage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Estoque" subtitulo="Bolsas de sangue por tipo, validade e situação" />
+      <CabecalhoPagina titulo="Estoque" subtitulo="Controle de bolsas e validade" />
       <div className="doadores__conteudo">
         <div className="estoque__cards">
           <div className="estoque__card" role="group" aria-label="Bolsas no estoque">

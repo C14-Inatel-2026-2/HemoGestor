@@ -1,8 +1,15 @@
-import { AxiosError } from 'axios'
-import type { AxiosResponse } from 'axios'
-import { formatarCpf, montarRequisicaoDeEdicao, normalizarTexto, obterMensagemErro, paraDadosDoFormulario, validarCpf } from './doador'
 import type { Doador } from '../types/doador'
-import { FILTROS_INICIAIS_DOADORES, filtrarDoadores, formatarTelefone, validarTelefone } from './doador'
+import {
+  FILTROS_INICIAIS_DOADORES,
+  filtrarDoadores,
+  formatarCpf,
+  formatarTelefone,
+  montarRequisicaoDeEdicao,
+  normalizarTexto,
+  paraDadosDoFormulario,
+  validarCpf,
+  validarTelefone,
+} from './doador'
 
 describe('normalizarTexto', () => {
   it('remove acentos, espaços nas pontas e letras maiúsculas', () => {
@@ -19,40 +26,6 @@ describe('formatarCpf', () => {
 describe('validarCpf', () => {
   it('rejeita CPF com dígito verificador incorreto', () => {
     expect(validarCpf('529.982.247-26')).toBe(false)
-  })
-})
-
-function erroDaApi(status: number, corpo: unknown): AxiosError {
-  return new AxiosError('Request failed', 'ERR_BAD_REQUEST', undefined, undefined, {
-    status,
-    data: corpo,
-  } as AxiosResponse)
-}
-
-describe('obterMensagemErro', () => {
-  it('usa a mensagem enviada pela API quando o CPF já está cadastrado', () => {
-    const erro = erroDaApi(409, { erro: 'Já existe um doador cadastrado com esse CPF.' })
-
-    expect(obterMensagemErro(erro, 'Falha ao salvar.')).toBe(
-      'Já existe um doador cadastrado com esse CPF.',
-    )
-  })
-
-  it('reúne as mensagens de validação de cada campo', () => {
-    const erro = erroDaApi(400, {
-      email: 'E-mail inválido.',
-      qtd_doacoes: 'Quantidade de doações não pode ser negativa.',
-    })
-
-    expect(obterMensagemErro(erro, 'Falha ao salvar.')).toBe(
-      'E-mail inválido. Quantidade de doações não pode ser negativa.',
-    )
-  })
-
-  it('usa a mensagem padrão quando o erro não veio da API', () => {
-    expect(obterMensagemErro(new Error('Network Error'), 'Falha ao salvar.')).toBe(
-      'Falha ao salvar.',
-    )
   })
 })
 
@@ -90,7 +63,11 @@ describe('paraDadosDoFormulario', () => {
   })
 
   it('troca campos nulos vindos da API por texto vazio', () => {
-    const semContato = { ...doadoraAna, telefone: null, email: null } as unknown as Doador
+    const semContato = {
+      ...doadoraAna,
+      telefone: null,
+      email: null,
+    } as unknown as Doador
 
     const dados = paraDadosDoFormulario(semContato)
 
@@ -101,7 +78,10 @@ describe('paraDadosDoFormulario', () => {
 
 describe('montarRequisicaoDeEdicao', () => {
   it('mantém a última doação e a quantidade de doações do doador original', () => {
-    const dados = { ...paraDadosDoFormulario(doadoraAna), nome: 'Ana Souza Lima' }
+    const dados = {
+      ...paraDadosDoFormulario(doadoraAna),
+      nome: 'Ana Souza Lima',
+    }
 
     const requisicao = montarRequisicaoDeEdicao(doadoraAna, dados)
 
@@ -146,7 +126,10 @@ describe('validarTelefone', () => {
 
 describe('paraDadosDoFormulario com telefone', () => {
   it('abre o telefone formatado na edição', () => {
-    const dados = paraDadosDoFormulario({ ...doadoraAna, telefone: '35992243243' })
+    const dados = paraDadosDoFormulario({
+      ...doadoraAna,
+      telefone: '35992243243',
+    })
 
     expect(dados.telefone).toBe('(35) 99224-3243')
   })
@@ -155,8 +138,22 @@ describe('paraDadosDoFormulario com telefone', () => {
 describe('filtrarDoadores', () => {
   const doadores = [
     { ...doadoraAna, id: 1 },
-    { ...doadoraAna, id: 2, nome: 'João Conceição', cpf: '11144477735', tipo_sanguineo: 'A+', status: 'INAPTO' },
-    { ...doadoraAna, id: 3, nome: 'Ana Lima', cpf: '12345678909', tipo_sanguineo: null, status: 'AGUARDANDO' },
+    {
+      ...doadoraAna,
+      id: 2,
+      nome: 'João Conceição',
+      cpf: '11144477735',
+      tipo_sanguineo: 'A+',
+      status: 'INAPTO',
+    },
+    {
+      ...doadoraAna,
+      id: 3,
+      nome: 'Ana Lima',
+      cpf: '12345678909',
+      tipo_sanguineo: null,
+      status: 'AGUARDANDO',
+    },
   ] as Doador[]
 
   function idsDe(lista: Doador[]) {
@@ -168,39 +165,62 @@ describe('filtrarDoadores', () => {
   })
 
   it('busca pelo nome, sem diferenciar maiúsculas e acentos', () => {
-    const filtros = { ...FILTROS_INICIAIS_DOADORES, busca: ' joao conc ' }
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: ' joao conc ',
+    }
 
     expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([2])
   })
 
   it('busca pelo CPF, com ou sem formatação', () => {
-    const semFormatacao = { ...FILTROS_INICIAIS_DOADORES, busca: '111444' }
-    const comFormatacao = { ...FILTROS_INICIAIS_DOADORES, busca: '111.444.777-35' }
+    const semFormatacao = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: '111444',
+    }
+
+    const comFormatacao = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: '111.444.777-35',
+    }
 
     expect(idsDe(filtrarDoadores(doadores, semFormatacao))).toEqual([2])
     expect(idsDe(filtrarDoadores(doadores, comFormatacao))).toEqual([2])
   })
 
   it('filtra pelo tipo sanguíneo', () => {
-    const filtros = { ...FILTROS_INICIAIS_DOADORES, tipoSanguineo: 'A+' as const }
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      tipoSanguineo: 'A+' as const,
+    }
 
     expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([2])
   })
 
   it('filtra pelo status', () => {
-    const filtros = { ...FILTROS_INICIAIS_DOADORES, status: 'AGUARDANDO' as const }
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      status: 'AGUARDANDO' as const,
+    }
 
     expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([3])
   })
 
   it('combina todos os filtros', () => {
-    const filtros = { busca: 'ana', tipoSanguineo: 'O-' as const, status: 'APTO' as const }
+    const filtros = {
+      busca: 'ana',
+      tipoSanguineo: 'O-' as const,
+      status: 'APTO' as const,
+    }
 
     expect(idsDe(filtrarDoadores(doadores, filtros))).toEqual([1])
   })
 
   it('devolve uma lista vazia quando nada corresponde', () => {
-    const filtros = { ...FILTROS_INICIAIS_DOADORES, busca: 'Pedro' }
+    const filtros = {
+      ...FILTROS_INICIAIS_DOADORES,
+      busca: 'Pedro',
+    }
 
     expect(filtrarDoadores(doadores, filtros)).toEqual([])
   })

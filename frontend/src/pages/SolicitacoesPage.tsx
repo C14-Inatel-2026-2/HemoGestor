@@ -16,7 +16,7 @@ import type {
   SolicitacaoRequest,
   StatusSolicitacao,
 } from '../types/solicitacao'
-import { obterMensagemErro } from '../utils/doador'
+import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import {
   FILTROS_INICIAIS_SOLICITACOES,
   ROTULO_PRIORIDADE,
@@ -48,10 +48,7 @@ function ehEmergenciaAtiva(solicitacao: Solicitacao): boolean {
 
 async function buscarSolicitacoes(): Promise<Solicitacao[]> {
   const resposta = await getSolicitacoes()
-  if (!Array.isArray(resposta.data)) {
-    throw new Error('Resposta inesperada da API')
-  }
-  return resposta.data
+  return validarRespostaLista<Solicitacao>(resposta.data)
 }
 
 function SolicitacoesPage() {
@@ -166,7 +163,7 @@ function SolicitacoesPage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Solicitações" subtitulo="Pedidos de sangue e atendimento" />
+      <CabecalhoPagina titulo="Solicitações" subtitulo="Requisições de instituições de saúde" />
       <div className="doadores__conteudo">
         <div className="estoque__cards">
           <div className="estoque__card" role="group" aria-label="Pendentes">

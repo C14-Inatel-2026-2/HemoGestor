@@ -12,7 +12,8 @@ import type { Doacao, DoacaoRequest, StatusDoacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
 import { FILTROS_INICIAIS_DOACOES, ROTULO_STATUS_DOACAO, ROTULO_TIPO_DOACAO, filtrarDoacoes, formatarHora } from '../utils/doacao'
 import type { FiltrosDoacoes } from '../utils/doacao'
-import { formatarData, obterMensagemErro } from '../utils/doador'
+import { formatarData } from '../utils/doador'
+import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
 
@@ -27,10 +28,7 @@ const STATUS_DOACAO = Object.keys(ROTULO_STATUS_DOACAO) as StatusDoacao[]
 
 async function buscarLista<T>(requisicao: Promise<{ data: T[] }>): Promise<T[]> {
   const resposta = await requisicao
-  if (!Array.isArray(resposta.data)) {
-    throw new Error('Resposta inesperada da API')
-  }
-  return resposta.data
+  return validarRespostaLista<T>(resposta.data)
 }
 
 async function buscarDados(): Promise<{ doacoes: Doacao[]; doadores: Doador[] }> {
@@ -140,7 +138,7 @@ function RegistrarDoacaoPage() {
 
   return (
     <section className="doadores">
-      <CabecalhoPagina titulo="Registrar doação" subtitulo="Registro de coleta de sangue" />
+      <CabecalhoPagina titulo="Doações" subtitulo="Histórico e registro de coletas" />
       <div className="doadores__conteudo">
         <div className="doadores__barra">
           <span className="doadores__contagem">{doacoesVisiveis.length} doações</span>          {!exibindoFormulario && (
