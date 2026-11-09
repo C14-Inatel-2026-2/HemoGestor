@@ -15,6 +15,7 @@ import {
   venceEmBreve,
 } from '../utils/bolsa'
 import type { AbaEstoque, FiltrosEstoque } from '../utils/bolsa'
+import { gerarCsvEstoque } from '../utils/csvEstoque'
 import { formatarData } from '../utils/doador'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import '../components/DoadorForm.css'
@@ -105,6 +106,19 @@ function EstoquePage() {
 
   const resumo = resumirEstoque(bolsas)
   const bolsasVisiveis = filtrarBolsas(bolsas, filtros)
+
+  function exportarCsv() {
+    const csv = gerarCsvEstoque(bolsasVisiveis)
+    const arquivo = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(arquivo)
+    const link = document.createElement('a')
+
+    link.href = url
+    link.download = 'estoque.csv'
+    link.click()
+
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <section className="doadores">
@@ -203,6 +217,14 @@ function EstoquePage() {
           )}
 
           <span className="doadores__contagem">{bolsasVisiveis.length} bolsas</span>
+
+          <button
+            type="button"
+            className="botao botao--secundario"
+            onClick={exportarCsv}
+          >
+            Exportar CSV
+          </button>
         </div>
 
         {sucesso && (
