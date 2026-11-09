@@ -12,6 +12,7 @@ import br.inatel.model.Solicitacao;
 import br.inatel.repository.BolsaSangueRepository;
 import br.inatel.repository.SolicitacaoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -131,6 +132,7 @@ public class SolicitacaoService {
                 .toList();
     }
 
+    @Transactional
     public SolicitacaoResponseDTO atender(Long id) {
         Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
 
@@ -159,6 +161,7 @@ public class SolicitacaoService {
         return toResponseDTO(solicitacao);
     }
 
+    @Transactional
     public SolicitacaoResponseDTO concluir(Long id){
         Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
         solicitacao.concluirAtendimento();
@@ -172,6 +175,7 @@ public class SolicitacaoService {
         return toResponseDTO(solicitacao);
     }
 
+    @Transactional
     public SolicitacaoResponseDTO cancelar(Long id) {
         Solicitacao solicitacao = buscarSolicitacaoOuFalhar(id);
         solicitacao.cancelar();
