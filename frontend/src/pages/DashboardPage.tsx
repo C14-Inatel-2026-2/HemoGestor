@@ -49,9 +49,9 @@ function DashboardPage() {
 
   useEffect(() => {
     Promise.allSettled([
-      buscarLista(getBolsas),
-      buscarLista(getSolicitacoes),
-      buscarLista(getDoacoes),
+      buscarLista<Bolsa>(getBolsas),
+      buscarLista<Solicitacao>(getSolicitacoes),
+      buscarLista<Doacao>(getDoacoes),
     ])
       .then(([bolsas, solicitacoes, doacoes]) =>
         setDados({
