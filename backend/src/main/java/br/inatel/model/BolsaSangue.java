@@ -40,14 +40,11 @@ public class BolsaSangue {
     }
 
     public LocalDate calcularDataValidade(){
-        if(doacao.getTipoDoacao() == TipoDoacao.SANGUE_TOTAL) {
-            return dataColeta.plusDays(35);
-        } else if (doacao.getTipoDoacao() == TipoDoacao.PLAQUETA_POR_AFERESE) {
-            return dataColeta.plusDays(5);
-        } else if (doacao.getTipoDoacao() == TipoDoacao.PLASMA) {
-            return dataColeta.plusDays(365);
-        }
-        return null;
+        return switch (doacao.getTipoDoacao()) {
+            case SANGUE_TOTAL -> dataColeta.plusDays(35);
+            case PLAQUETA_POR_AFERESE -> dataColeta.plusDays(5);
+            case PLASMA -> dataColeta.plusDays(365);
+        };
     }
 
     public boolean estaVencida(){
