@@ -146,11 +146,7 @@ public class SolicitacaoService {
         List<BolsaSangue> bolsasCompativeis = buscarBolsasCompativeis(solicitacao);
 
         validarQuantidadeBolsa(bolsasCompativeis, solicitacao);
-
-        List<BolsaSangue> bolsasSelecionadas = bolsasCompativeis
-                .stream()
-                .limit(solicitacao.getQuantidade())
-                .toList();
+        List<BolsaSangue> bolsasSelecionadas = selecionarBolsas(bolsasCompativeis, solicitacao);
 
         solicitacao.iniciarAtendimento();
 
@@ -164,6 +160,14 @@ public class SolicitacaoService {
         repository.save(solicitacao);
 
         return toResponseDTO(solicitacao);
+    }
+
+    private List<BolsaSangue> selecionarBolsas(List<BolsaSangue> bolsasCompativeis, Solicitacao solicitacao) {
+        List<BolsaSangue> bolsasSelecionadas = bolsasCompativeis
+                .stream()
+                .limit(solicitacao.getQuantidade())
+                .toList();
+        return bolsasSelecionadas;
     }
 
     private void validarQuantidadeBolsa(List<BolsaSangue> bolsasCompativeis, Solicitacao solicitacao) {
