@@ -55,17 +55,9 @@ public class Doador {
         this.cpf = cpf;
         this.data_nascimento = data_nascimento;
         //sexo pode ser nulo
-        if (sexo == null) {
-            this.sexo = Sexo.NAO_INFORMADO;
-        } else {
-            this.sexo = sexo;
-        }
+        normalizarSexo(sexo);
         // tipo sanguíneo pode ser nulo
-        if (tipo_sanguineo == null || tipo_sanguineo.isBlank()) {
-            this.tipo_sanguineo = null;
-        } else {
-            this.tipo_sanguineo = tipo_sanguineo.trim().toUpperCase();
-        }
+        normalizarTipoSanguineo(tipo_sanguineo);
         this.email = email;
         this.telefone = telefone;
         this.cidade = cidade;
@@ -74,6 +66,22 @@ public class Doador {
         this.qtd_doacoes = qtd_doacoes;
         this.observacoes = observacoes;
         this.status = verificarStatus();
+    }
+
+    private void normalizarTipoSanguineo(String tipo_sanguineo) {
+        if (tipo_sanguineo == null || tipo_sanguineo.isBlank()) {
+            this.tipo_sanguineo = null;
+        } else {
+            this.tipo_sanguineo = tipo_sanguineo.trim().toUpperCase();
+        }
+    }
+
+    private void normalizarSexo(Sexo sexo) {
+        if (sexo == null) {
+            this.sexo = Sexo.NAO_INFORMADO;
+        } else {
+            this.sexo = sexo;
+        }
     }
 
     public int calculoIdade(){
@@ -229,11 +237,7 @@ public class Doador {
     }
 
     public void setSexo(Sexo sexo) {
-        if (sexo == null) {
-            this.sexo = Sexo.NAO_INFORMADO;
-        } else {
-            this.sexo = sexo;
-        }
+        normalizarSexo(sexo);
         this.status = verificarStatus();
     }
 
@@ -243,12 +247,7 @@ public class Doador {
 
     public void setTipo_sanguineo(String tipo_sanguineo) {
         validarTipoSanguineo(tipo_sanguineo);
-        if (tipo_sanguineo == null || tipo_sanguineo.isBlank()) {
-            this.tipo_sanguineo = null;
-        }
-        else {
-            this.tipo_sanguineo = tipo_sanguineo.trim().toUpperCase();
-        }
+        normalizarTipoSanguineo(tipo_sanguineo);
     }
 
     public String getEmail() {

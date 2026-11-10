@@ -46,21 +46,23 @@ public class DoadorService {
     public Optional<Doador> atualizar(Long id, Doador novosDados) {
 
         return repository.findById(id).map(doador -> {
-
-            doador.setNome(novosDados.getNome());
-            doador.setCpf(novosDados.getCpf());
-            doador.setData_nascimento(novosDados.getData_nascimento());
-            doador.setSexo(novosDados.getSexo());
-            doador.setTipo_sanguineo(novosDados.getTipo_sanguineo());
-            doador.setEmail(novosDados.getEmail());
-            doador.setTelefone(novosDados.getTelefone());
-            doador.setCidade(novosDados.getCidade());
-            doador.setBairro(novosDados.getBairro());
-            doador.setUltima_doacao(novosDados.getUltima_doacao());
-            doador.setQtd_doacoes(novosDados.getQtd_doacoes());
-            doador.setObservacoes(novosDados.getObservacoes());
-
+            atualizarDados(novosDados, doador);
             return repository.save(doador);
         });
+    }
+
+    private void atualizarDados(Doador novosDados, Doador doador) {
+        doador.setNome(novosDados.getNome());
+        doador.setCpf(novosDados.getCpf());
+        doador.setData_nascimento(novosDados.getData_nascimento());
+        doador.setSexo(novosDados.getSexo());
+        doador.setTipo_sanguineo(novosDados.getTipo_sanguineo());
+        doador.setEmail(novosDados.getEmail());
+        doador.setTelefone(novosDados.getTelefone());
+        doador.setCidade(novosDados.getCidade());
+        doador.setBairro(novosDados.getBairro());
+        doador.setUltima_doacao(novosDados.getUltima_doacao());
+        doador.setQtd_doacoes(novosDados.getQtd_doacoes());
+        doador.setObservacoes(novosDados.getObservacoes());
     }
 }

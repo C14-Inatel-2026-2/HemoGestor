@@ -20,33 +20,39 @@ public class BolsaSangueController {
         this.service = service;
     }
 
+    private List<BolsaSangueResponseDTO> mapearParaDTO(List<BolsaSangue> bolsas) {
+        return bolsas.stream()
+                .map(BolsaSangueMapper::toResponseDTO)
+                .toList();
+    }
+
     @GetMapping
     public ResponseEntity<?> listarTodas(){
-        List<BolsaSangueResponseDTO> resposta = service.listarTodas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        List<BolsaSangueResponseDTO> resposta = mapearParaDTO(service.listarTodas());
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/tipo")
     public ResponseEntity<?> listarPorTipoSanguineo(@RequestParam("tipoSanguineo") String tipoSanguineo){
-        List<BolsaSangueResponseDTO> resposta = service.listarPorTipoSanguineo(tipoSanguineo).stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        List<BolsaSangueResponseDTO> resposta = mapearParaDTO(service.listarPorTipoSanguineo(tipoSanguineo));
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/validas")
     public ResponseEntity<?> listarValidas(){
-        List<BolsaSangueResponseDTO> resposta = service.listarValidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        List<BolsaSangueResponseDTO> resposta = mapearParaDTO(service.listarValidas());
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/vencidas")
     public ResponseEntity<?> listarVencidas() {
-        List<BolsaSangueResponseDTO> resposta = service.listarVencidas().stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        List<BolsaSangueResponseDTO> resposta = mapearParaDTO(service.listarVencidas());
         return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/situacao")
     public ResponseEntity<?> listarPorSituacao(@RequestParam("situacao")SituacaoBolsa situacao){
-        List<BolsaSangueResponseDTO> resposta = service.listarPorSituacao(situacao).stream().map(BolsaSangueMapper::toResponseDTO).toList();
+        List<BolsaSangueResponseDTO> resposta = mapearParaDTO(service.listarPorSituacao(situacao));
         return ResponseEntity.ok(resposta);
     }
 
