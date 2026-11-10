@@ -43,11 +43,15 @@ public class BolsaSangueService {
     }
 
     public BolsaSangue buscarPorId(Long id) {
+        return buscarBolsaOuFalhar(id);
+    }
+
+    private BolsaSangue buscarBolsaOuFalhar(Long id) {
         return repository.findById(id).orElseThrow(() -> new BolsaNaoEncontradaException("Bolsa não encontrada."));
     }
 
     public BolsaSangue descartar(Long id) {
-        BolsaSangue bolsa = repository.findById(id).orElseThrow(() -> new BolsaNaoEncontradaException("Bolsa não encontrada."));
+        BolsaSangue bolsa = buscarBolsaOuFalhar(id);
         bolsa.descartar();
         return repository.save(bolsa);
     }
