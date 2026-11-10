@@ -20,8 +20,7 @@ import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'
-
-const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
 
 const STATUS_POR_ABA: Record<AbaEstoque, StatusBolsa[]> = {
   ATUAL: ['DISPONIVEL', 'RESERVADA'],
