@@ -1,6 +1,6 @@
 import type { Bolsa, StatusBolsa } from '../types/bolsa'
 import type { TipoSanguineo } from '../types/doador'
-import { dataDeHoje } from './doacao'
+import { dataDeHoje } from './data'
 
 export const DIAS_ALERTA_VENCIMENTO = 7
 

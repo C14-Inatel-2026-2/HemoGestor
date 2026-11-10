@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import DoacaoForm from './DoacaoForm'
 import type { Doacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
-import { dataDeHoje } from '../utils/doacao'
+import { dataDeHoje } from '../utils/data'
 
 const doadoraAna: Doador = {
   id: 1,

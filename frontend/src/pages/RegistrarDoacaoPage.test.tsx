@@ -12,7 +12,7 @@ import {
 import { getDoadores } from '../services/doadorService'
 import type { Doacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
-import { dataDeHoje } from '../utils/doacao'
+import { dataDeHoje } from '../utils/data'
 
 vi.mock('../services/doacaoService')
 vi.mock('../services/doadorService')

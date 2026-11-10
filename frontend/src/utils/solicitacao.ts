@@ -1,11 +1,6 @@
 import type { TipoSanguineo } from '../types/doador'
-import type {
-  PrioridadeSolicitacao,
-  Solicitacao,
-  SolicitacaoRequest,
-  StatusSolicitacao,
-} from '../types/solicitacao'
-import { formatarData } from './doador'
+import type { PrioridadeSolicitacao, Solicitacao, SolicitacaoRequest, StatusSolicitacao } from '../types/solicitacao'
+import { formatarData } from './data'
 
 export const ROTULO_PRIORIDADE: Record<PrioridadeSolicitacao, string> = {
   NORMAL: 'Normal',

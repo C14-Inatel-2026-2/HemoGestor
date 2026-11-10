@@ -4,17 +4,9 @@ import DoadorForm from '../components/DoadorForm'
 import { useEffect, useState } from 'react'
 import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
 import type { Doador, NovoDoador, StatusDoador, TipoSanguineo } from '../types/doador'
-import {
-  FILTROS_INICIAIS_DOADORES,
-  filtrarDoadores,
-  formatarCpf,
-  formatarData,
-  formatarTelefone,
-  montarRequisicaoDeEdicao,
-  obterIniciais,
-  paraDadosDoFormulario,
-} from '../utils/doador'
+import { FILTROS_INICIAIS_DOADORES, filtrarDoadores, formatarCpf, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, paraDadosDoFormulario } from '../utils/doador'
 import type { FiltrosDoadores } from '../utils/doador'
+import { formatarData } from '../utils/data'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'

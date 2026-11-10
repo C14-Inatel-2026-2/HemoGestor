@@ -73,12 +73,6 @@ export function validarCpf(cpf: string): boolean {
   return primeiro === Number(digitos[9]) && segundo === Number(digitos[10])
 }
 
-export function formatarData(dataIso: string | null): string {
-  if (!dataIso) return '—'
-  const [ano, mes, dia] = dataIso.split('-')
-  return `${dia}/${mes}/${ano}`
-}
-
 export function obterIniciais(nome: string): string {
   const partes = nome.trim().split(/\s+/)
   const primeira = partes[0]?.[0] ?? ''

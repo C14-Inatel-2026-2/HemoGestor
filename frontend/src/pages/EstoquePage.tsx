@@ -16,7 +16,7 @@ import {
 } from '../utils/bolsa'
 import type { AbaEstoque, FiltrosEstoque } from '../utils/bolsa'
 import { gerarCsvEstoque } from '../utils/csvEstoque'
-import { formatarData } from '../utils/doador'
+import { formatarData } from '../utils/data'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'

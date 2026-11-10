@@ -2,13 +2,8 @@ import type { Bolsa } from '../types/bolsa'
 import type { Doacao } from '../types/doacao'
 import type { TipoSanguineo } from '../types/doador'
 import type { Solicitacao } from '../types/solicitacao'
-import {
-  DIAS_ALERTA_VENCIMENTO,
-  diasParaVencer,
-  estaNoEstoque,
-  resumirEstoque,
-} from './bolsa'
-import { dataDeHoje } from './doacao'
+import { DIAS_ALERTA_VENCIMENTO, diasParaVencer, estaNoEstoque, resumirEstoque } from './bolsa'
+import { dataDeHoje } from './data'
 import { FILTROS_INICIAIS_SOLICITACOES, filtrarSolicitacoes } from './solicitacao'
 import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
 
