@@ -254,6 +254,12 @@ Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organizaç
 | Cadeia de condicionais em `BolsaSangue.calcularDataValidade()`                    | Simplificação de condicional com `switch` | Tornar o cálculo da validade mais direto e legível sem alterar seu comportamento | A adicionar |
 | Ordenação por validade em `BolsaSangueService`                                    | Simplificação da expressão com `Comparator.comparing()` | Expressar diretamente o critério de ordenação e melhorar a legibilidade | A adicionar |
 
+### Laura
+| Code smell | Refactoring aplicado | Motivo | PR |
+|---|---|---|---|
+| Funções de data em módulos de domínio: `formatarData` ficava em `utils/doador.ts` e `dataDeHoje` em `utils/doacao.ts`, mas eram usadas por Estoque, Solicitações, Dashboard e exportação CSV | **Move Function** para o novo módulo `utils/data.ts` | Remover dependências desnecessárias entre módulos: `bolsa.ts` e `dashboard.ts` importavam `doacao.ts` só para saber a data de hoje | #136 |
+| Código duplicado: estado dos filtros e função `atualizarFiltro` copiados nas telas de Doadores, Doações, Estoque e Solicitações | **Extract Function** para o hook `useFiltros` (`hooks/useFiltros.ts`) | Uma única implementação, testada uma vez e reaproveitada pelas quatro telas | #136 |
+
 > **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
 
 
