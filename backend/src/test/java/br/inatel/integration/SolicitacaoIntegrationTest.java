@@ -295,4 +295,23 @@ public class SolicitacaoIntegrationTest {
                 () -> solicitacaoService.atender(criada.getId())
         );
     }
+
+    @Test
+    void naoDeveAtenderSolicitacaoComStatusInvalido() {
+        SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
+        dto.setInstituicao("Hospital status invalido");
+        dto.setSetor("UTI");
+        dto.setTipoSanguineo("O-");
+        dto.setQuantidade(1);
+        dto.setPrioridade(PrioridadeSolicitacao.NORMAL);
+        dto.setJustificativa("Teste de status invalido");
+
+        SolicitacaoResponseDTO criada = solicitacaoService.salvar(dto);
+        solicitacaoService.cancelar(criada.getId());
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> solicitacaoService.atender(criada.getId())
+        );
+    }
 }
