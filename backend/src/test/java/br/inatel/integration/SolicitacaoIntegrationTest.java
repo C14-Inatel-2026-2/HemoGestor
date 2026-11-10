@@ -269,4 +269,12 @@ public class SolicitacaoIntegrationTest {
         assertEquals(SituacaoBolsa.DISPONIVEL, bolsaPersistida.getSituacao());
         assertEquals(StatusSolicitacao.CANCELADA, solicitacaoRepository.findById(criada.getId()).orElseThrow().getStatus());
     }
+
+    @Test
+    void naoDeveAtenderSolicitacaoInexistente() {
+        assertThrows(
+                br.inatel.exception.SolicitacaoNaoEncontradaException.class,
+                () -> solicitacaoService.atender(999L)
+        );
+    }
 }
