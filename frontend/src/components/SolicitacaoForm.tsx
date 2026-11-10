@@ -9,8 +9,7 @@ import {
 } from '../utils/solicitacao'
 import type { DadosSolicitacaoFormulario, ErrosSolicitacao } from '../utils/solicitacao'
 import './DoadorForm.css'
-
-const TIPOS_SANGUINEOS: TipoSanguineo[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
 
 const PRIORIDADES = Object.keys(ROTULO_PRIORIDADE) as PrioridadeSolicitacao[]
 

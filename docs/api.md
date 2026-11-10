@@ -712,7 +712,7 @@ Reserva as bolsas compatíveis e altera o status da solicitação para `EM_ATEND
 
 ```json
 {
-  "erro": "Há apenas 2 bolsas compatíveis disponíveis para 3 solicitadas."
+  "erro": "Não há bolsas compatíveis suficientes para atender a solicitação."
 }
 ```
 

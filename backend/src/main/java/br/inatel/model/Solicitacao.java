@@ -59,6 +59,27 @@ public class Solicitacao {
         this.status = StatusSolicitacao.PENDENTE;
     }
 
+    public void iniciarAtendimento(){
+        if(this.status != StatusSolicitacao.PENDENTE){
+            throw new IllegalStateException("Só é possível atender solicitações pendentes.");
+        }
+        this.status = StatusSolicitacao.EM_ATENDIMENTO;
+    }
+
+    public void concluirAtendimento(){
+        if(this.status != StatusSolicitacao.EM_ATENDIMENTO){
+            throw new IllegalStateException("Só é possível concluir solicitações em atendimento.");
+        }
+        this.status = StatusSolicitacao.ATENDIDA;
+    }
+
+    public void cancelar(){
+        if(this.status != StatusSolicitacao.PENDENTE && this.status != StatusSolicitacao.EM_ATENDIMENTO){
+            throw new IllegalStateException("Só é possível cancelar solicitações pendentes ou em atendimento.");
+        }
+        this.status = StatusSolicitacao.CANCELADA;
+    }
+
     public Long getId() {
         return id;
     }
@@ -136,6 +157,6 @@ public class Solicitacao {
     }
 
     public void setBolsasReservadas(List<BolsaSangue> bolsasReservadas) {
-        this.bolsasReservadas = bolsasReservadas;
+        this.bolsasReservadas = new ArrayList<>(bolsasReservadas);
     }
 }

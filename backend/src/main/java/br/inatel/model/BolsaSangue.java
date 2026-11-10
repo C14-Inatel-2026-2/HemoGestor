@@ -61,6 +61,27 @@ public class BolsaSangue {
         this.situacao = SituacaoBolsa.DESCARTADA;
     }
 
+    public void reservar(){
+        if(this.situacao != SituacaoBolsa.DISPONIVEL){
+            throw new IllegalStateException("Só é possível reservar bolsas disponíveis.");
+        }
+        this.situacao = SituacaoBolsa.RESERVADA;
+    }
+
+    public void utilizar(){
+        if(this.situacao != SituacaoBolsa.RESERVADA){
+            throw new IllegalStateException("Só é possível utilizar bolsas reservadas.");
+        }
+        this.situacao = SituacaoBolsa.UTILIZADA;
+    }
+
+    public void liberarReserva(){
+        if(this.situacao != SituacaoBolsa.RESERVADA){
+            throw new IllegalStateException("Só é possível liberar bolsas reservadas.");
+        }
+        this.situacao = SituacaoBolsa.DISPONIVEL;
+    }
+
     public Long getId() {
         return id;
     }
