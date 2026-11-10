@@ -277,4 +277,22 @@ public class SolicitacaoIntegrationTest {
                 () -> solicitacaoService.atender(999L)
         );
     }
+
+    @Test
+    void naoDeveAtenderSolicitacaoSemBolsasCompativeis() {
+        SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
+        dto.setInstituicao("Hospital sem estoque");
+        dto.setSetor("UTI");
+        dto.setTipoSanguineo("O-");
+        dto.setQuantidade(1);
+        dto.setPrioridade(PrioridadeSolicitacao.URGENTE);
+        dto.setJustificativa("Teste sem bolsas");
+
+        SolicitacaoResponseDTO criada = solicitacaoService.salvar(dto);
+
+        assertThrows(
+                br.inatel.exception.ConflitoException.class,
+                () -> solicitacaoService.atender(criada.getId())
+        );
+    }
 }
