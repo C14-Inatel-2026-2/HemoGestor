@@ -243,8 +243,14 @@ Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organizaç
 | Setup duplicado em `DoacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e facilitar sua manutenção | #128 |
 | Busca de solicitação por ID duplicada em vários métodos de `SolicitacaoService` | **Extract Method** para `buscarSolicitacaoOuFalhar()` | Centralizar a busca e o tratamento de solicitação inexistente, eliminando código duplicado | #128 |
 
-> **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
+### Maria Luisa
 
+| Code smell | Refactoring aplicado | Motivo | PR |
+|---|---|---|---|
+| Tratamento de erros e validação de respostas da API duplicados em diferentes telas | **Extract Function / centralização de funções reutilizáveis**, com extração de `obterMensagemErro` e `validarRespostaLista` para um utilitário comum | Eliminar código duplicado, padronizar o tratamento das respostas da API e facilitar a manutenção sem alterar o comportamento externo da aplicação | #119 |
+| Lista de tipos sanguíneos duplicada em diferentes componentes e utilitários do front-end | **Extração e centralização de constante compartilhada** em `TIPOS_SANGUINEOS` | Manter uma única fonte para os tipos sanguíneos, reduzir duplicação e evitar inconsistências em futuras alterações | #122 |
+
+> **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
 
 ## Equipe
 
