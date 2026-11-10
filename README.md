@@ -236,12 +236,23 @@ No build do Jenkins:
 Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organização, legibilidade e manutenção do código, preservando o comportamento externo da aplicação.
 
 ### Luísa
-| Code smell | Refactoring aplicado | Motivo | PR   |
-|---|---|---|------|
-| Método longo no `DoacaoService.salvar()` | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | #128 |
-| Setup duplicado em `SolicitacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | #128 |
-| Setup duplicado em `DoacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e facilitar sua manutenção | #128 |
-| Busca de solicitação por ID duplicada em vários métodos de `SolicitacaoService` | **Extract Method** para `buscarSolicitacaoOuFalhar()` | Centralizar a busca e o tratamento de solicitação inexistente, eliminando código duplicado | #128 |
+| Code smell                                                                        | Refactoring aplicado | Motivo | PR   |
+|-----------------------------------------------------------------------------------|---|---|------|
+| Método longo no `DoacaoService.salvar()`                                          | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | #128 |
+| Setup duplicado em `SolicitacaoServiceTest`                                       | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | #128 |
+| Setup duplicado em `DoacaoServiceTest`                                            | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e facilitar sua manutenção | #128 |
+| Busca de solicitação por ID duplicada em vários métodos de `SolicitacaoService`   | **Extract Method** para `buscarSolicitacaoOuFalhar()` | Centralizar a busca e o tratamento de solicitação inexistente, eliminando código duplicado | #128 |
+| Busca de bolsa por ID duplicada em `BolsaSangueService`                           | **Extract Method** para `buscarBolsaOuFalhar()` | Centralizar a busca e o tratamento de bolsa inexistente, evitando duplicação | A adicionar |
+| Método `DoadorService.atualizar()` com muitos detalhes de implementação           | **Extract Method** para `atualizarDados()` | Separar a atualização dos campos da lógica de busca e persistência do doador | A adicionar |
+| Construção duplicada de respostas de erro em `GlobalExceptionHandler`             | **Extract Method** para `criarRespostaErro()` | Centralizar a criação das respostas HTTP de erro e reduzir duplicação | A adicionar |
+| Normalização de sexo duplicada no construtor e no setter de `Doador`              | **Extract Method** para `normalizarSexo()` | Centralizar o tratamento de sexo não informado e evitar repetição de lógica | A adicionar |
+| Normalização de tipo sanguíneo duplicada no construtor e no setter de `Doador`    | **Extract Method** para `normalizarTipoSanguineo()` | Centralizar a normalização do tipo sanguíneo e facilitar sua manutenção | A adicionar |
+| Método `SolicitacaoService.atender()` com múltiplas responsabilidades             | **Extract Method** para validação da quantidade e seleção das bolsas | Separar etapas do atendimento e tornar o fluxo principal mais legível | A adicionar |
+| Conversão de listas de `BolsaSangue` para DTO repetida em `BolsaSangueController` | **Extract Method** para `mapearParaDTO()` | Centralizar o mapeamento das bolsas e eliminar código repetido nos endpoints | A adicionar |
+| Conversão de `Optional<Doacao>` para resposta HTTP repetida em `DoacaoController` | **Extract Method** para `criarRespostaDoacao()` | Centralizar o mapeamento para DTO e o tratamento das respostas `200` e `404` | A adicionar |
+| Conversão de `Optional<Doador>` para resposta HTTP repetida em `DoadorController` | **Extract Method** para `criarRespostaDoador()` | Centralizar o mapeamento para DTO e o tratamento das respostas `200` e `404` | A adicionar |
+| Cadeia de condicionais em `BolsaSangue.calcularDataValidade()`                    | Simplificação de condicional com `switch` | Tornar o cálculo da validade mais direto e legível sem alterar seu comportamento | A adicionar |
+| Ordenação por validade em `BolsaSangueService`                                    | Simplificação da expressão com `Comparator.comparing()` | Expressar diretamente o critério de ordenação e melhorar a legibilidade | A adicionar |
 
 > **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
 
