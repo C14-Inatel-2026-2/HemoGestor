@@ -6,6 +6,7 @@ import br.inatel.model.BolsaSangue;
 import br.inatel.repository.BolsaSangueRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,7 +18,9 @@ public class BolsaSangueService {
     }
 
     private List<BolsaSangue> ordenarPorValidade(List<BolsaSangue> bolsas) {
-        return bolsas.stream().sorted((b1, b2) -> b1.getDataValidade().compareTo(b2.getDataValidade())).toList();
+        return bolsas.stream()
+                .sorted(Comparator.comparing(BolsaSangue::getDataValidade))
+                .toList();
     }
 
     public List<BolsaSangue> listarTodas(){
