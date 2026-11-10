@@ -24,6 +24,36 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 
 **Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
+## Rastreabilidade das histórias de usuário
+
+| História | Issue | PRs relacionados | Arquivos de teste |
+|---|---|---|---|
+| H1 — Cadastrar doador pelo formulário | #65 | #64 | `frontend/src/pages/DoadoresPage.test.tsx`, `frontend/src/components/DoadorForm.test.tsx`, `frontend/src/utils/doador.test.ts` |
+| H2 — Consultar o estoque por tipo sanguíneo | #66 | #82, #91, #100 | `frontend/src/pages/EstoquePage.test.tsx`, `frontend/src/pages/DashboardPage.test.tsx`, `frontend/src/utils/bolsa.test.ts`, `frontend/src/utils/dashboard.test.ts` |
+| H3 — Registrar uma nova doação | #70 | #69, #73, #78 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java`, `backend/src/test/java/br/inatel/model/DoacaoTest.java` |
+| H4 — Consultar histórico de doações | #72 | #74, #81 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java` |
+| H5 — Agendar doação | #75 | — | — |
+| H6 — Consultar doadores cadastrados | #76 | #56, #64 | `frontend/src/services/doadorService.test.ts`, `frontend/src/pages/DoadoresPage.test.tsx` |
+
+### Relação entre requisitos funcionais e histórias
+
+| Requisito | Histórias relacionadas | Observação |
+|---|---|---|
+| RF01 — Cadastrar doador | H1 | A H1 cobre o cadastro de doadores pelo formulário. |
+| RF02 — Listar doadores | H6 | A H6 cobre a consulta dos doadores cadastrados. |
+| RF03 — Editar doador | Sem história específica | A edição foi implementada na tela de Doadores, mas não possui uma história própria entre H1 e H6. |
+| RF04 — Remover doador | Sem história específica | A remoção foi implementada na tela de Doadores, mas não possui uma história própria entre H1 e H6. |
+| RF05 — Registrar e consultar doações | H3, H4 | A H3 cobre o registro de doações e a H4 cobre a consulta do histórico. |
+| RF06 — Consultar bolsas por tipo sanguíneo, validade e situação | H2 | A H2 cobre a consulta do estoque e seus filtros. |
+| RF07 — Cadastrar solicitações de sangue | Sem história específica | Não possui uma história específica entre H1 e H6. |
+| RF08 — Verificar compatibilidade e disponibilidade | Sem história específica | Não possui uma história específica entre H1 e H6. |
+| RF09 — Exibir resumo do estoque e das solicitações | H2 | A H2 se relaciona ao resumo do estoque; o resumo de solicitações não possui uma história específica entre H1 e H6. |
+
+### Situação das histórias H5 e H6
+
+- **H5 — Agendar doação (#75):** permanece em backlog. A funcionalidade de agendamento ainda não foi implementada e não possui PRs ou testes associados.
+- **H6 — Consultar doadores cadastrados (#76):** concluída. Os critérios de aceite foram validados com base na listagem de doadores, tratamento de lista vazia e de erros, integração com a API e testes automatizados da funcionalidade.
+
 ## Requisitos não funcionais
 
 | ID | Requisito | Como o projeto atende |
@@ -152,7 +182,9 @@ A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositóri
 | | Build Front | `npm ci`, `npm run lint` e `npm run build` |
 | **Testes** | Testes Back | `./mvnw verify`, com relatório JUnit e cobertura JaCoCo |
 | | Testes Front | `npm run test:ci`, com relatório JUnit e cobertura (Vitest) |
-| **Deploy** | — | Sobe MySQL, back-end e front-end com `docker compose` e faz o health check em `/api/health` |
+| **Deploy** | — | Sobe MySQL, back-end e front-end com `docker compose`, faz o health check em `/api/health` e valida as rotas principais `/doadores`, `/doacoes`, `/bolsas` e `/solicitacoes` |
+
+Após o health check, a pipeline executa requisições `GET` para as rotas principais da API. O deploy falha caso qualquer uma delas não responda com status HTTP `200`.
 
 ### Pré-requisitos
 
@@ -204,12 +236,12 @@ No build do Jenkins:
 Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organização, legibilidade e manutenção do código, preservando o comportamento externo da aplicação.
 
 ### Luísa
-| Code smell | Refactoring aplicado | Motivo | PR |
-|---|---|---|---|
-| Método longo no `DoacaoService.salvar()` | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | A adicionar |
-| Setup duplicado em `SolicitacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | A adicionar |
-| Setup duplicado em `DoacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e facilitar sua manutenção | A adicionar |
-| Busca de solicitação por ID duplicada em vários métodos de `SolicitacaoService` | **Extract Method** para `buscarSolicitacaoOuFalhar()` | Centralizar a busca e o tratamento de solicitação inexistente, eliminando código duplicado | A adicionar |
+| Code smell | Refactoring aplicado | Motivo | PR   |
+|---|---|---|------|
+| Método longo no `DoacaoService.salvar()` | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | #128 |
+| Setup duplicado em `SolicitacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | #128 |
+| Setup duplicado em `DoacaoServiceTest` | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e facilitar sua manutenção | #128 |
+| Busca de solicitação por ID duplicada em vários métodos de `SolicitacaoService` | **Extract Method** para `buscarSolicitacaoOuFalhar()` | Centralizar a busca e o tratamento de solicitação inexistente, eliminando código duplicado | #128 |
 
 > **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
 

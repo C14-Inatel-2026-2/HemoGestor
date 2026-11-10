@@ -16,6 +16,7 @@ import { formatarData } from '../utils/doador'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
+import { pluralizar } from '../utils/texto'
 
 // Reaproveita o visual da tela de Doadores (tabela, selos, avisos e cartão do formulário).
 const CLASSE_STATUS: Record<StatusDoacao, string> = {
@@ -141,7 +142,10 @@ function RegistrarDoacaoPage() {
       <CabecalhoPagina titulo="Doações" subtitulo="Histórico e registro de coletas" />
       <div className="doadores__conteudo">
         <div className="doadores__barra">
-          <span className="doadores__contagem">{doacoesVisiveis.length} doações</span>          {!exibindoFormulario && (
+          <span className="doadores__contagem">
+            {doacoesVisiveis.length}{' '}
+            {pluralizar(doacoesVisiveis.length, 'doação', 'doações')}
+          </span>          {!exibindoFormulario && (
             <button
               type="button"
               className="botao botao--primario doadores__novo"
