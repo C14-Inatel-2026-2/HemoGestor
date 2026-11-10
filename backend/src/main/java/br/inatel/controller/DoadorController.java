@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/doadores")
@@ -19,6 +20,15 @@ public class DoadorController {
 
     public DoadorController(DoadorService service) {
         this.service = service;
+    }
+
+    private ResponseEntity<DoadorResponseDTO> criarRespostaDoador(
+            Optional<Doador> doador) {
+
+        return doador
+                .map(DoadorMapper::toResponseDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // cadastra um novo doador
@@ -43,10 +53,7 @@ public class DoadorController {
 
         Doador novosDados = DoadorMapper.toEntity(dto);
 
-        return service.atualizar(id, novosDados)
-                .map(DoadorMapper::toResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return criarRespostaDoador(service.atualizar(id, novosDados));
     }
 
     // lista todos os doadores
@@ -66,10 +73,7 @@ public class DoadorController {
     public ResponseEntity<DoadorResponseDTO> buscarPorId(
             @PathVariable("id") Long id) {
 
-        return service.buscarPorId(id)
-                .map(DoadorMapper::toResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return criarRespostaDoador(service.buscarPorId(id));
     }
 
     // remove um doador pelo id
