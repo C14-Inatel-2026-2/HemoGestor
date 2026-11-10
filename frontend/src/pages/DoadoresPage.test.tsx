@@ -355,7 +355,7 @@ describe('DoadoresPage', () => {
     )
   })
 
-    describe('filtros', () => {
+  describe('filtros', () => {
     const doadorJoao: Doador = {
       ...doadoraAna,
       id: 2,
@@ -369,24 +369,24 @@ describe('DoadoresPage', () => {
       vi.mocked(getDoadores).mockResolvedValue(respostaComLista([doadoraAna, doadorJoao]))
     })
 
-   it('atualiza a contagem de doadores no singular e no plural', async () => {
-     const usuario = userEvent.setup()
+    it('atualiza a contagem de doadores no singular e no plural', async () => {
+      const usuario = userEvent.setup()
 
-     render(<DoadoresPage />)
+      render(<DoadoresPage />)
 
-     await screen.findByText('Ana Souza')
+      await screen.findByText('Ana Souza')
 
-     expect(screen.getByText('2 doadores')).toBeInTheDocument()
+      expect(screen.getByText('2 doadores')).toBeInTheDocument()
 
-     await usuario.type(
-       screen.getByRole('searchbox', { name: 'Buscar por nome ou CPF' }),
-       'joao',
-     )
+      await usuario.type(
+        screen.getByRole('searchbox', { name: 'Buscar por nome ou CPF' }),
+        'joao',
+      )
 
-     expect(screen.getByText('João Conceição')).toBeInTheDocument()
-     expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
-     expect(screen.getByText('1 doador')).toBeInTheDocument()
-   })
+      expect(screen.getByText('João Conceição')).toBeInTheDocument()
+      expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
+      expect(screen.getByText('1 doador')).toBeInTheDocument()
+    })
 
     it('busca por CPF', async () => {
       const usuario = userEvent.setup()

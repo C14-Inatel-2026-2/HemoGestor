@@ -256,18 +256,18 @@ describe('RegistrarDoacaoPage', () => {
     })
 
     it('atualiza a contagem de doações no singular e no plural', async () => {
-       const usuario = userEvent.setup()
+      const usuario = userEvent.setup()
 
-       render(<RegistrarDoacaoPage />)
+      render(<RegistrarDoacaoPage />)
 
-       await screen.findByText('Ana Souza')
+      await screen.findByText('Ana Souza')
 
-       expect(screen.getByText('2 doações')).toBeInTheDocument()
+      expect(screen.getByText('2 doações')).toBeInTheDocument()
 
-       await usuario.type(
-         screen.getByRole('searchbox', { name: 'Buscar por doador' }),
-         'joao',
-    )
+      await usuario.type(
+        screen.getByRole('searchbox', { name: 'Buscar por doador' }),
+        'joao',
+      )
 
       expect(screen.getByText('João Conceição')).toBeInTheDocument()
       expect(screen.queryByText('Ana Souza')).not.toBeInTheDocument()
