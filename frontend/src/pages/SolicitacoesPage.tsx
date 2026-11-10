@@ -1,32 +1,13 @@
 import { useEffect, useState } from 'react'
 import CabecalhoPagina from '../components/CabecalhoPagina'
+import { useFiltros } from '../hooks/useFiltros'
 import { SeloPrioridade, SeloStatusSolicitacao } from '../components/SelosSolicitacao'
 import SolicitacaoDetalhes from '../components/SolicitacaoDetalhes'
 import SolicitacaoForm from '../components/SolicitacaoForm'
-import {
-  atenderSolicitacao,
-  cancelarSolicitacao,
-  concluirSolicitacao,
-  criarSolicitacao,
-  getSolicitacoes,
-} from '../services/solicitacaoService'
-import type {
-  PrioridadeSolicitacao,
-  Solicitacao,
-  SolicitacaoRequest,
-  StatusSolicitacao,
-} from '../types/solicitacao'
+import { atenderSolicitacao, cancelarSolicitacao, concluirSolicitacao, criarSolicitacao, getSolicitacoes } from '../services/solicitacaoService'
+import type { PrioridadeSolicitacao, Solicitacao, SolicitacaoRequest, StatusSolicitacao } from '../types/solicitacao'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
-import {
-  FILTROS_INICIAIS_SOLICITACOES,
-  ROTULO_PRIORIDADE,
-  ROTULO_STATUS_SOLICITACAO,
-  estaAtiva,
-  filtrarSolicitacoes,
-  formatarCodigoSolicitacao,
-  formatarDataHora,
-  resumirSolicitacoes,
-} from '../utils/solicitacao'
+import { FILTROS_INICIAIS_SOLICITACOES, ROTULO_PRIORIDADE, ROTULO_STATUS_SOLICITACAO, estaAtiva, filtrarSolicitacoes, formatarCodigoSolicitacao, formatarDataHora, resumirSolicitacoes } from '../utils/solicitacao'
 import type { AbaSolicitacoes, FiltrosSolicitacoes } from '../utils/solicitacao'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
@@ -56,7 +37,7 @@ function SolicitacoesPage() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState<string | null>(null)
-  const [filtros, setFiltros] = useState<FiltrosSolicitacoes>(FILTROS_INICIAIS_SOLICITACOES)
+  const { filtros, setFiltros, atualizarFiltro } = useFiltros<FiltrosSolicitacoes>(FILTROS_INICIAIS_SOLICITACOES)
   const [exibindoFormulario, setExibindoFormulario] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [erroCadastro, setErroCadastro] = useState<string | null>(null)
@@ -78,13 +59,6 @@ function SolicitacoesPage() {
     } catch {
       setErro(MENSAGEM_ERRO_CARREGAR)
     }
-  }
-
-  function atualizarFiltro<K extends keyof FiltrosSolicitacoes>(
-    campo: K,
-    valor: FiltrosSolicitacoes[K],
-  ) {
-    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
   }
 
   function trocarAba(aba: AbaSolicitacoes) {
