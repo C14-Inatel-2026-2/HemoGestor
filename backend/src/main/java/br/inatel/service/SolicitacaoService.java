@@ -145,9 +145,7 @@ public class SolicitacaoService {
 
         List<BolsaSangue> bolsasCompativeis = buscarBolsasCompativeis(solicitacao);
 
-        if (bolsasCompativeis.size() < solicitacao.getQuantidade()) {
-            throw new ConflitoException("Não há bolsas compatíveis suficientes para atender a solicitação.");
-        }
+        validarQuantidadeBolsa(bolsasCompativeis, solicitacao);
 
         List<BolsaSangue> bolsasSelecionadas = bolsasCompativeis
                 .stream()
@@ -166,6 +164,12 @@ public class SolicitacaoService {
         repository.save(solicitacao);
 
         return toResponseDTO(solicitacao);
+    }
+
+    private void validarQuantidadeBolsa(List<BolsaSangue> bolsasCompativeis, Solicitacao solicitacao) {
+        if (bolsasCompativeis.size() < solicitacao.getQuantidade()) {
+            throw new ConflitoException("Não há bolsas compatíveis suficientes para atender a solicitação.");
+        }
     }
 
     @Transactional
