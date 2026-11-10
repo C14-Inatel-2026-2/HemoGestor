@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/doacoes")
@@ -25,6 +26,15 @@ public class DoacaoController {
     public DoacaoController(DoacaoService doacaoService, DoadorService doadorService) {
         this.doacaoService = doacaoService;
         this.doadorService = doadorService;
+    }
+
+    private ResponseEntity<DoacaoResponseDTO> criarRespostaDoacao(
+            Optional<Doacao> doacao) {
+
+        return doacao
+                .map(DoacaoMapper::toResponseDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -54,30 +64,21 @@ public class DoacaoController {
     public ResponseEntity<DoacaoResponseDTO> buscarPorId(
             @PathVariable("id") Long id
     ) {
-        return doacaoService.buscarPorID(id)
-                .map(DoacaoMapper::toResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return criarRespostaDoacao(doacaoService.buscarPorID(id));
     }
 
     @PatchMapping("/{id}/concluir")
     public ResponseEntity<DoacaoResponseDTO> concluir(
             @PathVariable("id") Long id) {
 
-        return doacaoService.concluir(id)
-                .map(DoacaoMapper::toResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return criarRespostaDoacao(doacaoService.concluir(id));
     }
 
     @PatchMapping("/{id}/descartar")
     public ResponseEntity<DoacaoResponseDTO> descartar(
             @PathVariable("id") Long id) {
 
-        return doacaoService.descartar(id)
-                .map(DoacaoMapper::toResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return criarRespostaDoacao(doacaoService.descartar(id));
     }
 
     @GetMapping("/doador/{doadorId}")

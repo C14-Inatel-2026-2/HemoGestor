@@ -12,6 +12,7 @@ import { formatarData } from '../utils/data'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
+import { pluralizar } from '../utils/texto'
 
 const CLASSE_STATUS: Record<StatusDoacao, string> = {
   EM_TRIAGEM: 'aguardando',
@@ -132,7 +133,10 @@ function RegistrarDoacaoPage() {
       <CabecalhoPagina titulo="Doações" subtitulo="Histórico e registro de coletas" />
       <div className="doadores__conteudo">
         <div className="doadores__barra">
-          <span className="doadores__contagem">{doacoesVisiveis.length} doações</span>          {!exibindoFormulario && (
+          <span className="doadores__contagem">
+            {doacoesVisiveis.length}{' '}
+            {pluralizar(doacoesVisiveis.length, 'doação', 'doações')}
+          </span>          {!exibindoFormulario && (
             <button
               type="button"
               className="botao botao--primario doadores__novo"

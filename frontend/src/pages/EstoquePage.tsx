@@ -13,6 +13,7 @@ import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'
 import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
+import { pluralizar } from '../utils/texto'
 
 const STATUS_POR_ABA: Record<AbaEstoque, StatusBolsa[]> = {
   ATUAL: ['DISPONIVEL', 'RESERVADA'],
@@ -202,7 +203,10 @@ function EstoquePage() {
             </label>
           )}
 
-          <span className="doadores__contagem">{bolsasVisiveis.length} bolsas</span>
+          <span className="doadores__contagem">
+            {bolsasVisiveis.length}{' '}
+            {pluralizar(bolsasVisiveis.length, 'bolsa', 'bolsas')}
+          </span>
 
           <button
             type="button"

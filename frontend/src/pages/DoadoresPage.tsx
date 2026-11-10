@@ -12,6 +12,7 @@ import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
 import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
+import { pluralizar } from '../utils/texto'
 
 const ROTULO_STATUS: Record<StatusDoador, string> = {
   APTO: 'Apto',
@@ -160,7 +161,8 @@ function DoadoresPage() {
       <div className="doadores__conteudo">
         <div className="doadores__barra">
           <span className="doadores__contagem">
-            {doadoresVisiveis.length} doadores
+            {doadoresVisiveis.length}{' '}
+            {pluralizar(doadoresVisiveis.length, 'doador', 'doadores')}
           </span>
 
           {!formularioAberto && (

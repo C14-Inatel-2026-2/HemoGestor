@@ -116,7 +116,21 @@ describe('EstoquePage', () => {
     await screen.findByText('BOL-001')
 
     expect(codigosNaTabela()).toEqual(['BOL-002', 'BOL-001'])
+  })
+
+  it('atualiza a contagem de bolsas no singular e no plural', async () => {
+    render(<EstoquePage />)
+
+    await screen.findByText('BOL-001')
+
     expect(screen.getByText('2 bolsas')).toBeInTheDocument()
+
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Tipo sanguíneo' }),
+      'O-',
+    )
+
+    expect(screen.getByText('1 bolsa')).toBeInTheDocument()
   })
 
   it('destaca a bolsa que vence em breve e informa quantos dias faltam', async () => {
