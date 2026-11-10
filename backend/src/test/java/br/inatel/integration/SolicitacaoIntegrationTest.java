@@ -24,7 +24,7 @@ import java.time.LocalTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("integration")
+@ActiveProfiles("test")
 @Transactional
 public class SolicitacaoIntegrationTest {
     @Autowired
