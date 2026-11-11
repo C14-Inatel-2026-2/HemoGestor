@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import type { AxiosResponse } from 'axios'
+import { respostaCom } from '../testes/respostasApi'
 import { MemoryRouter } from 'react-router-dom'
 import DashboardPage from './DashboardPage'
 import { getBolsas } from '../services/bolsaService'
@@ -78,10 +79,6 @@ const doacaoRecente: Doacao = {
   responsavel: 'Enf. Carla',
   intercorrencia: '',
   status: 'CONCLUIDA',
-}
-
-function respostaCom<T>(dados: T[]) {
-  return { data: dados } as AxiosResponse<T[]>
 }
 
 function renderizar() {

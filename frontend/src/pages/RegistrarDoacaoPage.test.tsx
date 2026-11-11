@@ -1,14 +1,9 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AxiosError } from 'axios'
+import { falhaDaApi, respostaCom } from '../testes/respostasApi'
 import type { AxiosResponse } from 'axios'
 import RegistrarDoacaoPage from './RegistrarDoacaoPage'
-import {
-  concluirDoacao,
-  criarDoacao,
-  descartarDoacao,
-  getDoacoes,
-} from '../services/doacaoService'
+import { concluirDoacao, criarDoacao, descartarDoacao, getDoacoes } from '../services/doacaoService'
 import { getDoadores } from '../services/doadorService'
 import type { Doacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
@@ -49,17 +44,6 @@ const doacaoEmTriagem: Doacao = {
   responsavel: 'Enf. Carla',
   intercorrencia: '',
   status: 'EM_TRIAGEM',
-}
-
-function respostaCom<T>(dados: T[]) {
-  return { data: dados } as AxiosResponse<T[]>
-}
-
-function falhaDaApi(status: number, corpo: unknown) {
-  return new AxiosError('Erro', 'ERR_BAD_REQUEST', undefined, undefined, {
-    status,
-    data: corpo,
-  } as AxiosResponse)
 }
 
 describe('RegistrarDoacaoPage', () => {
