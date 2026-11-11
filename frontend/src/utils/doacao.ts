@@ -1,7 +1,7 @@
 import type { Doacao, DoacaoRequest, StatusDoacao, TipoDoacao } from '../types/doacao'
 import type { Doador, Sexo } from '../types/doador'
 import { formatarData } from './data'
-import { normalizarTexto } from './doador'
+import { normalizarTexto } from './texto'
 
 export const ROTULO_TIPO_DOACAO: Record<TipoDoacao, string> = {
   SANGUE_TOTAL: 'Sangue total',

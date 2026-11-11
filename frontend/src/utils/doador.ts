@@ -1,14 +1,8 @@
 import type { Doador, DoadorRequest, NovoDoador, StatusDoador, TipoSanguineo } from '../types/doador'
+import { normalizarTexto } from './texto'
+
 function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, '')
-}
-
-export function normalizarTexto(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase()
-    .trim()
 }
 
 export interface FiltrosDoadores {
