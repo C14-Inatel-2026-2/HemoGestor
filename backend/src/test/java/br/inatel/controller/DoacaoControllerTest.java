@@ -59,8 +59,8 @@ public class DoacaoControllerTest {
         return new Doacao(
                 1L,
                 criarDoador(),
-                LocalDate.now(),
-                LocalTime.now().minusMinutes(10),
+                LocalDate.of(2026, 10, 29),
+                LocalTime.of(10, 30),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
                 "120/80",

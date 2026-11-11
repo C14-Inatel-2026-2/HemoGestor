@@ -10,17 +10,17 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 
 ## Funcionalidades e requisitos funcionais
 
-| ID | Requisito | Status                                      |
-|---|---|---------------------------------------------|
-| RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue                                    |
-| RF02 | Listar doadores | Entregue                                    |
-| RF03 | Editar doador | Entregue                                    |
-| RF04 | Remover doador | Entregue                                    |
-| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Entregue                                    |
-| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Entregue                                    |
-| RF07 | Cadastrar solicitações de sangue | Entregue                                    |
-| RF08 | Verificar compatibilidade e disponibilidade | Parcial (integração do front-back pendente) |
-| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Entregue                                    |
+| ID | Requisito | Status   |
+|---|---|----------|
+| RF01 | Cadastrar doador, com validação de nome, CPF, e-mail e datas | Entregue |
+| RF02 | Listar doadores | Entregue |
+| RF03 | Editar doador | Entregue |
+| RF04 | Remover doador | Entregue |
+| RF05 | Registrar e consultar doações, com controle de status e regras de intervalo entre coletas | Entregue |
+| RF06 | Consultar bolsas por tipo sanguíneo, validade e situação | Entregue |
+| RF07 | Cadastrar solicitações de sangue | Entregue |
+| RF08 | Verificar compatibilidade e disponibilidade | Entregue |
+| RF09 | Exibir resumo do estoque e das solicitações (Dashboard) | Entregue |
 
 **Legenda:** *Entregue* = funciona de ponta a ponta (tela, API e banco); *Parcial* = parte pronta; *Planejado* = ainda não iniciado.
 
@@ -142,7 +142,7 @@ A tela **Doações** lista as doações já registradas, com busca por doador e 
 
 A tela **Estoque** lista as bolsas, com filtros por tipo sanguíneo e status, e destaca as que vencem em breve. Uma bolsa pode ser descartada na própria tabela.
 
-A tela **Solicitações** lista os pedidos de sangue por prioridade e permite cadastrar novos pedidos. As ações de atender, concluir e cancelar dependem dos endpoints que ainda estão em desenvolvimento.
+A tela **Solicitações** lista os pedidos de sangue por prioridade e permite cadastrar novos pedidos. Também é possível atender, concluir e cancelar solicitações, com validação de disponibilidade de bolsas, compatibilidade sanguínea e tratamento de erros retornados pela API.
 
 ## Testes
 
@@ -236,7 +236,7 @@ No build do Jenkins:
 Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organização, legibilidade e manutenção do código, preservando o comportamento externo da aplicação.
 
 ### Luísa
-| Code smell                                                                        | Refactoring aplicado | Motivo | PR   |
+| Code smell | Refactoring aplicado | Motivo | PR   |
 |-----------------------------------------------------------------------------------|---|---|------|
 | Método longo no `DoacaoService.salvar()`                                          | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | #128 |
 | Setup duplicado em `SolicitacaoServiceTest`                                       | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | #128 |
@@ -263,8 +263,13 @@ Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organizaç
 | Função genérica no módulo errado: `normalizarTexto` ficava em `utils/doador.ts`, e `utils/doacao.ts` dependia desse módulo só para usá-la | **Move Function** para `utils/texto.ts` | Juntar os utilitários de texto (`normalizarTexto` e `pluralizar`) e tirar uma dependência desnecessária entre doações e doadores | #136 |
 | Código duplicado nos testes: `respostaCom` e `falhaDaApi` copiadas em 4 arquivos de teste das telas | **Extract Function** para `testes/respostasApi.ts` | Uma única forma de simular respostas e erros da API, mais fácil de manter | #136 |
 
-> **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
+### Maria Luisa
+| Code smell | Refactoring aplicado | Motivo | PR |
+|---|---|---|---|
+| Tratamento de erros e validação de respostas da API duplicados em diferentes telas | **Extract Function / centralização de funções reutilizáveis**, com extração de `obterMensagemErro` e `validarRespostaLista` para um utilitário comum | Eliminar código duplicado, padronizar o tratamento das respostas da API e facilitar a manutenção sem alterar o comportamento externo da aplicação | #119 |
+| Lista de tipos sanguíneos duplicada em diferentes componentes e utilitários do front-end | **Extração e centralização de constante compartilhada** em `TIPOS_SANGUINEOS` | Manter uma única fonte para os tipos sanguíneos, reduzir duplicação e evitar inconsistências em futuras alterações | #122 |
 
+> **Observação:** durante o desenvolvimento, outros commits foram classificados com o prefixo `refactor`. Após a revisão dos critérios da entrega final, eles não foram contabilizados nesta seção por não atenderem integralmente à definição adotada de refactoring, pois alguns envolveram mudanças no comportamento externo, contrato da API, regras de negócio ou apenas organização/formatação do código. Nesta seção foram considerados somente os refactorings estruturais que preservam o comportamento da aplicação.
 
 ## Equipe
 
