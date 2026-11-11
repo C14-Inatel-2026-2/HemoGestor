@@ -56,8 +56,8 @@ public class DoacaoServiceTest {
         return new Doacao(
                 1L,
                 criarDoador(),
-                LocalDate.now(),
-                LocalTime.now().minusMinutes(10),
+                LocalDate.of(2026, 10, 29),
+                LocalTime.of(10, 30),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
                 "120/80",
@@ -81,13 +81,13 @@ public class DoacaoServiceTest {
     @Test
     void naoSalvarDoacaoAntesDoIntervaloMinimo() {
         Doador doador = criarDoador();
-        doador.setUltima_doacao(LocalDate.now().minusDays(30));
+        doador.setUltima_doacao(LocalDate.of(2026, 9, 29));
 
         Doacao novaDoacao = new Doacao(
                 1L,
                 doador,
-                LocalDate.now(),
-                LocalTime.now().minusMinutes(10),
+                LocalDate.of(2026, 10, 29),
+                LocalTime.of(10, 30),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
                 "120/80",
@@ -112,7 +112,7 @@ public class DoacaoServiceTest {
         Doacao doacao1 = new Doacao(
                 1L,
                 doador,
-                LocalDate.now().minusMonths(10),
+                LocalDate.of(2025, 12, 29),
                 LocalTime.of(10, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -125,7 +125,7 @@ public class DoacaoServiceTest {
         Doacao doacao2 = new Doacao(
                 2L,
                 doador,
-                LocalDate.now().minusMonths(7),
+                LocalDate.of(2026, 3, 29),
                 LocalTime.of(10, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -138,7 +138,7 @@ public class DoacaoServiceTest {
         Doacao doacao3 = new Doacao(
                 3L,
                 doador,
-                LocalDate.now().minusMonths(4),
+                LocalDate.of(2026, 6, 29),
                 LocalTime.of(10, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -151,8 +151,8 @@ public class DoacaoServiceTest {
         Doacao novaDoacao = new Doacao(
                 4L,
                 doador,
-                LocalDate.now(),
-                LocalTime.now().minusMinutes(10),
+                LocalDate.of(2026, 10, 29),
+                LocalTime.of(10, 30),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
                 "120/80",
@@ -178,7 +178,7 @@ public class DoacaoServiceTest {
         Doacao doacaoAnterior = new Doacao(
                 1L,
                 doador,
-                LocalDate.now().minusMonths(4),
+                LocalDate.of(2026, 6, 29),
                 LocalTime.of(10, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -191,8 +191,8 @@ public class DoacaoServiceTest {
         Doacao novaDoacao = new Doacao(
                 2L,
                 doador,
-                LocalDate.now(),
-                LocalTime.now().minusMinutes(10),
+                LocalDate.of(2026, 10, 29),
+                LocalTime.of(10, 30),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
                 "120/80",
@@ -377,10 +377,10 @@ public class DoacaoServiceTest {
         Doacao doacao = criarDoacao();
         Doador doador = doacao.getDoador();
 
-        LocalDate ultimaDoacaoAtual = LocalDate.now().minusDays(10);
+        LocalDate ultimaDoacaoAtual = LocalDate.of(2026, 10, 19);
         doador.setUltima_doacao(ultimaDoacaoAtual);
 
-        LocalDate dataDoacaoAntiga = LocalDate.now().minusDays(30);
+        LocalDate dataDoacaoAntiga = LocalDate.of(2026, 9, 29);
         doacao.setDataColeta(dataDoacaoAntiga);
 
         when(repository.findById(1L)).thenReturn(Optional.of(doacao));

@@ -42,7 +42,7 @@ public class SolicitacaoServiceTest {
         Doacao doacao = new Doacao();
         doacao.setTipoDoacao(tipoDoacao);
 
-        BolsaSangue bolsa = new BolsaSangue(doacao, tipoSanguineo, LocalDate.now(), situacao);
+        BolsaSangue bolsa = new BolsaSangue(doacao, tipoSanguineo, LocalDate.of(2026, 10, 29), situacao);
         bolsa.setDataValidade(dataValidade);
         return bolsa;
     }

@@ -82,7 +82,7 @@ public class DoadorTest {
                 null
         );
 
-        LocalDate dataDoacao = LocalDate.now();
+        LocalDate dataDoacao = LocalDate.of(2026, 10, 29);
         doador.registrarDoacao(dataDoacao);
 
         assertEquals(dataDoacao, doador.getUltima_doacao());
@@ -203,13 +203,13 @@ public class DoadorTest {
     @Test
     void calcularProximaDoacaoMasculinoEm60Dias() {
 
-        LocalDate ultimaDoacao = LocalDate.now().minusDays(10);
+        LocalDate ultimaDoacao = LocalDate.of(2026, 10, 20);
 
         Doador doador = new Doador(
                 null,
                 "João Silva",
                 "12345678900",
-                LocalDate.now().minusYears(30),
+                LocalDate.of(1996, 1, 1),
                 Sexo.MASCULINO,
                 "A+",
                 "joao@email.com",
@@ -230,13 +230,13 @@ public class DoadorTest {
     @Test
     void calcularProximaDoacaoFemininoEm90Dias() {
 
-        LocalDate ultimaDoacao = LocalDate.now().minusDays(10);
+        LocalDate ultimaDoacao = LocalDate.of(2026, 10, 20);
 
         Doador doador = new Doador(
                 null,
                 "Ana Souza",
                 "52998224725",
-                LocalDate.now().minusYears(25),
+                LocalDate.of(2000, 1, 1),
                 Sexo.FEMININO,
                 "O+",
                 "ana@email.com",
@@ -366,7 +366,7 @@ public class DoadorTest {
                         null,
                         "Ana Souza",
                         "52998224725",
-                        LocalDate.now().minusYears(25),
+                        LocalDate.of(2000, 1, 1),
                         Sexo.FEMININO,
                         "O+",
                         "ana@email.com",
@@ -389,7 +389,7 @@ public class DoadorTest {
                         null,
                         "",
                         "52998224725",
-                        LocalDate.now().minusYears(25),
+                        LocalDate.of(2000, 1, 1),
                         Sexo.FEMININO,
                         "O+",
                         "ana@email.com",
@@ -410,7 +410,7 @@ public class DoadorTest {
                 null,
                 "Ana Souza",
                 "52998224725",
-                LocalDate.now().minusYears(25),
+                LocalDate.of(2000, 1, 1),
                 null,
                 "O+",
                 "ana@email.com",
@@ -432,7 +432,7 @@ public class DoadorTest {
                 null,
                 "Ana Souza",
                 "52998224725",
-                LocalDate.now().minusYears(25),
+                LocalDate.of(2000, 1, 1),
                 Sexo.FEMININO,
                 null,
                 "ana@email.com",
@@ -454,7 +454,7 @@ public class DoadorTest {
                 null,
                 "Ana Souza",
                 "52998224725",
-                LocalDate.now().minusYears(25),
+                LocalDate.of(2000, 1, 1),
                 Sexo.FEMININO,
                 "   ",
                 "ana@email.com",
