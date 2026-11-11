@@ -156,7 +156,7 @@ public class DoacaoTest {
                         1L,
                         criarDoador(),
                         LocalDate.now(),
-                        LocalTime.now().plusHours(1),
+                        LocalTime.MAX,
                         450,
                         TipoDoacao.SANGUE_TOTAL,
                         "120/80",
