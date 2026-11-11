@@ -269,4 +269,49 @@ public class SolicitacaoIntegrationTest {
         assertEquals(SituacaoBolsa.DISPONIVEL, bolsaPersistida.getSituacao());
         assertEquals(StatusSolicitacao.CANCELADA, solicitacaoRepository.findById(criada.getId()).orElseThrow().getStatus());
     }
+
+    @Test
+    void naoDeveAtenderSolicitacaoInexistente() {
+        assertThrows(
+                br.inatel.exception.SolicitacaoNaoEncontradaException.class,
+                () -> solicitacaoService.atender(999L)
+        );
+    }
+
+    @Test
+    void naoDeveAtenderSolicitacaoSemBolsasCompativeis() {
+        SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
+        dto.setInstituicao("Hospital sem estoque");
+        dto.setSetor("UTI");
+        dto.setTipoSanguineo("O-");
+        dto.setQuantidade(1);
+        dto.setPrioridade(PrioridadeSolicitacao.URGENTE);
+        dto.setJustificativa("Teste sem bolsas");
+
+        SolicitacaoResponseDTO criada = solicitacaoService.salvar(dto);
+
+        assertThrows(
+                br.inatel.exception.ConflitoException.class,
+                () -> solicitacaoService.atender(criada.getId())
+        );
+    }
+
+    @Test
+    void naoDeveAtenderSolicitacaoComStatusInvalido() {
+        SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
+        dto.setInstituicao("Hospital status invalido");
+        dto.setSetor("UTI");
+        dto.setTipoSanguineo("O-");
+        dto.setQuantidade(1);
+        dto.setPrioridade(PrioridadeSolicitacao.NORMAL);
+        dto.setJustificativa("Teste de status invalido");
+
+        SolicitacaoResponseDTO criada = solicitacaoService.salvar(dto);
+        solicitacaoService.cancelar(criada.getId());
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> solicitacaoService.atender(criada.getId())
+        );
+    }
 }

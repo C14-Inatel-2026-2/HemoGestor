@@ -248,7 +248,7 @@ describe('SolicitacoesPage', () => {
   })
 
   it('mantém o painel aberto e mostra o motivo quando a API recusa o atendimento', async () => {
-    const mensagem = 'Há apenas 1 bolsas compatíveis disponíveis para 2 solicitadas.'
+    const mensagem = 'Não há bolsas compatíveis suficientes para atender a solicitação.'
     vi.mocked(atenderSolicitacao).mockRejectedValue(falhaDaApi(409, { erro: mensagem }))
 
     render(<SolicitacoesPage />)
@@ -258,6 +258,43 @@ describe('SolicitacoesPage', () => {
     expect(await within(painel).findByRole('alert')).toHaveTextContent(mensagem)
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(getSolicitacoes).toHaveBeenCalledTimes(2)
+  })
+
+  it('mostra erro quando a solicitação não existe', async () => {
+    vi.mocked(atenderSolicitacao).mockRejectedValue(
+      falhaDaApi(404, { erro: 'Solicitação não encontrada.' }),
+    )
+
+    render(<SolicitacoesPage />)
+    const painel = await abrirDetalhes('SOL-002')
+    await userEvent.click(
+      within(painel).getByRole('button', { name: 'Atender solicitação' }),
+    )
+
+    expect(await within(painel).findByRole('alert')).toHaveTextContent(
+      'Solicitação não encontrada.',
+    )
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('mostra erro quando a solicitação está em status inválido para concluir', async () => {
+    vi.mocked(concluirSolicitacao).mockRejectedValue(
+      falhaDaApi(409, {
+        erro: 'Só é possível concluir solicitações em atendimento.',
+      }),
+    )
+
+    render(<SolicitacoesPage />)
+    const painel = await abrirDetalhes('SOL-003')
+
+    await userEvent.click(
+      within(painel).getByRole('button', { name: 'Concluir atendimento' }),
+    )
+
+    expect(await within(painel).findByRole('alert')).toHaveTextContent(
+      'Só é possível concluir solicitações em atendimento.',
+    )
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
   it('conclui uma solicitação em atendimento', async () => {
