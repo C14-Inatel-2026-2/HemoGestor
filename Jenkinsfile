@@ -7,7 +7,7 @@ pipeline {
                 stage('Build Back') {
                     steps {
                         dir('backend') {
-                            sh './mvnw clean package'
+                            sh 'env -u SPRING_DATASOURCE_URL ./mvnw clean package'
                         }
                     }
                 }
@@ -29,7 +29,7 @@ pipeline {
                 stage('Testes Back') {
                     steps {
                         dir('backend') {
-                            sh './mvnw verify'
+                            sh 'env -u SPRING_DATASOURCE_URL ./mvnw verify'
                         }
                     }
 
