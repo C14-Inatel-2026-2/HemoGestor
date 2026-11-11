@@ -1,6 +1,7 @@
 import type { Bolsa, StatusBolsa } from '../types/bolsa'
 import type { TipoSanguineo } from '../types/doador'
 import { dataDeHoje } from './data'
+import { pluralizar } from './texto'
 
 export const DIAS_ALERTA_VENCIMENTO = 7
 
@@ -27,7 +28,7 @@ export function diasParaVencer(dataValidade: string, hoje: string = dataDeHoje()
 }
 
 function quantidadeDeDias(quantidade: number): string {
-  return quantidade === 1 ? '1 dia' : `${quantidade} dias`
+  return `${quantidade} ${pluralizar(quantidade, 'dia', 'dias')}`
 }
 
 export function descreverValidade(dataValidade: string, hoje: string = dataDeHoje()): string {

@@ -1,6 +1,7 @@
 import type { TipoSanguineo } from '../types/doador'
 import type { PrioridadeSolicitacao, Solicitacao, SolicitacaoRequest, StatusSolicitacao } from '../types/solicitacao'
 import { formatarData } from './data'
+import { pluralizar } from './texto'
 
 export const ROTULO_PRIORIDADE: Record<PrioridadeSolicitacao, string> = {
   NORMAL: 'Normal',
@@ -30,7 +31,7 @@ export function formatarDataHora(dataHora: string): string {
 }
 
 export function quantidadeDeBolsas(quantidade: number): string {
-  return quantidade === 1 ? '1 bolsa' : `${quantidade} bolsas`
+    return `${quantidade} ${pluralizar(quantidade, 'bolsa', 'bolsas')}`
 }
 
 export function estaAtiva(solicitacao: Solicitacao): boolean {

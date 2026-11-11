@@ -5,6 +5,7 @@ import type { Solicitacao } from '../types/solicitacao'
 import { DIAS_ALERTA_VENCIMENTO, diasParaVencer, estaNoEstoque, resumirEstoque } from './bolsa'
 import { dataDeHoje } from './data'
 import { FILTROS_INICIAIS_SOLICITACOES, filtrarSolicitacoes } from './solicitacao'
+import { pluralizar } from './texto'
 import { TIPOS_SANGUINEOS } from '../constants/tiposSanguineos'
 
 export const LIMITE_ESTOQUE_CRITICO = 10
@@ -75,8 +76,7 @@ export function alertasDeSolicitacoes(solicitacoes: Solicitacao[]): Alerta[] {
     alertas.push({
       rotulo: 'Urgente',
       nivel: 'ATENCAO',
-      titulo:
-        urgentes.length === 1 ? '1 solicitação urgente' : `${urgentes.length} solicitações urgentes`,
+      titulo: `${urgentes.length} ${pluralizar(urgentes.length, 'solicitação urgente', 'solicitações urgentes')}`,
       detalhe: 'Ainda não concluídas',
       destino: '/solicitacoes',
     })
@@ -94,10 +94,7 @@ export function alertasDeEstoque(bolsas: Bolsa[], hoje: string = dataDeHoje()): 
     alertas.push({
       rotulo: 'Crítico',
       nivel: 'CRITICO',
-      titulo:
-        criticos.length === 1
-          ? '1 tipo em estoque crítico'
-          : `${criticos.length} tipos em estoque crítico`,
+      titulo: `${criticos.length} ${pluralizar(criticos.length, 'tipo', 'tipos')} em estoque crítico`,
       detalhe: criticos.map((estoque) => estoque.tipo).join(', '),
       destino: '/estoque',
     })
@@ -107,10 +104,7 @@ export function alertasDeEstoque(bolsas: Bolsa[], hoje: string = dataDeHoje()): 
     alertas.push({
       rotulo: 'Atenção',
       nivel: 'ATENCAO',
-      titulo:
-        vencemEmBreve === 1
-          ? '1 bolsa próxima do vencimento'
-          : `${vencemEmBreve} bolsas próximas do vencimento`,
+      titulo: `${vencemEmBreve} ${pluralizar(vencemEmBreve, 'bolsa próxima', 'bolsas próximas')} do vencimento`,
       detalhe: `Vencem nos próximos ${DIAS_ALERTA_VENCIMENTO} dias`,
       destino: '/estoque',
     })

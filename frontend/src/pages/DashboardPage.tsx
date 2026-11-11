@@ -9,16 +9,9 @@ import type { Bolsa } from '../types/bolsa'
 import type { Doacao } from '../types/doacao'
 import type { Solicitacao } from '../types/solicitacao'
 import { resumirEstoque } from '../utils/bolsa'
-import {
-  DIAS_DOACOES_RECENTES,
-  LIMITE_ESTOQUE_CRITICO,
-  alertasDeEstoque,
-  alertasDeSolicitacoes,
-  contarDoacoesRecentes,
-  estoquePorTipo,
-  solicitacoesEmDestaque,
-} from '../utils/dashboard'
+import { DIAS_DOACOES_RECENTES, LIMITE_ESTOQUE_CRITICO, alertasDeEstoque, alertasDeSolicitacoes, contarDoacoesRecentes, estoquePorTipo, solicitacoesEmDestaque } from '../utils/dashboard'
 import { resumirSolicitacoes } from '../utils/solicitacao'
+import { pluralizar } from '../utils/texto'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
 import './EstoquePage.css'
@@ -156,7 +149,8 @@ function DashboardPage() {
                     </span>
                   </div>
                   <div className="dashboard__tipo-quantidade">
-                    <strong>{item.quantidade}</strong> {item.quantidade === 1 ? 'bolsa' : 'bolsas'}
+                    <strong>{item.quantidade}</strong> 
+                      {pluralizar(item.quantidade, 'bolsa', 'bolsas')}
                   </div>
                 </div>
               ))}
