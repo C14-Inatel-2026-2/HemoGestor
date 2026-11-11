@@ -82,7 +82,7 @@ public class SolicitacaoIntegrationTest {
         Doacao doacaoA = new Doacao(
                 null,
                 doadorA,
-                LocalDate.now().minusDays(1),
+                LocalDate.of(2026, 11, 10),
                 LocalTime.of(10, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -96,7 +96,7 @@ public class SolicitacaoIntegrationTest {
         BolsaSangue bolsaA = new BolsaSangue(
                 doacaoA,
                 "A+",
-                LocalDate.now().minusDays(1),
+                LocalDate.of(2026, 11, 10),
                 SituacaoBolsa.DISPONIVEL
         );
         bolsaA = bolsaSangueRepository.save(bolsaA);
@@ -120,7 +120,7 @@ public class SolicitacaoIntegrationTest {
         Doacao doacaoO = new Doacao(
                 null,
                 doadorO,
-                LocalDate.now().minusDays(1),
+                LocalDate.of(2026, 11, 10),
                 LocalTime.of(11, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -134,7 +134,7 @@ public class SolicitacaoIntegrationTest {
         BolsaSangue bolsaO = new BolsaSangue(
                 doacaoO,
                 "O+",
-                LocalDate.now().minusDays(1),
+                LocalDate.of(2026, 11, 10),
                 SituacaoBolsa.DISPONIVEL
         );
         bolsaO = bolsaSangueRepository.save(bolsaO);
@@ -181,7 +181,7 @@ public class SolicitacaoIntegrationTest {
         Doacao doacaoA = new Doacao(
                 null,
                 doadorA,
-                LocalDate.now().minusDays(1),
+                LocalDate.of(2026, 11, 10),
                 LocalTime.of(10, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -192,7 +192,7 @@ public class SolicitacaoIntegrationTest {
                 null
         );
         doacaoA = doacaoRepository.save(doacaoA);
-        BolsaSangue bolsaA = new BolsaSangue(doacaoA, "A+", LocalDate.now().minusDays(1), SituacaoBolsa.DISPONIVEL);
+        BolsaSangue bolsaA = new BolsaSangue(doacaoA, "A+", LocalDate.of(2026, 11, 10), SituacaoBolsa.DISPONIVEL);
         bolsaA = bolsaSangueRepository.save(bolsaA);
 
         SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
@@ -236,7 +236,7 @@ public class SolicitacaoIntegrationTest {
         Doacao doacao = new Doacao(
                 null,
                 doador,
-                LocalDate.now().minusDays(1),
+                LocalDate.of(2026, 11, 10),
                 LocalTime.of(10, 0),
                 450,
                 TipoDoacao.SANGUE_TOTAL,
@@ -247,7 +247,7 @@ public class SolicitacaoIntegrationTest {
                 null
         );
         doacao = doacaoRepository.save(doacao);
-        BolsaSangue bolsa = new BolsaSangue(doacao, "A+", LocalDate.now().minusDays(1), SituacaoBolsa.DISPONIVEL);
+        BolsaSangue bolsa = new BolsaSangue(doacao, "A+", LocalDate.of(2026, 11, 10), SituacaoBolsa.DISPONIVEL);
         bolsa = bolsaSangueRepository.save(bolsa);
 
         SolicitacaoRequestDTO dto = new SolicitacaoRequestDTO();
