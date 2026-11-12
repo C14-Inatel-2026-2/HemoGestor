@@ -1,22 +1,13 @@
 import { useEffect, useState } from 'react'
 import CabecalhoPagina from '../components/CabecalhoPagina'
+import { useFiltros } from '../hooks/useFiltros'
 import { descartarBolsa, getBolsas } from '../services/bolsaService'
 import type { Bolsa, StatusBolsa } from '../types/bolsa'
 import type { TipoSanguineo } from '../types/doador'
-import {
-  DIAS_ALERTA_VENCIMENTO,
-  FILTROS_INICIAIS,
-  ROTULO_STATUS_BOLSA,
-  descreverValidade,
-  estaVencida,
-  filtrarBolsas,
-  formatarCodigoBolsa,
-  resumirEstoque,
-  venceEmBreve,
-} from '../utils/bolsa'
+import { DIAS_ALERTA_VENCIMENTO, FILTROS_INICIAIS, ROTULO_STATUS_BOLSA, descreverValidade, estaVencida, filtrarBolsas, formatarCodigoBolsa, resumirEstoque, venceEmBreve } from '../utils/bolsa'
 import type { AbaEstoque, FiltrosEstoque } from '../utils/bolsa'
 import { gerarCsvEstoque } from '../utils/csvEstoque'
-import { formatarData } from '../utils/doador'
+import { formatarData } from '../utils/data'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import '../components/DoadorForm.css'
 import './DoadoresPage.css'
@@ -63,7 +54,7 @@ function EstoquePage() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState<string | null>(null)
-  const [filtros, setFiltros] = useState<FiltrosEstoque>(FILTROS_INICIAIS)
+  const { filtros, setFiltros, atualizarFiltro } = useFiltros<FiltrosEstoque>(FILTROS_INICIAIS)  
   const [descartando, setDescartando] = useState(false)
 
   useEffect(() => {
@@ -72,10 +63,6 @@ function EstoquePage() {
       .catch(() => setErro('Não foi possível carregar o estoque.'))
       .finally(() => setCarregando(false))
   }, [])
-
-  function atualizarFiltro<K extends keyof FiltrosEstoque>(campo: K, valor: FiltrosEstoque[K]) {
-    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
-  }
 
   function trocarAba(aba: AbaEstoque) {
     setFiltros((anteriores) => ({ ...anteriores, aba, status: '', somenteVencendo: false }))

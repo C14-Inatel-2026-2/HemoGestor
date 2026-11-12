@@ -1,21 +1,5 @@
 import type { Doador } from '../types/doador'
-import {
-  FILTROS_INICIAIS_DOADORES,
-  filtrarDoadores,
-  formatarCpf,
-  formatarTelefone,
-  montarRequisicaoDeEdicao,
-  normalizarTexto,
-  paraDadosDoFormulario,
-  validarCpf,
-  validarTelefone,
-} from './doador'
-
-describe('normalizarTexto', () => {
-  it('remove acentos, espaços nas pontas e letras maiúsculas', () => {
-    expect(normalizarTexto('  JOÃO Conceição ')).toBe('joao conceicao')
-  })
-})
+import { FILTROS_INICIAIS_DOADORES, filtrarDoadores, formatarCpf, formatarTelefone, montarRequisicaoDeEdicao, paraDadosDoFormulario, validarCpf, validarTelefone } from './doador'
 
 describe('formatarCpf', () => {
   it('formata um CPF com 11 dígitos no padrão 000.000.000-00', () => {

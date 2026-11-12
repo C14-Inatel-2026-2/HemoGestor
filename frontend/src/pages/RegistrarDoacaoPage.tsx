@@ -1,24 +1,19 @@
 import { useEffect, useState } from 'react'
 import CabecalhoPagina from '../components/CabecalhoPagina'
 import DoacaoForm from '../components/DoacaoForm'
-import {
-  concluirDoacao,
-  criarDoacao,
-  descartarDoacao,
-  getDoacoes,
-} from '../services/doacaoService'
+import { useFiltros } from '../hooks/useFiltros'
+import { concluirDoacao, criarDoacao, descartarDoacao, getDoacoes } from '../services/doacaoService'
 import { getDoadores } from '../services/doadorService'
 import type { Doacao, DoacaoRequest, StatusDoacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
 import { FILTROS_INICIAIS_DOACOES, ROTULO_STATUS_DOACAO, ROTULO_TIPO_DOACAO, filtrarDoacoes, formatarHora } from '../utils/doacao'
 import type { FiltrosDoacoes } from '../utils/doacao'
-import { formatarData } from '../utils/doador'
+import { formatarData } from '../utils/data'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
 import { pluralizar } from '../utils/texto'
 
-// Reaproveita o visual da tela de Doadores (tabela, selos, avisos e cartão do formulário).
 const CLASSE_STATUS: Record<StatusDoacao, string> = {
   EM_TRIAGEM: 'aguardando',
   CONCLUIDA: 'apto',
@@ -54,7 +49,7 @@ function RegistrarDoacaoPage() {
   const [erroCadastro, setErroCadastro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState<string | null>(null)
   const [acaoEmAndamento, setAcaoEmAndamento] = useState(false)
-  const [filtros, setFiltros] = useState<FiltrosDoacoes>(FILTROS_INICIAIS_DOACOES)
+  const { filtros, atualizarFiltro } = useFiltros<FiltrosDoacoes>(FILTROS_INICIAIS_DOACOES)
 
   function aplicarDados(dados: { doacoes: Doacao[]; doadores: Doador[] }) {
     setDoacoes(dados.doacoes)
@@ -129,10 +124,6 @@ function RegistrarDoacaoPage() {
     setSucesso(mensagemSucesso)
     setAcaoEmAndamento(false)
     await recarregar()
-  }
-
-  function atualizarFiltro<K extends keyof FiltrosDoacoes>(campo: K, valor: FiltrosDoacoes[K]) {
-    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
   }
 
   const doacoesVisiveis = filtrarDoacoes(doacoes, filtros)

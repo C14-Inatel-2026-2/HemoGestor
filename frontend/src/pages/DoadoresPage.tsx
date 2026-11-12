@@ -1,20 +1,13 @@
 import CabecalhoPagina from '../components/CabecalhoPagina'
 import ConfirmarRemocaoDoador from '../components/ConfirmarRemocaoDoador'
 import DoadorForm from '../components/DoadorForm'
+import { useFiltros } from '../hooks/useFiltros'
 import { useEffect, useState } from 'react'
 import { atualizarDoador, criarDoador, deletarDoador, getDoadores } from '../services/doadorService'
 import type { Doador, NovoDoador, StatusDoador, TipoSanguineo } from '../types/doador'
-import {
-  FILTROS_INICIAIS_DOADORES,
-  filtrarDoadores,
-  formatarCpf,
-  formatarData,
-  formatarTelefone,
-  montarRequisicaoDeEdicao,
-  obterIniciais,
-  paraDadosDoFormulario,
-} from '../utils/doador'
+import { FILTROS_INICIAIS_DOADORES, filtrarDoadores, formatarCpf, formatarTelefone, montarRequisicaoDeEdicao, obterIniciais, paraDadosDoFormulario } from '../utils/doador'
 import type { FiltrosDoadores } from '../utils/doador'
+import { formatarData } from '../utils/data'
 import { obterMensagemErro, validarRespostaLista } from '../utils/erro'
 import './DoadoresPage.css'
 import './EstoquePage.css'
@@ -46,7 +39,7 @@ function DoadoresPage() {
   const [doadorEmRemocao, setDoadorEmRemocao] = useState<Doador | null>(null)
   const [removendo, setRemovendo] = useState(false)
   const [erroRemocao, setErroRemocao] = useState<string | null>(null)
-  const [filtros, setFiltros] = useState<FiltrosDoadores>(FILTROS_INICIAIS_DOADORES)
+  const { filtros, atualizarFiltro } = useFiltros<FiltrosDoadores>(FILTROS_INICIAIS_DOADORES)
 
   useEffect(() => {
     buscarDoadores()
@@ -57,13 +50,6 @@ function DoadoresPage() {
 
   const formularioAberto = exibindoFormulario || doadorEmEdicao !== null
   const doadoresVisiveis = filtrarDoadores(doadores, filtros)
-
-  function atualizarFiltro<K extends keyof FiltrosDoadores>(
-    campo: K,
-    valor: FiltrosDoadores[K],
-  ) {
-    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
-  }
 
   function abrirFormulario() {
     setSucesso(null)

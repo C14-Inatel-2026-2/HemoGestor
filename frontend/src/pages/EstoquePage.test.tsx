@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AxiosError } from 'axios'
+import { falhaDaApi, respostaCom } from '../testes/respostasApi'
 import type { AxiosResponse } from 'axios'
 import EstoquePage from './EstoquePage'
 import { descartarBolsa, getBolsas } from '../services/bolsaService'
@@ -58,17 +58,6 @@ const todasAsBolsas = [
   bolsaVencida,
   bolsaDescartada,
 ]
-
-function respostaCom<T>(dados: T[]) {
-  return { data: dados } as AxiosResponse<T[]>
-}
-
-function falhaDaApi(status: number, corpo: unknown) {
-  return new AxiosError('Erro', 'ERR_BAD_REQUEST', undefined, undefined, {
-    status,
-    data: corpo,
-  } as AxiosResponse)
-}
 
 function codigosNaTabela(): string[] {
   return screen

@@ -2,16 +2,10 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { Doacao, DoacaoRequest, TipoDoacao } from '../types/doacao'
 import type { Doador } from '../types/doador'
-import {
-  ROTULO_TIPO_DOACAO,
-  dataDeHoje,
-  dataLiberadaParaDoar,
-  montarRequisicaoDeDoacao,
-  validarDoacao,
-  verificarElegibilidade,
-} from '../utils/doacao'
+import { ROTULO_TIPO_DOACAO, dataLiberadaParaDoar, montarRequisicaoDeDoacao, validarDoacao, verificarElegibilidade } from '../utils/doacao'
 import type { DadosDoacaoFormulario, ErrosDoacao } from '../utils/doacao'
-import { formatarCpf, formatarData } from '../utils/doador'
+import { dataDeHoje, formatarData } from '../utils/data'
+import { formatarCpf } from '../utils/doador'
 import './DoadorForm.css'
 
 const TIPOS_DOACAO = Object.keys(ROTULO_TIPO_DOACAO) as TipoDoacao[]

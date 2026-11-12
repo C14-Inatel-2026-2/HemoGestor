@@ -1,14 +1,8 @@
 import type { Doador, DoadorRequest, NovoDoador, StatusDoador, TipoSanguineo } from '../types/doador'
+import { normalizarTexto } from './texto'
+
 function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, '')
-}
-
-export function normalizarTexto(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase()
-    .trim()
 }
 
 export interface FiltrosDoadores {
@@ -71,12 +65,6 @@ export function validarCpf(cpf: string): boolean {
   const primeiro = calcularDigito(digitos.slice(0, 9), 10)
   const segundo = calcularDigito(digitos.slice(0, 10), 11)
   return primeiro === Number(digitos[9]) && segundo === Number(digitos[10])
-}
-
-export function formatarData(dataIso: string | null): string {
-  if (!dataIso) return '—'
-  const [ano, mes, dia] = dataIso.split('-')
-  return `${dia}/${mes}/${ano}`
 }
 
 export function obterIniciais(nome: string): string {

@@ -1,6 +1,7 @@
 import type { Doacao, DoacaoRequest, StatusDoacao, TipoDoacao } from '../types/doacao'
 import type { Doador, Sexo } from '../types/doador'
-import { formatarData, normalizarTexto } from './doador'
+import { formatarData } from './data'
+import { normalizarTexto } from './texto'
 
 export const ROTULO_TIPO_DOACAO: Record<TipoDoacao, string> = {
   SANGUE_TOTAL: 'Sangue total',
@@ -96,12 +97,6 @@ function somarDias(dataIso: string, dias: number): string {
   const data = new Date(`${dataIso}T00:00:00Z`)
   data.setUTCDate(data.getUTCDate() + dias)
   return data.toISOString().slice(0, 10)
-}
-
-export function dataDeHoje(): string {
-  const agora = new Date()
-  const doisDigitos = (valor: number) => String(valor).padStart(2, '0')
-  return `${agora.getFullYear()}-${doisDigitos(agora.getMonth() + 1)}-${doisDigitos(agora.getDate())}`
 }
 
 export function intervaloMinimoEmDias(sexo: Sexo): number {

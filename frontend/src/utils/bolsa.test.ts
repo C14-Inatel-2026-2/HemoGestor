@@ -11,7 +11,7 @@ import {
   resumirEstoque,
   venceEmBreve,
 } from './bolsa'
-import { dataDeHoje } from './doacao'
+import { dataDeHoje } from './data'
 import type { Bolsa } from '../types/bolsa'
 
 const HOJE = '2026-11-02'

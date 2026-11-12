@@ -1,11 +1,7 @@
 import type { Solicitacao } from '../types/solicitacao'
 import { formatarCodigoBolsa } from '../utils/bolsa'
-import {
-  formatarCodigoSolicitacao,
-  formatarDataHora,
-  quantidadeDeBolsas,
-  temEstoqueSuficiente,
-} from '../utils/solicitacao'
+import { formatarCodigoSolicitacao, formatarDataHora, quantidadeDeBolsas, temEstoqueSuficiente } from '../utils/solicitacao'
+import { pluralizar } from '../utils/texto'
 import { SeloPrioridade, SeloStatusSolicitacao } from './SelosSolicitacao'
 import './DoadorForm.css'
 import './SolicitacaoDetalhes.css'
@@ -89,8 +85,7 @@ function SolicitacaoDetalhes({
               <h3 className="painel__caixa-titulo">Disponibilidade</h3>
               <p className="painel__disponiveis">
                 <strong>{disponiveis}</strong>{' '}
-                {disponiveis === 1 ? 'bolsa compatível disponível' : 'bolsas compatíveis disponíveis'}
-              </p>
+                  {pluralizar(disponiveis, 'bolsa compatível disponível', 'bolsas compatíveis disponíveis')}                </p>
               <p className={suficiente ? 'painel__aviso--sucesso' : 'painel__aviso--perigo'}>
                 {suficiente
                   ? 'Suficiente para atender esta solicitação.'

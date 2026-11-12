@@ -236,7 +236,7 @@ No build do Jenkins:
 Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organização, legibilidade e manutenção do código, preservando o comportamento externo da aplicação.
 
 ### Luísa
-| Code smell                                                                        | Refactoring aplicado | Motivo | PR   |
+| Code smell | Refactoring aplicado | Motivo | PR   |
 |-----------------------------------------------------------------------------------|---|---|------|
 | Método longo no `DoacaoService.salvar()`                                          | **Extract Method** das validações de intervalo entre doações e limite anual | Separar responsabilidades e tornar o fluxo principal do método mais legível | #128 |
 | Setup duplicado em `SolicitacaoServiceTest`                                       | Extração da inicialização dos mocks e do service para `@BeforeEach` | Remover repetição entre os testes e centralizar sua preparação | #128 |
@@ -254,8 +254,16 @@ Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organizaç
 | Cadeia de condicionais em `BolsaSangue.calcularDataValidade()`                    | Simplificação de condicional com `switch` | Tornar o cálculo da validade mais direto e legível sem alterar seu comportamento | A adicionar |
 | Ordenação por validade em `BolsaSangueService`                                    | Simplificação da expressão com `Comparator.comparing()` | Expressar diretamente o critério de ordenação e melhorar a legibilidade | A adicionar |
 
-### Maria Luisa
+### Laura
+| Code smell | Refactoring aplicado | Motivo | PR |
+|---|---|---|---|
+| Funções de data em módulos de domínio: `formatarData` ficava em `utils/doador.ts` e `dataDeHoje` em `utils/doacao.ts`, mas eram usadas por Estoque, Solicitações, Dashboard e exportação CSV | **Move Function** para o novo módulo `utils/data.ts` | Remover dependências desnecessárias entre módulos: `bolsa.ts` e `dashboard.ts` importavam `doacao.ts` só para saber a data de hoje | #136 |
+| Código duplicado: estado dos filtros e função `atualizarFiltro` copiados nas telas de Doadores, Doações, Estoque e Solicitações | **Extract Function** para o hook `useFiltros` (`hooks/useFiltros.ts`) | Uma única implementação, testada uma vez e reaproveitada pelas quatro telas | #136 |
+| Lógica de plural repetida: 7 trechos com `quantidade === 1 ? ... : ...` em `bolsa.ts`, `solicitacao.ts`, `dashboard.ts`, `SolicitacaoDetalhes.tsx` e `DashboardPage.tsx`, mesmo já existindo a função `pluralizar` | **Replace Inline Code with Function Call**, usando `pluralizar` | Uma única regra de singular e plural para toda a interface | #136 |
+| Função genérica no módulo errado: `normalizarTexto` ficava em `utils/doador.ts`, e `utils/doacao.ts` dependia desse módulo só para usá-la | **Move Function** para `utils/texto.ts` | Juntar os utilitários de texto (`normalizarTexto` e `pluralizar`) e tirar uma dependência desnecessária entre doações e doadores | #136 |
+| Código duplicado nos testes: `respostaCom` e `falhaDaApi` copiadas em 4 arquivos de teste das telas | **Extract Function** para `testes/respostasApi.ts` | Uma única forma de simular respostas e erros da API, mais fácil de manter | #136 |
 
+### Maria Luisa
 | Code smell | Refactoring aplicado | Motivo | PR |
 |---|---|---|---|
 | Tratamento de erros e validação de respostas da API duplicados em diferentes telas | **Extract Function / centralização de funções reutilizáveis**, com extração de `obterMensagemErro` e `validarRespostaLista` para um utilitário comum | Eliminar código duplicado, padronizar o tratamento das respostas da API e facilitar a manutenção sem alterar o comportamento externo da aplicação | #119 |

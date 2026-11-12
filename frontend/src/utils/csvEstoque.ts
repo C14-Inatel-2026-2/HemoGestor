@@ -1,5 +1,5 @@
 import type { Bolsa } from '../types/bolsa'
-import { formatarData } from './doador'
+import { formatarData } from './data'
 import { formatarCodigoBolsa, ROTULO_STATUS_BOLSA } from './bolsa'
 
 function escaparCampo(valor: string): string {

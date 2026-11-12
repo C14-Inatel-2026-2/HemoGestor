@@ -1,4 +1,10 @@
-import { pluralizar } from './texto'
+import { normalizarTexto, pluralizar } from './texto'
+
+describe('normalizarTexto', () => {
+  it('remove acentos, espaços nas pontas e letras maiúsculas', () => {
+    expect(normalizarTexto('  JOÃO Conceição ')).toBe('joao conceicao')
+  })
+})
 
 describe('pluralizar', () => {
   it('usa o singular quando a quantidade é 1', () => {

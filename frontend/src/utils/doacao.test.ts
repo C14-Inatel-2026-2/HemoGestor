@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dataDeHoje, dataLiberadaParaDoar, filtrarDoacoes, formatarHora, montarRequisicaoDeDoacao, validarDoacao, verificarElegibilidade } from './doacao'
+import { dataLiberadaParaDoar, filtrarDoacoes, formatarHora, montarRequisicaoDeDoacao, validarDoacao, verificarElegibilidade } from './doacao'
 import { FILTROS_INICIAIS_DOACOES } from './doacao'
 import type { DadosDoacaoFormulario } from './doacao'
 import type { Doacao, StatusDoacao } from '../types/doacao'
@@ -198,11 +198,6 @@ describe('verificarElegibilidade', () => {
   })
 })
 
-describe('dataDeHoje', () => {
-  it('devolve a data atual no formato AAAA-MM-DD', () => {
-    expect(dataDeHoje()).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-  })
-})
 describe('filtrarDoacoes', () => {
   const doacoes = [
     { id: 1, nomeDoador: 'Ana Souza', status: 'CONCLUIDA' },
