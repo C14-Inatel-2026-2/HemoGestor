@@ -32,7 +32,7 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 | H2 — Consultar o estoque por tipo sanguíneo | #66 | #82, #91, #100 | `frontend/src/pages/EstoquePage.test.tsx`, `frontend/src/pages/DashboardPage.test.tsx`, `frontend/src/utils/bolsa.test.ts`, `frontend/src/utils/dashboard.test.ts` |
 | H3 — Registrar uma nova doação | #70 | #69, #73, #78 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java`, `backend/src/test/java/br/inatel/model/DoacaoTest.java` |
 | H4 — Consultar histórico de doações | #72 | #74, #81 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java` |
-| H5 — Agendar doação | #75 | — | — |
+| H5 — Atender solicitações de sangue com bolsas compatíveis | #139 | #90, #105, #106, #118, #120, #123, #132, #134 | `backend/src/test/java/br/inatel/controller/SolicitacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/SolicitacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/SolicitacaoIntegrationTest.java`, `frontend/src/pages/SolicitacoesPage.test.tsx`, `frontend/src/components/SolicitacaoForm.test.tsx`, `frontend/src/components/SolicitacaoDetalhes.test.tsx`, `frontend/src/services/solicitacaoService.test.ts`, `frontend/src/utils/solicitacao.test.ts` |
 | H6 — Consultar doadores cadastrados | #76 | #56, #64 | `frontend/src/services/doadorService.test.ts`, `frontend/src/pages/DoadoresPage.test.tsx` |
 
 ### Relação entre requisitos funcionais e histórias
@@ -45,13 +45,13 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 | RF04 — Remover doador | Sem história específica | A remoção foi implementada na tela de Doadores, mas não possui uma história própria entre H1 e H6. |
 | RF05 — Registrar e consultar doações | H3, H4 | A H3 cobre o registro de doações e a H4 cobre a consulta do histórico. |
 | RF06 — Consultar bolsas por tipo sanguíneo, validade e situação | H2 | A H2 cobre a consulta do estoque e seus filtros. |
-| RF07 — Cadastrar solicitações de sangue | Sem história específica | Não possui uma história específica entre H1 e H6. |
-| RF08 — Verificar compatibilidade e disponibilidade | Sem história específica | Não possui uma história específica entre H1 e H6. |
+| RF07 — Cadastrar solicitações de sangue | H5 | A H5 cobre o cadastro e o acompanhamento das solicitações de sangue. |
+| RF08 — Verificar compatibilidade e disponibilidade | H5 | A H5 cobre o atendimento das solicitações com seleção de bolsas compatíveis e disponíveis. |
 | RF09 — Exibir resumo do estoque e das solicitações | H2 | A H2 se relaciona ao resumo do estoque; o resumo de solicitações não possui uma história específica entre H1 e H6. |
 
 ### Situação das histórias H5 e H6
 
-- **H5 — Agendar doação (#75):** permanece em backlog. A funcionalidade de agendamento ainda não foi implementada e não possui PRs ou testes associados.
+- **H5 — Atender solicitações de sangue com bolsas compatíveis (#139):** concluída. A história cobre o cadastro, acompanhamento e atendimento das solicitações de sangue, incluindo reserva de bolsas compatíveis, conclusão, cancelamento e validações de disponibilidade, com critérios de aceite validados por testes automatizados no back-end e no front-end.
 - **H6 — Consultar doadores cadastrados (#76):** concluída. Os critérios de aceite foram validados com base na listagem de doadores, tratamento de lista vazia e de erros, integração com a API e testes automatizados da funcionalidade.
 
 ## Requisitos não funcionais
