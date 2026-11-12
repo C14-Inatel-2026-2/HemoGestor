@@ -32,7 +32,7 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 | H2 — Consultar o estoque por tipo sanguíneo | #66 | #82, #91, #100 | `frontend/src/pages/EstoquePage.test.tsx`, `frontend/src/pages/DashboardPage.test.tsx`, `frontend/src/utils/bolsa.test.ts`, `frontend/src/utils/dashboard.test.ts` |
 | H3 — Registrar uma nova doação | #70 | #69, #73, #78 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java`, `backend/src/test/java/br/inatel/model/DoacaoTest.java` |
 | H4 — Consultar histórico de doações | #72 | #74, #81 | `backend/src/test/java/br/inatel/controller/DoacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/DoacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/DoacaoIntegrationTest.java` |
-| H5 — Agendar doação | #75 | — | — |
+| H5 — Atender solicitações de sangue com bolsas compatíveis | #139 | #90, #105, #106, #118, #120, #123, #132, #134 | `backend/src/test/java/br/inatel/controller/SolicitacaoControllerTest.java`, `backend/src/test/java/br/inatel/service/SolicitacaoServiceTest.java`, `backend/src/test/java/br/inatel/integration/SolicitacaoIntegrationTest.java`, `frontend/src/pages/SolicitacoesPage.test.tsx`, `frontend/src/components/SolicitacaoForm.test.tsx`, `frontend/src/components/SolicitacaoDetalhes.test.tsx`, `frontend/src/services/solicitacaoService.test.ts`, `frontend/src/utils/solicitacao.test.ts` |
 | H6 — Consultar doadores cadastrados | #76 | #56, #64 | `frontend/src/services/doadorService.test.ts`, `frontend/src/pages/DoadoresPage.test.tsx` |
 
 ### Relação entre requisitos funcionais e histórias
