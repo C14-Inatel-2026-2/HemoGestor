@@ -51,7 +51,7 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 
 ### Situação das histórias H5 e H6
 
-- **H5 — Agendar doação (#75):** permanece em backlog. A funcionalidade de agendamento ainda não foi implementada e não possui PRs ou testes associados.
+- **H5 — Atender solicitações de sangue com bolsas compatíveis (#139):** concluída. A história cobre o cadastro, acompanhamento e atendimento das solicitações de sangue, incluindo reserva de bolsas compatíveis, conclusão, cancelamento e validações de disponibilidade, com critérios de aceite validados por testes automatizados no back-end e no front-end.
 - **H6 — Consultar doadores cadastrados (#76):** concluída. Os critérios de aceite foram validados com base na listagem de doadores, tratamento de lista vazia e de erros, integração com a API e testes automatizados da funcionalidade.
 
 ## Requisitos não funcionais
