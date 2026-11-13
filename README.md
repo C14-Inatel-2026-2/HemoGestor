@@ -280,3 +280,11 @@ Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organizaç
 - **Commits:** padrão Conventional Commits com escopo (por exemplo, `feat(frontend):`, `test(backend):` e `ci:`), com um commit por assunto.
 - **Pull requests:** todo PR é revisado por outro integrante antes do merge, e a descrição segue um modelo com resumo, o que foi feito, testes e como testar.
 - **Gestão do trabalho:** quadro Kanban no GitHub Projects, com tarefas e histórias de usuário registradas como issues e ligadas aos PRs por `Refs #número`.
+
+## Uso de Inteligência Artificial
+
+Durante o desenvolvimento do HemoGestor, ferramentas de Inteligência Artificial foram utilizadas como apoio técnico em diferentes etapas do projeto.
+
+A documentação completa dos prompts utilizados, respostas obtidas e aplicações no sistema está disponível em:
+
+➡️ [Documentação do uso de Inteligência Artificial](docs/uso-ia.md)
