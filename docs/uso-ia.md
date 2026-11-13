@@ -331,3 +331,297 @@ Para o HemoGestor, recomendo manter a classe `Doador` responsável pela represen
 O acesso ao MySQL deve permanecer concentrado no `DoadorRepository`, evitando o acoplamento direto entre as demais camadas e o banco de dados.
 
 Essa organização segue os princípios de responsabilidade única e baixo acoplamento, contribuindo para um código mais organizado, reutilizável, testável e de fácil manutenção.
+
+## 4. Organização da integração entre front-end e back-end
+
+**Prompt:**
+
+> Como eu posso organizar melhor a integração entre o front e o back do HemoGestor usando Axios, sem deixar toda a lógica concentrada em um lugar só?
+
+**Resposta:**
+
+Você pode organizar essa integração em camadas, deixando o Axios responsável apenas pela comunicação HTTP e distribuindo o restante da lógica entre arquivos específicos. No HemoGestor, uma estrutura adequada seria esta:
+
+### 1. Centralizar a configuração do Axios em `src/services/api.ts`
+
+Esse arquivo deve conter apenas a instância do Axios, com a `baseURL` configurada a partir da variável de ambiente.
+
+```ts
+import axios from 'axios'
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+})
+```
+
+Assim, nenhuma tela precisa saber diretamente qual é a URL do back-end.
+
+### 2. Criar um service para cada entidade
+
+Em vez de chamar `api.get()`, `api.post()` ou `api.delete()` diretamente dentro das páginas, você pode separar por responsabilidade:
+
+```text
+src/services/
+├── api.ts
+├── doadorService.ts
+├── doacaoService.ts
+├── bolsaService.ts
+└── solicitacaoService.ts
+```
+
+Por exemplo, em `doadorService.ts`:
+
+```ts
+import { api } from './api'
+import type { Doador } from '../types/doador'
+
+export function getDoadores() {
+  return api.get<Doador[]>('/doadores')
+}
+
+export function criarDoador(doador: Doador) {
+  return api.post('/doadores', doador)
+}
+
+export function atualizarDoador(id: number, doador: Doador) {
+  return api.put(`/doadores/${id}`, doador)
+}
+
+export function deletarDoador(id: number) {
+  return api.delete(`/doadores/${id}`)
+}
+```
+
+### 3. Deixar as páginas responsáveis pelo fluxo da interface
+
+A `DoadoresPage`, por exemplo, não precisa conhecer os detalhes do Axios. Ela apenas chama:
+
+```ts
+const resposta = await getDoadores()
+setDoadores(resposta.data)
+```
+
+ou:
+
+```ts
+await criarDoador(dados)
+await carregarDoadores()
+```
+
+Assim, a página fica responsável por estado, carregamento, mensagens e atualização da interface, enquanto o service cuida da comunicação com o back-end.
+
+### 4. Centralizar comportamentos repetidos em utilitários
+
+Se várias telas estiverem repetindo a mesma lógica para validar respostas da API ou extrair mensagens de erro, isso também pode ser retirado das páginas.
+
+Por exemplo, em um arquivo como:
+
+```text
+src/utils/erro.ts
+```
+
+você pode manter funções reutilizáveis, como:
+
+```ts
+export function obterMensagemErro(
+    erro: unknown,
+    mensagemPadrao: string,
+): string {
+    // tratamento do erro retornado pelo Axios
+}
+```
+
+O mesmo vale para validações de respostas em lista, evitando repetir esse código em `DoadoresPage`, `EstoquePage`, `SolicitacoesPage` e outras telas.
+
+A divisão final fica, portanto:
+
+```text
+Pages/Components
+      ↓
+Services
+      ↓
+api.ts (Axios)
+      ↓
+Spring Boot
+```
+
+E os utilitários ficam ao lado dessa estrutura para comportamentos compartilhados.
+
+No HemoGestor, essa separação é especialmente útil porque vocês possuem várias entidades — doadores, doações, bolsas e solicitações — e cada uma pode ter seu próprio service sem concentrar toda a integração em um único arquivo. Isso também facilita os testes, porque cada service pode ser mockado separadamente nas páginas e componentes.
+
+---
+
+## 5. Centralização do tratamento de erros da API
+
+**Prompt:**
+
+> Eu percebi que várias telas do front estão repetindo o tratamento de erros e a validação das respostas da API. Tem como centralizar isso em funções reutilizáveis sem mudar o comportamento da aplicação?
+
+**Resposta:**
+
+Sim. No HemoGestor, a melhor forma de fazer isso é retirar das páginas a lógica repetida de tratamento de erro e validação de respostas e colocá-la em um utilitário compartilhado.
+
+Por exemplo, você pode criar ou manter um arquivo como:
+
+```text
+src/utils/erro.ts
+```
+
+Nesse arquivo, podem ficar funções reutilizáveis como `obterMensagemErro` e `validarRespostaLista`.
+
+Para o tratamento de erros, uma função pode receber o erro retornado pela API e uma mensagem padrão:
+
+```ts
+import { AxiosError } from 'axios'
+
+export function obterMensagemErro(
+    erro: unknown,
+    mensagemPadrao: string,
+): string {
+    if (erro instanceof AxiosError) {
+        const mensagem = erro.response?.data?.erro
+
+        if (typeof mensagem === 'string') {
+            return mensagem
+        }
+    }
+
+    return mensagemPadrao
+}
+```
+
+Assim, em vez de cada tela repetir verificações de `AxiosError`, `response`, `data` e `erro`, ela pode simplesmente fazer:
+
+```ts
+catch (erro) {
+    setErro(
+        obterMensagemErro(
+            erro,
+            'Não foi possível cadastrar o doador.',
+        ),
+    )
+}
+```
+
+A mesma ideia pode ser usada para validar respostas que deveriam conter listas. Como várias telas do HemoGestor trabalham com coleções de doadores, doações, bolsas e solicitações, você pode centralizar essa verificação:
+
+```ts
+export function validarRespostaLista<T>(
+    dados: unknown,
+): T[] {
+    if (!Array.isArray(dados)) {
+        throw new Error('Resposta inválida da API')
+    }
+
+    return dados as T[]
+}
+```
+
+Depois, em uma página como `DoadoresPage`, em vez de validar manualmente:
+
+```ts
+const resposta = await getDoadores()
+const dados = validarRespostaLista<Doador>(resposta.data)
+
+setDoadores(dados)
+```
+
+A mesma função pode ser reutilizada em `EstoquePage`, `RegistrarDoacaoPage` e `SolicitacoesPage`.
+
+Essa mudança não precisa alterar o comportamento da aplicação. A ideia é apenas mover uma lógica que já existe para um lugar comum.
+
+A divisão fica mais ou menos assim:
+
+```text
+services/
+    api.ts
+    doadorService.ts
+    doacaoService.ts
+    bolsaService.ts
+    solicitacaoService.ts
+
+utils/
+    erro.ts
+```
+
+Os `services` continuam responsáveis pelas requisições HTTP, enquanto `erro.ts` concentra comportamentos compartilhados relacionados às respostas da API.
+
+No HemoGestor, isso é especialmente útil porque evita que cada página tenha sua própria versão do tratamento de erros e da validação de listas, reduzindo duplicação e facilitando futuras alterações.
+
+---
+
+## 6. Testes do front-end no Jenkins
+
+**Prompt:**
+
+> Os testes do front passam localmente, mas alguns estão dando timeout no Jenkins. Como eu posso ajustar o Vitest para deixar esses testes mais estáveis no CI?
+
+**Resposta:**
+
+Nesse caso, eu ajustaria a configuração do Vitest pensando especificamente no ambiente de CI, porque o Jenkins costuma ter menos recursos disponíveis e alguns testes podem levar mais tempo do que na execução local.
+
+No HemoGestor, você pode fazer isso no arquivo:
+
+```text
+frontend/vite.config.ts
+```
+
+Dentro da configuração de `test`, adicione um tempo maior para cada teste e limite a quantidade de workers:
+
+```ts
+test: {
+  globals: true,
+  environment: 'jsdom',
+  setupFiles: ['./src/setupTests.ts'],
+  testTimeout: 20000,
+  maxWorkers: 2,
+```
+
+O `testTimeout: 20000` aumenta o limite de execução de cada teste para 20 segundos. Isso ajuda nos testes de interface que usam `userEvent`, `findBy...` e outras operações assíncronas, que podem demorar mais dentro do Jenkins.
+
+Já o:
+
+```ts
+maxWorkers: 2
+```
+
+reduz a quantidade de testes executados em paralelo. Isso evita que o Jenkins tente usar muitos recursos ao mesmo tempo e deixe os testes mais lentos ou instáveis.
+
+No HemoGestor, a configuração pode ficar assim:
+
+```ts
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/setupTests.ts'],
+      testTimeout: 20000,
+      maxWorkers: 2,
+      coverage: {
+       provider: 'v8',
+       reporter: ['text', 'html', 'lcov', 'cobertura'],
+       reportsDirectory: './coverage',
+       reportOnFailure: true,
+       include: ['src/**/*.{ts,tsx}'],
+       exclude: ['src/**/*.test.{ts,tsx}', 'src/main.tsx',
+'src/setupTests.ts'],
+      },
+  },
+})
+```
+
+Depois da alteração, eu validaria primeiro localmente com:
+
+```bash
+npm run test:ci
+```
+
+O objetivo é confirmar que a suíte continua passando sem alterar o comportamento dos testes.
+
+Depois, a mesma branch pode ser executada no Jenkins. Se os testes que antes falhavam por `Test timed out in 5000ms` passarem, isso indica que o problema estava relacionado às condições do ambiente de CI, e não necessariamente à lógica dos testes.
+
+Essa alteração melhora a estabilidade da pipeline sem modificar a funcionalidade da aplicação nem remover testes; apenas adapta a forma como eles são executados no Jenkins.
