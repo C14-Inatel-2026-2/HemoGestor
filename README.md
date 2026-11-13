@@ -45,14 +45,9 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 | RF04 — Remover doador | Sem história específica | A remoção foi implementada na tela de Doadores, mas não possui uma história própria entre H1 e H6. |
 | RF05 — Registrar e consultar doações | H3, H4 | A H3 cobre o registro de doações e a H4 cobre a consulta do histórico. |
 | RF06 — Consultar bolsas por tipo sanguíneo, validade e situação | H2 | A H2 cobre a consulta do estoque e seus filtros. |
-| RF07 — Cadastrar solicitações de sangue | H5 | A H5 cobre o cadastro e o acompanhamento das solicitações de sangue. |
-| RF08 — Verificar compatibilidade e disponibilidade | H5 | A H5 cobre o atendimento das solicitações com seleção de bolsas compatíveis e disponíveis. |
+| RF07 — Cadastrar solicitações de sangue | H5 | A H5 cobre o cadastro, a listagem e o acompanhamento das solicitações. |
+| RF08 — Verificar compatibilidade e disponibilidade | H5 | A H5 cobre a seleção de bolsas compatíveis e disponíveis ao atender uma solicitação. |
 | RF09 — Exibir resumo do estoque e das solicitações | H2 | A H2 se relaciona ao resumo do estoque; o resumo de solicitações não possui uma história específica entre H1 e H6. |
-
-### Situação das histórias H5 e H6
-
-- **H5 — Atender solicitações de sangue com bolsas compatíveis (#139):** concluída. A história cobre o cadastro, acompanhamento e atendimento das solicitações de sangue, incluindo reserva de bolsas compatíveis, conclusão, cancelamento e validações de disponibilidade, com critérios de aceite validados por testes automatizados no back-end e no front-end.
-- **H6 — Consultar doadores cadastrados (#76):** concluída. Os critérios de aceite foram validados com base na listagem de doadores, tratamento de lista vazia e de erros, integração com a API e testes automatizados da funcionalidade.
 
 ## Requisitos não funcionais
 
