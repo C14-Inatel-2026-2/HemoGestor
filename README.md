@@ -263,12 +263,104 @@ Nesta etapa foram aplicados refactorings com o objetivo de melhorar a organizaç
 | Maria Luisa Barroso Silva | Integração (axios, services, CORS e contratos de dados) | [maria-luisa-bs](https://github.com/maria-luisa-bs) |
 | Luísa de Medeiros Salvadori | Back-end e banco de dados | [luisasalvadori](https://github.com/luisasalvadori) |
 
-## Fluxo de trabalho
 
-- **Branches:** a `main` recebe apenas código revisado. Cada integrante trabalha em branches de funcionalidade (`feat/...`, `fix/...`, `docs/...`) e nas branches de área (`dev-front`, `dev-back` e `dev-integration`).
-- **Commits:** padrão Conventional Commits com escopo (por exemplo, `feat(frontend):`, `test(backend):` e `ci:`), com um commit por assunto.
-- **Pull requests:** todo PR é revisado por outro integrante antes do merge, e a descrição segue um modelo com resumo, o que foi feito, testes e como testar.
-- **Gestão do trabalho:** quadro Kanban no GitHub Projects, com tarefas e histórias de usuário registradas como issues e ligadas aos PRs por `Refs #número`.
+## Metodologia de desenvolvimento
+
+O grupo adotou uma metodologia **híbrida baseada em Kanban**: o trabalho fluiu continuamente por um quadro no GitHub Projects, organizado em ciclos que acompanharam as entregas da disciplina (Etapas 1 a 6). Escolhemos Kanban em vez de Scrum porque o grupo tem três integrantes com horários diferentes, as entregas da disciplina já definiam os marcos, e o fluxo contínuo permitia que cada área (front-end, back-end e integração) avançasse no seu ritmo sem esperar o fim de uma sprint.
+
+### Papéis
+
+| Integrante | Papéis |
+|---|---|
+| Laura Fernanda | Product Owner e facilitadora (prioriza o backlog, escreve histórias, organiza o quadro e as entregas), design (protótipo de referência) e desenvolvimento front-end |
+| Luísa Salvadori | Desenvolvimento back-end e banco de dados (entidades, regras de negócio, endpoints e testes JUnit) |
+| Maria Luisa Barroso | Integração front-end/back-end (axios, services, contratos de dados, CORS) e CI/CD (Jenkins) |
+
+Não houve um QA dedicado: cada integrante escreve os testes automatizados da sua parte, e todas atuam como revisoras nos pull requests das colegas.
+
+### Cadência e ferramentas
+
+- **Ciclos:** um ciclo por entrega da disciplina (por exemplo, Entrega 2 até 11/09, Entrega 4 até 18/10, Entrega 5 até 31/10 e Entrega 6 até 13/11), com o backlog revisado e quebrado em issues no início de cada etapa.
+- **Reuniões:** não houve reuniões fixas; o alinhamento foi feito de forma assíncrona pelo WhatsApp e em conversas pontuais no início de cada entrega.
+- **Quadro:** GitHub Projects com as colunas Backlog, In Progress, In Review e Done, acessível ao monitor como leitor. Cada tarefa é uma issue com label (`feature`, `tests`, `ci-cd`, `story`, `documentation`) e responsável.
+- **Código e revisão:** GitHub (branches, pull requests e revisões).
+- **Integração contínua:** Jenkins, com stages de build e testes do back-end e do front-end e deploy com Docker.
+
+### Definição de Preparado (DoR)
+
+Uma issue entra em desenvolvimento quando tem:
+- descrição clara do que deve ser feito e, no caso de histórias, critérios de aceite no formato Dado/Quando/Então;
+- label e responsável definidos;
+- dependências conhecidas (por exemplo, endpoint ou contrato de dados já combinado).
+
+### Definição de Pronto (DoD)
+
+Uma tarefa está pronta quando:
+- o código está em um pull request com descrição no modelo do grupo (resumo, o que foi feito, testes e como testar);
+- os testes automatizados novos ou afetados foram escritos e passam localmente, junto com lint e build;
+- o PR foi revisado e aprovado por outra integrante;
+- a pipeline do Jenkins está verde após o merge;
+- a issue foi fechada e ligada ao PR (`Closes #número` ou `Refs #número`), e o README foi atualizado quando a mudança afeta instalação ou uso.
+
+### Métricas
+
+Dados extraídos do GitHub em 13/11/2026:
+
+| Métrica | Valor |
+|---|---|
+| Issues criadas | 67 (66 concluídas e 1 descartada como *not planned*) |
+| Pull requests | 76, todos integrados à `main` |
+| PRs por integrante | Laura 22, Luísa 25, Maria Luisa 29 |
+| Issues fechadas por mês | setembro: 1, outubro: 25, novembro: 41 |
+| PRs integrados por mês | setembro: 5, outubro: 31, novembro: 40 |
+| Lead time de PR (abertura → merge) | mediana de 3,5 h (média de 14,7 h) |
+| Lead time de issue (abertura → fechamento) | mediana de 4,7 dias (média de 8,8 dias) |
+| PRs com discussão em comentários | 32 (40 comentários no total) |
+| Commits por tipo | `feat` 131, `test` 126, `docs` 44, `refactor` 39, `fix` 29, `chore` 17, `ci` 8 |
+
+Como o grupo não trabalhou com sprints de duração fixa, não há gráfico de burndown; o acompanhamento foi feito pelo fluxo do quadro e pelas issues fechadas por período.
+
+## Dinâmica de desenvolvimento
+
+### Divisão de tarefas e decisões técnicas
+
+O trabalho foi dividido por camada desde a Entrega 2: front-end (Laura), back-end e banco de dados (Luísa) e integração e CI/CD (Maria Luisa). A integração foi planejada por entidade, na ordem Doadores → Doações → Estoque → Solicitações: para cada uma, o back-end criava a entidade e os endpoints, o front-end criava a tela e a integração ligava as duas partes.
+
+No início de cada entrega, a líder quebrava o enunciado em issues por fase e cada integrante revisava e completava as suas. As histórias de usuário seguiram a mesma dinâmica: cada integrante escreveu as histórias da sua área.
+
+Algumas decisões técnicas e como foram tomadas:
+- **MySQL em vez de PostgreSQL:** a Luísa, responsável pelo back-end, já conhecia o MySQL, e o grupo priorizou a ferramenta que dominava.
+- **Contrato de dados do doador:** front-end e back-end tinham campos diferentes (por exemplo, peso e formato do sexo). O grupo alinhou os dois lados na issue #4, com enumerações iguais para sexo e situação do doador.
+- **Campos obrigatórios:** tipo sanguíneo e data de nascimento passaram a ser obrigatórios no cadastro de doador depois de testes na interface, porque sem eles não é possível registrar uma doação.
+- **Um stage da pipeline por integrante:** definido depois de uma dúvida esclarecida com o monitor.
+
+Dúvidas sobre o enunciado (stages da pipeline, ferramenta de Kanban e commit do gerenciador de dependências) foram levadas ao monitor pelo Teams antes de implementar. As decisões internas foram combinadas pelo WhatsApp e registradas nas issues e nos PRs.
+
+### Branches, commits e code review
+
+- **Branches:** no começo, cada integrante criou uma branch com o mesmo nome (`dev`), e elas foram renomeadas para `dev-front`, `dev-back` e `dev-integration`. Depois, o grupo passou a usar branches curtas por assunto (`feat/...`, `fix/...`, `test/...`, `refactor/...`, `docs/...`, `ci/...`), criadas a partir da `main` atualizada.
+- **Commits:** Conventional Commits com escopo (`feat(frontend):`, `test(backend):`, `ci:`), um commit por assunto.
+- **Code review:** as revisões seguiam um rodízio entre as integrantes. A revisora lia o código, rodava os testes e, quando encontrava problemas, enviava uma lista de ajustes para a autora corrigir antes do merge. No quadro, a issue ia para **In Review** quando o PR era aberto e para **Done** depois do merge.
+
+### O que funcionou
+
+- A divisão por camada permitiu que front-end, back-end e integração avançassem em paralelo, sem uma integrante esperar pela outra.
+- O rodízio de revisões fez todas conhecerem partes do sistema além da própria.
+- Os testes automatizados e a pipeline detectaram problemas antes de chegarem à aplicação, como o build quebrado e a configuração errada dos testes.
+- Tirar dúvidas com o monitor antes de implementar evitou retrabalho nas entregas.
+
+### Bloqueios e como o grupo se reorganizou
+
+- **Pipeline vermelha no back-end:** com a entrada dos testes de integração, o build do back-end passou a falhar no Jenkins porque a variável `SPRING_DATASOURCE_URL` do container sobrescrevia a configuração H2 dos testes. O problema foi registrado na issue #135 e corrigido no PR #138.
+- **Branches longas por área:** as branches `dev-front`, `dev-back` e `dev-integration` ficaram muito diferentes da `main` e geraram conflitos. O grupo passou a usar branches curtas por assunto, criadas a partir da `main` atualizada.
+- **Testes dependentes de ambiente:** testes que dependiam de um MySQL local ou da data atual passaram a falhar fora da máquina de quem os escreveu. Eles foram ajustados para usar H2 (PR #132) e datas fixas (PR #137).
+- **Revisão de escopo:** a história de agendamento de doações (#75) foi descartada por não ter sido implementada, e o atendimento de solicitações, já entregue, ganhou uma história própria (#139).
+
+### Lições aprendidas
+
+- Definir o contrato de dados entre front-end e back-end antes de implementar as telas.
+- Tratar a pipeline verde como condição para o merge desde o início.
+- Começar cada entrega mais cedo, com ciclos de datas fixas, para não concentrar o trabalho perto do prazo.
 
 ## Uso de Inteligência Artificial
 
