@@ -738,3 +738,15 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 **Resposta (resumo):** apontou code smells no front-end (funções de data em módulos de domínio, estado de filtros duplicado nas telas, plural feito à mão, função genérica no módulo errado e respostas falsas da API copiadas nos testes) e propôs um refactoring para cada um, com testes.
 
 **Resultado: ajustada.** O código foi aplicado à mão, um commit por refactoring, e validado com lint, build e testes.
+
+### 14. Deploy externo da aplicação (13/11 e 14/11, Claude Opus 5.5 no Claude Code)
+
+**Prompt:**
+
+> agora eu posso fazer o deploy externo? o que falta para nos fazermos?
+
+(enviado junto com a orientação do monitor de que a aplicação precisa rodar fora da máquina do Jenkins, acessível por uma URL)
+
+**Resposta (resumo):** propôs publicar o back-end e o front-end no Render e o banco MySQL em um serviço externo, preparar o back-end para isso (origens do CORS e porta por variável de ambiente, com testes) e trocar o estágio Deploy do Jenkinsfile por chamadas aos deploy hooks do Render, guardados como credenciais do Jenkins, seguidas do health check das rotas públicas.
+
+**Resultado: ajustada.** O primeiro serviço sugerido para o banco não tinha plano gratuito de MySQL, e o grupo usou o Railway. A URL de conexão com o banco precisou ser corrigida depois de uma falha no primeiro deploy. As alterações do back-end foram aplicadas pela Laura no PR #145, e o novo estágio Deploy foi revisado e commitado pela Maria Luisa no PR #148. O build #17 do Jenkins publicou a aplicação com sucesso.
