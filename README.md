@@ -383,6 +383,7 @@ Dúvidas sobre o enunciado (stages da pipeline, ferramenta de Kanban e commit do
 | Maria Luisa | Estabilizar os testes do front-end no Jenkins | Aceita |
 | Laura | Gerar as issues da Entrega 4 | Ajustada: troca de PostgreSQL para MySQL |
 | Laura | Passar o trabalho para o Claude Code | Descartada: o código foi escrito à mão, passo a passo |
+| Laura | Fazer o deploy externo no Render e no Railway | Ajustada: troca do serviço do banco e correção da URL de conexão |
 
 **Dinâmica de uso:** cada integrante usou a IA individualmente, na sua área, como apoio de programação e de estudo. As sugestões eram aplicadas pela própria integrante e conferidas pelos testes, pela pipeline e pela revisão nos PRs.
 
