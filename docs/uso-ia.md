@@ -5,7 +5,7 @@ Durante o desenvolvimento do **HemoGestor**, foram utilizadas ferramentas de Int
 As ferramentas utilizadas foram:
 
 - **ChatGPT (OpenAI)** — modelo utilizado durante o desenvolvimento.
-- **[Nome da outra ferramenta]** — [Empresa desenvolvedora e versão/modelo utilizado].
+- **Claude (Anthropic)** — modelos Claude Sonnet 5, Claude Opus 5, Claude Sonnet 5.5 e Claude Opus 5.5 usados pelo claude.ai (chats organizados em um Projeto), pela ferramenta de design do Claude e pelo Claude Code no aplicativo desktop.
 
 A utilização dessas ferramentas teve como objetivo esclarecer dúvidas técnicas, fornecer exemplos de código, auxiliar na identificação e correção de erros e contribuir para a aplicação de boas práticas de Engenharia de Software.
 
@@ -625,3 +625,91 @@ O objetivo é confirmar que a suíte continua passando sem alterar o comportamen
 Depois, a mesma branch pode ser executada no Jenkins. Se os testes que antes falhavam por `Test timed out in 5000ms` passarem, isso indica que o problema estava relacionado às condições do ambiente de CI, e não necessariamente à lógica dos testes.
 
 Essa alteração melhora a estabilidade da pipeline sem modificar a funcionalidade da aplicação nem remover testes; apenas adapta a forma como eles são executados no Jenkins.
+
+---
+
+## 7. Uso de IA pela Laura (front-end, organização do projeto e revisões)
+
+Ferramenta: **Claude (Anthropic)**. Os chats de cada entrega foram organizados em um Projeto no claude.ai, e a partir de novembro o trabalho passou para o Claude Code, com acesso somente de leitura ao repositório.
+
+### 7.0 Protótipo das telas (início do projeto, Claude Design)
+
+O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoque e Solicitações) foi criado com a ferramenta de design do Claude, a partir da ideia do sistema de gerenciamento de banco de sangue desenvolvido anteriormente pelo grupo na disciplina de Programação Orientada a Objetos.
+
+**Prompt:** descrição do sistema de banco de sangue do projeto de POO, com as entidades e as funcionalidades que o HemoGestor deveria ter.
+
+**Resultado: ajustada.** O protótipo foi refinado em várias rodadas: a Laura indicava o que mudar no layout, nas cores, nos textos e na organização das telas até chegar ao resultado desejado. A versão final serviu de referência visual para a implementação das telas em React.
+
+### 7.1 Planejamento da integração por etapas (01/09, Claude Sonnet 5)
+
+**Prompt:**
+
+> explique de forma simples a lógica de passar informações do back-end pro front-end, ou seja, a parte de integração, explique como a gente pode fazer por etapas, se é possível fazermos por classe, tipo back-end de doadores, front-end de doadores e integração de doadores e explique qual seria a ordem correta.
+
+**Resposta (resumo):** explicou que front-end e back-end se comunicam por requisições HTTP com respostas em JSON e sugeriu integrar por entidade: primeiro o back-end cria a entidade e os endpoints, depois o front-end cria a tela, e por fim a integração liga as duas partes.
+
+**Resultado: aceita.** A sugestão virou a divisão de trabalho do grupo (front-end, back-end e integração) e a ordem Doadores → Doações → Estoque → Solicitações.
+
+### 7.2 Commits iniciais e arquivo de dependências (início de setembro, Claude Opus 5)
+
+**Prompt:**
+
+> eu preciso resetar meus commits, apagar, porque o push deve ser somente do arquivo gerenciador de dependências e não precisa das pastas.
+
+**Resposta (resumo):** desaconselhou apagar os commits e explicou que o enunciado pedia que um dos commits contivesse o arquivo de dependências, não que o commit tivesse só ele, e que o que não deve ser versionado é a pasta `node_modules`.
+
+**Resultado: aceita após confirmação.** Antes de seguir, a resposta foi confirmada com o monitor, e os commits foram mantidos.
+
+### 7.3 Criação das issues da Entrega 4 (09/10, Claude Opus 5.5)
+
+**Prompt:**
+
+> vou adicionar por issues, me ajude com o título e a descrição breve de cada um.
+
+**Resposta (resumo):** gerou as issues da pipeline divididas por fase e por integrante, com título e critério de pronto.
+
+**Resultado: ajustada.** As issues foram geradas considerando PostgreSQL, mas o grupo decidiu usar MySQL, que a Luísa já conhecia. Foi pedido o ajuste (*"a luisa vai usar o mysql ao inves do postgre, arrume o ultimo issue dela"*), e as issues foram revisadas antes de entrarem no quadro.
+
+### 7.4 Sugestão de passar o trabalho para o Claude Code (28/10, Claude Sonnet 5.5)
+
+**Prompt:**
+
+> uma pergunta, poderíamos passar isso tudo para o claude code?
+
+**Resposta (resumo):** explicou que o Claude Code poderia trabalhar direto no repositório, fazendo as alterações e os commits.
+
+**Resultado: descartada.** A opção de deixar a IA alterar os arquivos foi recusada (*"nao quero fazer dessa forma, quero que você me ajude a criar e escrever os conteúdos nos arquivos passo a passo"*). A partir daí, a IA passou o conteúdo de cada passo, e a Laura escreveu, testou e commitou cada alteração.
+
+### 7.5 Diagnóstico da pipeline quebrada (11/11, Claude Opus 5.5 no Claude Code)
+
+**Prompt:**
+
+> bom, acabei de rodar os testes, antes de começar o refactoring e a pipeline quebrou no back, na build o back, mas a build do front esta funcionando normal. eu sigo para o refactoring ou devo fazer alguma coisa a respeito da build do back?
+
+**Resposta (resumo):** analisou o log do Jenkins e identificou que a variável `SPRING_DATASOURCE_URL` do container sobrescrevia a configuração H2 dos testes, e propôs rodar o Maven com `env -u SPRING_DATASOURCE_URL` nos stages de build e testes do back-end.
+
+**Resultado: aceita.** O problema foi registrado na issue #135 para a Maria Luisa, que aplicou a correção no PR #138. A pipeline voltou a ficar verde.
+
+### 7.6 Refactorings da Entrega 6 (11/11, Claude Opus 5.5 no Claude Code)
+
+**Prompt:**
+
+> me ajude a fazer a minha parte agora.
+
+(enviado junto com o enunciado da Entrega 6, que pede pelo menos 2 refactorings por integrante)
+
+**Resposta (resumo):** apontou code smells no front-end (funções de data em módulos de domínio, estado de filtros duplicado nas telas, plural feito à mão, função genérica no módulo errado e respostas falsas da API copiadas nos testes) e propôs um refactoring para cada um, com testes.
+
+**Resultado: ajustada.** O código foi aplicado à mão, um commit por refactoring, e validado com lint, build e testes.
+
+### Dinâmica de uso
+
+- Uso individual, como um par de programação: a IA explicava, propunha o código e a mensagem de commit, e a Laura escrevia, testava e commitava cada passo.
+- No Claude Code, a IA tinha permissão apenas para ler o repositório e validar em cópias temporárias; nenhum arquivo do projeto foi alterado diretamente por ela.
+- A IA também foi usada para revisar PRs das colegas antes da aprovação, escrever descrições de PRs e issues e organizar o README. As aprovações e os merges foram feitos pela Laura.
+
+### O que não foi feito por IA
+
+- Commits, pushes, merges e aprovações de PRs.
+- Decisões de escopo e de prioridade (por exemplo, a troca da história H5 e a escolha dos refactorings).
+- Testes manuais das telas no navegador e a conferência da pipeline no Jenkins.
