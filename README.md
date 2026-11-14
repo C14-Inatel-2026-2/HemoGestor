@@ -309,7 +309,7 @@ Dados extraídos do GitHub em 13/11/2026:
 | Métrica | Valor |
 |---|---|
 | Issues criadas | 67 (66 concluídas e 1 descartada como *not planned*) |
-| Pull requests | 76, todos revisados e integrados à `main` |
+| Pull requests | 76, todos integrados à `main` |
 | PRs por integrante | Laura 22, Luísa 25, Maria Luisa 29 |
 | Issues fechadas por mês | setembro: 1, outubro: 25, novembro: 41 |
 | PRs integrados por mês | setembro: 5, outubro: 31, novembro: 40 |
@@ -334,7 +334,7 @@ Algumas decisões técnicas e como foram tomadas:
 - **Campos obrigatórios:** tipo sanguíneo e data de nascimento passaram a ser obrigatórios no cadastro de doador depois de testes na interface, porque sem eles não é possível registrar uma doação.
 - **Um stage da pipeline por integrante:** definido depois de uma dúvida esclarecida com o monitor.
 
-Dúvidas sobre o enunciado (stages da pipeline, ferramenta de Kanban e commit do gerenciador de dependências) foram levadas ao monitor pelo Teams antes de implementar. As decisões internas foram combinadas [confirmar: canal — ex.: no grupo de mensagens] e registradas nas issues e nos PRs.
+Dúvidas sobre o enunciado (stages da pipeline, ferramenta de Kanban e commit do gerenciador de dependências) foram levadas ao monitor pelo Teams antes de implementar. As decisões internas foram combinadas pelo WhatsApp e registradas nas issues e nos PRs.
 
 ### Branches, commits e code review
 
