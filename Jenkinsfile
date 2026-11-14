@@ -76,38 +76,47 @@ pipeline {
         }
 
         stage('Deploy') {
-            steps {
-                sh 'cp .env.example .env'
+            environment {
+                BACK_URL = 'https://hemogestor-api.onrender.com'
+                FRONT_URL = 'https://hemogestor.onrender.com'
+            }
 
-                sh 'docker compose -p hemogestor up -d --build mysql backend frontend'
+            steps {
+                withCredentials([
+                    string(credentialsId: 'render-deploy-hook-back', variable: 'RENDER_HOOK_BACK'),
+                    string(credentialsId: 'render-deploy-hook-front', variable: 'RENDER_HOOK_FRONT')
+                ]) {
+                    sh '''
+                        curl -fsS -X POST "$RENDER_HOOK_BACK" > /dev/null
+                        echo "Deploy do backend solicitado ao Render."
+
+                        curl -fsS -X POST "$RENDER_HOOK_FRONT" > /dev/null
+                        echo "Deploy do frontend solicitado ao Render."
+                    '''
+                }
 
                 sh '''
-                    BASE_URL=""
+                    BACK_OK=""
 
-                    for i in $(seq 1 30); do
-                        if curl -fs http://backend:8080/api/health > /dev/null; then
-                            BASE_URL="http://backend:8080"
+                    for i in $(seq 1 40); do
+                        if curl -fs "$BACK_URL/api/health" > /dev/null; then
+                            BACK_OK="sim"
                             break
                         fi
 
-                        if curl -fs http://host.docker.internal:8081/api/health > /dev/null; then
-                            BASE_URL="http://host.docker.internal:8081"
-                            break
-                        fi
-
-                        echo "Aguardando o backend subir... ($i/30)"
-                        sleep 5
+                        echo "Aguardando o backend no Render... ($i/40)"
+                        sleep 15
                     done
 
-                    if [ -z "$BASE_URL" ]; then
-                        echo "O backend não respondeu ao health check."
+                    if [ -z "$BACK_OK" ]; then
+                        echo "O backend publicado não respondeu ao health check."
                         exit 1
                     fi
 
-                    echo "Backend disponível em $BASE_URL"
+                    echo "Backend publicado em $BACK_URL"
 
                     for rota in doadores doacoes bolsas solicitacoes; do
-                        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/$rota")
+                        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACK_URL/$rota")
 
                         if [ "$STATUS" -ne 200 ]; then
                             echo "Falha na rota GET /$rota: HTTP $STATUS"
@@ -117,9 +126,17 @@ pipeline {
                         echo "GET /$rota: HTTP 200"
                     done
 
+                    STATUS_FRONT=$(curl -s -o /dev/null -w "%{http_code}" "$FRONT_URL/")
+
+                    if [ "$STATUS_FRONT" -ne 200 ]; then
+                        echo "O frontend publicado respondeu HTTP $STATUS_FRONT"
+                        exit 1
+                    fi
+
                     echo ""
-                    echo "Todas as rotas principais responderam corretamente."
-                    echo "Aplicação no ar: frontend em http://localhost:5173"
+                    echo "Aplicação publicada:"
+                    echo "Frontend: $FRONT_URL"
+                    echo "Backend:  $BACK_URL"
                 '''
             }
         }
