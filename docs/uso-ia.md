@@ -11,8 +11,26 @@ A utilização dessas ferramentas teve como objetivo esclarecer dúvidas técnic
 
 A seguir, estão registrados os prompts utilizados e as respectivas respostas fornecidas pelas ferramentas, incluindo explicações técnicas, sugestões de implementação e exemplos de código que auxiliaram no desenvolvimento do sistema.
 
+## Dinâmica de uso do grupo
 
-## 1. Teste de integração da classe BolsaSangue com MySQL
+- Cada integrante usou a IA individualmente, como apoio de programação e de estudo, na sua área: back-end e banco de dados (Luísa), integração e CI/CD (Maria Luisa) e front-end (Laura).
+- A IA explicava conceitos, sugeria a implementação e ajudava a diagnosticar erros; cada integrante aplicava as sugestões no próprio código, testava e fazia os commits.
+- As respostas foram conferidas antes de entrar no projeto: pelos testes automatizados, pela pipeline no Jenkins e pela revisão das colegas nos pull requests.
+- No caso da Laura, o Claude Code teve permissão apenas para ler o repositório e validar em cópias temporárias; nenhum arquivo do projeto foi alterado diretamente pela IA.
+
+## O que não foi feito por IA
+
+- Commits, pushes, merges e aprovações de pull requests.
+- Decisões de escopo e de prioridade (por exemplo, a troca da história H5 e a escolha dos refactorings).
+- Testes manuais das telas no navegador e a conferência da pipeline no Jenkins.
+
+Cada prompt abaixo segue o mesmo formato: **Prompt** (texto enviado), **Resposta** (o que a IA respondeu) e **Resultado** (se a resposta foi aceita, ajustada ou descartada).
+
+---
+
+## Luísa — back-end e banco de dados
+
+### 1. Teste de integração da classe BolsaSangue com MySQL
 
 **Prompt:**
 
@@ -22,7 +40,7 @@ A seguir, estão registrados os prompts utilizados e as respectivas respostas fo
 
 Para realizar um teste de integração entre a classe `BolsaSangue` e o banco de dados MySQL no projeto HemoGestor, recomendo utilizar o JUnit 5, juntamente com o Spring Boot Test e o Spring Data JPA, que permitem verificar a comunicação entre as entidades, os repositórios e a camada de serviço da aplicação.
 
-### 1. Criar a classe de teste de integração
+#### 1. Criar a classe de teste de integração
 
 Inicialmente, crie a classe `BolsaSangueIntegrationTest` no pacote `br.inatel.integration`, dentro do diretório de testes do projeto.
 
@@ -35,7 +53,7 @@ Em seguida, utilize `@Autowired` para injetar os seguintes componentes:
 - `DoadorRepository`: responsável pelo armazenamento dos dados dos doadores.
 - `BolsaSangueService`: responsável pelas operações de consulta das bolsas sanguíneas.
 
-### 2. Configurar a preparação dos testes
+#### 2. Configurar a preparação dos testes
 
 Implemente um método chamado `setUp()`, utilizando a anotação `@BeforeEach`, para realizar a limpeza dos registros antes da execução de cada teste.
 
@@ -50,7 +68,7 @@ void setUp() {
 
 Essa configuração garante que os testes sejam executados sem interferência de registros anteriores. Recomendo utilizar um banco de dados exclusivo para testes, evitando a exclusão de informações do ambiente de desenvolvimento.
 
-### 3. Implementar o teste de listagem de bolsas sanguíneas
+#### 3. Implementar o teste de listagem de bolsas sanguíneas
 
 Crie o método `listarBolsasSalvas()`, utilizando a anotação `@Test`.
 
@@ -74,7 +92,7 @@ assertEquals("A+", resultado.getFirst().getTipoSanguineo());
 
 Essas instruções permitirão verificar se o sistema recupera corretamente a bolsa cadastrada e se o tipo sanguíneo permanece consistente após a persistência.
 
-### 4. Implementar o teste de filtragem por situação
+#### 4. Implementar o teste de filtragem por situação
 
 Crie um segundo método, denominado `filtrarBolsasPorSituacao()`, também utilizando a anotação `@Test`.
 
@@ -99,7 +117,7 @@ assertEquals(
 
 Essas verificações permitirão confirmar se o método retorna a quantidade esperada de bolsas e se a situação recuperada corresponde ao filtro aplicado.
 
-### 5. Resultado esperado
+#### 5. Resultado esperado
 
 Ao concluir a implementação, você terá dois testes de integração responsáveis por validar operações essenciais da classe `BolsaSangue`:
 
@@ -110,9 +128,11 @@ Esses testes ajudarão a garantir que os relacionamentos entre `Doador`, `Doacao
 
 Com isso, o HemoGestor contará com uma validação automatizada das operações de listagem e filtragem de bolsas sanguíneas, contribuindo para a confiabilidade e a manutenção do sistema.
 
+**Resultado: aceita.** A estrutura sugerida foi aplicada na classe `BolsaSangueIntegrationTest`, com a preparação dos dados antes de cada teste e os testes de listagem e de filtragem por situação.
+
 ---
 
-## 2. Utilização de enumerações para atributos com valores predefinidos
+### 2. Utilização de enumerações para atributos com valores predefinidos
 
 **Prompt:**
 
@@ -124,7 +144,7 @@ Para definir valores pré-estabelecidos para os atributos de uma classe no proje
 
 Uma enumeração permite estabelecer um conjunto fixo de valores que determinado atributo pode assumir, evitando o armazenamento de informações inválidas e garantindo maior consistência dos dados.
 
-### 1. Criar uma enumeração para o atributo sexo
+#### 1. Criar uma enumeração para o atributo sexo
 
 Inicialmente, crie um pacote chamado `enumeracao` dentro de `br.inatel`, caso ainda não exista.
 
@@ -142,7 +162,7 @@ public enum Sexo {
 
 Dessa forma, o atributo poderá receber apenas um dos três valores definidos na enumeração.
 
-### 2. Utilizar a enumeração na classe Doador
+#### 2. Utilizar a enumeração na classe Doador
 
 Na classe `Doador`, substitua o tipo `String` do atributo `sexo` pelo tipo `Sexo`.
 
@@ -159,7 +179,7 @@ A anotação `@Enumerated(EnumType.STRING)` é importante para a integração co
 
 Por exemplo, o valor `FEMININO` será armazenado como `"FEMININO"`.
 
-### 3. Definir o sexo ao cadastrar um doador
+#### 3. Definir o sexo ao cadastrar um doador
 
 Ao criar um objeto da classe `Doador`, utilize os valores da enumeração para definir o atributo:
 
@@ -174,7 +194,7 @@ Caso seja necessário definir outro valor, basta utilizar `Sexo.MASCULINO` ou `S
 
 Isso evita que sejam atribuídos valores diferentes daqueles estabelecidos pela aplicação.
 
-### 4. Considerações sobre a validação
+#### 4. Considerações sobre a validação
 
 É importante destacar que a utilização de `enum` impede a atribuição direta de valores não definidos na enumeração, mas não impede, por si só, que um atributo receba `null`.
 
@@ -184,7 +204,7 @@ Além disso, caso os valores sejam recebidos por uma API REST, o Spring Boot pod
 
 Valores inexistentes resultarão em erro de conversão, que poderá ser tratado pela aplicação.
 
-### Conclusão
+#### Conclusão
 
 A utilização de enumerações (`enum`) é uma solução adequada para definir atributos com valores pré-estabelecidos no HemoGestor.
 
@@ -192,9 +212,11 @@ Essa abordagem contribui para a padronização dos dados, reduz a possibilidade 
 
 Além disso, a combinação de enumerações com `@Enumerated(EnumType.STRING)` permite integrar esses atributos ao MySQL de maneira organizada e legível, favorecendo a manutenção e a evolução do projeto.
 
+**Resultado: aceita.** As enumerações foram adotadas para atributos com valores fixos, como o sexo e a situação do doador, e armazenadas como texto no banco com `@Enumerated(EnumType.STRING)`.
+
 ---
 
-## 3. Separação de responsabilidades entre Model, Service e Controller
+### 3. Separação de responsabilidades entre Model, Service e Controller
 
 **Prompt:**
 
@@ -208,7 +230,7 @@ Essa abordagem permite dividir as funcionalidades da aplicação de acordo com s
 
 Utilizando a classe `Doador` como exemplo, a organização pode ser realizada da seguinte maneira:
 
-### 1. Model — Representação da entidade e suas regras
+#### 1. Model — Representação da entidade e suas regras
 
 A camada Model deve representar os dados do doador e os comportamentos diretamente relacionados à entidade.
 
@@ -225,7 +247,7 @@ A classe também deve conter as anotações JPA necessárias para o mapeamento c
 
 Importante: a entidade não deve ser responsável por receber requisições HTTP ou executar diretamente consultas no banco de dados.
 
-### 2. Repository — Acesso ao banco de dados
+#### 2. Repository — Acesso ao banco de dados
 
 Embora a dúvida esteja relacionada às três camadas principais, recomendo manter também uma camada Repository, responsável exclusivamente pelo acesso aos dados.
 
@@ -244,7 +266,7 @@ public interface DoadorRepository
 
 Essa interface disponibiliza operações como `save()`, `findAll()`, `findById()` e `deleteById()`, sem a necessidade de implementar manualmente os comandos SQL básicos.
 
-### 3. Service — Regras de negócio e coordenação das operações
+#### 3. Service — Regras de negócio e coordenação das operações
 
 A camada Service deve concentrar a lógica necessária para executar as funcionalidades do sistema, coordenando as entidades e os repositórios.
 
@@ -283,7 +305,7 @@ Por exemplo, antes de cadastrar um doador, o Service pode verificar se já exist
 
 Entretanto, métodos que representam comportamentos internos da entidade, como `verificarApto()`, podem continuar no Model e ser chamados pelo Service quando necessário.
 
-### 4. Controller — Comunicação com a API REST
+#### 4. Controller — Comunicação com a API REST
 
 A camada Controller deve ser responsável por receber as requisições HTTP, encaminhá-las para o Service e retornar as respostas adequadas.
 
@@ -315,7 +337,7 @@ Nesse exemplo, o Controller não acessa diretamente o banco de dados e não impl
 
 Em uma implementação mais completa, também é recomendável utilizar `ResponseEntity` para controlar os códigos HTTP e DTOs para definir os dados recebidos e retornados pela API.
 
-### 5. Resumo das responsabilidades
+#### 5. Resumo das responsabilidades
 
 | Camada | Responsabilidade |
 |---|---|
@@ -324,7 +346,7 @@ Em uma implementação mais completa, também é recomendável utilizar `Respons
 | Service | Coordenar as funcionalidades, aplicar regras de negócio e utilizar os repositórios. |
 | Controller | Receber requisições HTTP e retornar respostas da API REST. |
 
-### Conclusão
+#### Conclusão
 
 Para o HemoGestor, recomendo manter a classe `Doador` responsável pela representação dos dados e por seus comportamentos internos, a classe `DoadorService` responsável pela coordenação das operações e a classe `DoadorController` responsável pela comunicação com o front-end.
 
@@ -332,7 +354,13 @@ O acesso ao MySQL deve permanecer concentrado no `DoadorRepository`, evitando o 
 
 Essa organização segue os princípios de responsabilidade única e baixo acoplamento, contribuindo para um código mais organizado, reutilizável, testável e de fácil manutenção.
 
-## 4. Organização da integração entre front-end e back-end
+**Resultado: aceita.** A separação entre Model, Repository, Service e Controller foi mantida em todo o back-end, com as regras de negócio concentradas nos services.
+
+---
+
+## Maria Luisa — integração e CI/CD
+
+### 4. Organização da integração entre front-end e back-end
 
 **Prompt:**
 
@@ -342,7 +370,7 @@ Essa organização segue os princípios de responsabilidade única e baixo acopl
 
 Você pode organizar essa integração em camadas, deixando o Axios responsável apenas pela comunicação HTTP e distribuindo o restante da lógica entre arquivos específicos. No HemoGestor, uma estrutura adequada seria esta:
 
-### 1. Centralizar a configuração do Axios em `src/services/api.ts`
+#### 1. Centralizar a configuração do Axios em `src/services/api.ts`
 
 Esse arquivo deve conter apenas a instância do Axios, com a `baseURL` configurada a partir da variável de ambiente.
 
@@ -356,7 +384,7 @@ export const api = axios.create({
 
 Assim, nenhuma tela precisa saber diretamente qual é a URL do back-end.
 
-### 2. Criar um service para cada entidade
+#### 2. Criar um service para cada entidade
 
 Em vez de chamar `api.get()`, `api.post()` ou `api.delete()` diretamente dentro das páginas, você pode separar por responsabilidade:
 
@@ -392,7 +420,7 @@ export function deletarDoador(id: number) {
 }
 ```
 
-### 3. Deixar as páginas responsáveis pelo fluxo da interface
+#### 3. Deixar as páginas responsáveis pelo fluxo da interface
 
 A `DoadoresPage`, por exemplo, não precisa conhecer os detalhes do Axios. Ela apenas chama:
 
@@ -410,7 +438,7 @@ await carregarDoadores()
 
 Assim, a página fica responsável por estado, carregamento, mensagens e atualização da interface, enquanto o service cuida da comunicação com o back-end.
 
-### 4. Centralizar comportamentos repetidos em utilitários
+#### 4. Centralizar comportamentos repetidos em utilitários
 
 Se várias telas estiverem repetindo a mesma lógica para validar respostas da API ou extrair mensagens de erro, isso também pode ser retirado das páginas.
 
@@ -449,13 +477,12 @@ E os utilitários ficam ao lado dessa estrutura para comportamentos compartilhad
 
 No HemoGestor, essa separação é especialmente útil porque vocês possuem várias entidades — doadores, doações, bolsas e solicitações — e cada uma pode ter seu próprio service sem concentrar toda a integração em um único arquivo. Isso também facilita os testes, porque cada service pode ser mockado separadamente nas páginas e componentes.
 
-### Resultado do Prompt 4
 
 **Resultado: aceita.** A organização sugerida foi aplicada na integração entre front-end e back-end. A configuração do Axios foi centralizada, os serviços foram separados por entidade e as páginas passaram a utilizar esses services para realizar as requisições, mantendo a lógica de comunicação com a API fora dos componentes de interface.
 
 ---
 
-## 5. Centralização do tratamento de erros da API
+### 5. Centralização do tratamento de erros da API
 
 **Prompt:**
 
@@ -552,13 +579,12 @@ Os `services` continuam responsáveis pelas requisições HTTP, enquanto `erro.t
 
 No HemoGestor, isso é especialmente útil porque evita que cada página tenha sua própria versão do tratamento de erros e da validação de listas, reduzindo duplicação e facilitando futuras alterações.
 
-### Resultado do Prompt 5
 
 **Resultado: aceita.** A sugestão foi aplicada por meio da centralização de comportamentos repetidos em funções reutilizáveis, como `obterMensagemErro` e `validarRespostaLista`. Isso permitiu reduzir duplicação no tratamento de erros e na validação das respostas da API em diferentes telas do front-end.
 
 ---
 
-## 6. Testes do front-end no Jenkins
+### 6. Testes do front-end no Jenkins
 
 **Prompt:**
 
@@ -634,17 +660,16 @@ Depois, a mesma branch pode ser executada no Jenkins. Se os testes que antes fal
 
 Essa alteração melhora a estabilidade da pipeline sem modificar a funcionalidade da aplicação nem remover testes; apenas adapta a forma como eles são executados no Jenkins.
 
-### Resultado do Prompt 6
 
 **Resultado: aceita.** As configurações `testTimeout: 20000` e `maxWorkers: 2` foram adicionadas ao Vitest para tornar a execução dos testes mais estável no ambiente do Jenkins. Após a alteração, os testes do front-end passaram corretamente no ambiente de CI e a pipeline foi executada com sucesso.
 
 ---
 
-## 7. Uso de IA pela Laura (front-end, organização do projeto e revisões)
+## Laura — front-end, design e organização do projeto
 
 Ferramenta: **Claude (Anthropic)**. Os chats de cada entrega foram organizados em um Projeto no claude.ai, e a partir de novembro o trabalho passou para o Claude Code, com acesso somente de leitura ao repositório.
 
-### 7.0 Protótipo das telas (início do projeto, Claude Design)
+### 7. Protótipo das telas (início do projeto, Claude Design)
 
 O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoque e Solicitações) foi criado com a ferramenta de design do Claude, a partir da ideia do sistema de gerenciamento de banco de sangue desenvolvido anteriormente pelo grupo na disciplina de Programação Orientada a Objetos.
 
@@ -652,7 +677,7 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 
 **Resultado: ajustada.** O protótipo foi refinado em várias rodadas: a Laura indicava o que mudar no layout, nas cores, nos textos e na organização das telas até chegar ao resultado desejado. A versão final serviu de referência visual para a implementação das telas em React.
 
-### 7.1 Planejamento da integração por etapas (01/09, Claude Sonnet 5)
+### 8. Planejamento da integração por etapas (01/09, Claude Sonnet 5)
 
 **Prompt:**
 
@@ -662,7 +687,7 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 
 **Resultado: aceita.** A sugestão virou a divisão de trabalho do grupo (front-end, back-end e integração) e a ordem Doadores → Doações → Estoque → Solicitações.
 
-### 7.2 Commits iniciais e arquivo de dependências (início de setembro, Claude Opus 5)
+### 9. Commits iniciais e arquivo de dependências (início de setembro, Claude Opus 5)
 
 **Prompt:**
 
@@ -672,7 +697,7 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 
 **Resultado: aceita após confirmação.** Antes de seguir, a resposta foi confirmada com o monitor, e os commits foram mantidos.
 
-### 7.3 Criação das issues da Entrega 4 (09/10, Claude Opus 5.5)
+### 10. Criação das issues da Entrega 4 (09/10, Claude Opus 5.5)
 
 **Prompt:**
 
@@ -682,7 +707,7 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 
 **Resultado: ajustada.** As issues foram geradas considerando PostgreSQL, mas o grupo decidiu usar MySQL, que a Luísa já conhecia. Foi pedido o ajuste (*"a luisa vai usar o mysql ao inves do postgre, arrume o ultimo issue dela"*), e as issues foram revisadas antes de entrarem no quadro.
 
-### 7.4 Sugestão de passar o trabalho para o Claude Code (28/10, Claude Sonnet 5.5)
+### 11. Sugestão de passar o trabalho para o Claude Code (28/10, Claude Sonnet 5.5)
 
 **Prompt:**
 
@@ -692,7 +717,7 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 
 **Resultado: descartada.** A opção de deixar a IA alterar os arquivos foi recusada (*"nao quero fazer dessa forma, quero que você me ajude a criar e escrever os conteúdos nos arquivos passo a passo"*). A partir daí, a IA passou o conteúdo de cada passo, e a Laura escreveu, testou e commitou cada alteração.
 
-### 7.5 Diagnóstico da pipeline quebrada (11/11, Claude Opus 5.5 no Claude Code)
+### 12. Diagnóstico da pipeline quebrada (11/11, Claude Opus 5.5 no Claude Code)
 
 **Prompt:**
 
@@ -702,7 +727,7 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 
 **Resultado: aceita.** O problema foi registrado na issue #135 para a Maria Luisa, que aplicou a correção no PR #138. A pipeline voltou a ficar verde.
 
-### 7.6 Refactorings da Entrega 6 (11/11, Claude Opus 5.5 no Claude Code)
+### 13. Refactorings da Entrega 6 (11/11, Claude Opus 5.5 no Claude Code)
 
 **Prompt:**
 
@@ -713,15 +738,3 @@ O protótipo navegável das telas (Login, Dashboard, Doadores, Doações, Estoqu
 **Resposta (resumo):** apontou code smells no front-end (funções de data em módulos de domínio, estado de filtros duplicado nas telas, plural feito à mão, função genérica no módulo errado e respostas falsas da API copiadas nos testes) e propôs um refactoring para cada um, com testes.
 
 **Resultado: ajustada.** O código foi aplicado à mão, um commit por refactoring, e validado com lint, build e testes.
-
-### Dinâmica de uso
-
-- Uso individual, como um par de programação: a IA explicava, propunha o código e a mensagem de commit, e a Laura escrevia, testava e commitava cada passo.
-- No Claude Code, a IA tinha permissão apenas para ler o repositório e validar em cópias temporárias; nenhum arquivo do projeto foi alterado diretamente por ela.
-- A IA também foi usada para revisar PRs das colegas antes da aprovação, escrever descrições de PRs e issues e organizar o README. As aprovações e os merges foram feitos pela Laura.
-
-### O que não foi feito por IA
-
-- Commits, pushes, merges e aprovações de PRs.
-- Decisões de escopo e de prioridade (por exemplo, a troca da história H5 e a escolha dos refactorings).
-- Testes manuais das telas no navegador e a conferência da pipeline no Jenkins.

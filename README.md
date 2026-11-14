@@ -364,8 +364,21 @@ Dúvidas sobre o enunciado (stages da pipeline, ferramenta de Kanban e commit do
 
 ## Uso de Inteligência Artificial
 
-Durante o desenvolvimento do HemoGestor, ferramentas de Inteligência Artificial foram utilizadas como apoio técnico em diferentes etapas do projeto.
+**Modelos utilizados:** ChatGPT (OpenAI), pela Luísa e pela Maria Luisa, e Claude (Anthropic: Sonnet 5, Opus 5, Sonnet 5.5 e Opus 5.5), pela Laura, pelo claude.ai, pela ferramenta de design do Claude e pelo Claude Code.
 
-A documentação completa dos prompts utilizados, respostas obtidas e aplicações no sistema está disponível em:
+**Para quê:** criação do protótipo de telas, explicação de conceitos, planejamento da integração, sugestões de implementação e de testes, diagnóstico de erros na pipeline, refactoring, revisão de PRs e documentação.
 
-➡️ [Documentação do uso de Inteligência Artificial](docs/uso-ia.md)
+**Exemplos de prompts e resultado:**
+
+| Integrante | Prompt (resumo) | Resultado |
+|---|---|---|
+| Luísa | Teste de integração da `BolsaSangue` com MySQL | Aceita |
+| Maria Luisa | Estabilizar os testes do front-end no Jenkins | Aceita |
+| Laura | Gerar as issues da Entrega 4 | Ajustada: troca de PostgreSQL para MySQL |
+| Laura | Passar o trabalho para o Claude Code | Descartada: o código foi escrito à mão, passo a passo |
+
+**Dinâmica de uso:** cada integrante usou a IA individualmente, na sua área, como apoio de programação e de estudo. As sugestões eram aplicadas pela própria integrante e conferidas pelos testes, pela pipeline e pela revisão nos PRs.
+
+**O que não foi feito por IA:** commits, merges, aprovações de PRs, decisões de escopo e testes manuais das telas.
+
+Os prompts completos, as respostas e o resultado de cada um estão em [docs/uso-ia.md](docs/uso-ia.md).
