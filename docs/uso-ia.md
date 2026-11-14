@@ -449,6 +449,10 @@ E os utilitários ficam ao lado dessa estrutura para comportamentos compartilhad
 
 No HemoGestor, essa separação é especialmente útil porque vocês possuem várias entidades — doadores, doações, bolsas e solicitações — e cada uma pode ter seu próprio service sem concentrar toda a integração em um único arquivo. Isso também facilita os testes, porque cada service pode ser mockado separadamente nas páginas e componentes.
 
+### Resultado do Prompt 4
+
+**Resultado: aceita.** A organização sugerida foi aplicada na integração entre front-end e back-end. A configuração do Axios foi centralizada, os serviços foram separados por entidade e as páginas passaram a utilizar esses services para realizar as requisições, mantendo a lógica de comunicação com a API fora dos componentes de interface.
+
 ---
 
 ## 5. Centralização do tratamento de erros da API
@@ -548,6 +552,10 @@ Os `services` continuam responsáveis pelas requisições HTTP, enquanto `erro.t
 
 No HemoGestor, isso é especialmente útil porque evita que cada página tenha sua própria versão do tratamento de erros e da validação de listas, reduzindo duplicação e facilitando futuras alterações.
 
+### Resultado do Prompt 5
+
+**Resultado: aceita.** A sugestão foi aplicada por meio da centralização de comportamentos repetidos em funções reutilizáveis, como `obterMensagemErro` e `validarRespostaLista`. Isso permitiu reduzir duplicação no tratamento de erros e na validação das respostas da API em diferentes telas do front-end.
+
 ---
 
 ## 6. Testes do front-end no Jenkins
@@ -625,6 +633,10 @@ O objetivo é confirmar que a suíte continua passando sem alterar o comportamen
 Depois, a mesma branch pode ser executada no Jenkins. Se os testes que antes falhavam por `Test timed out in 5000ms` passarem, isso indica que o problema estava relacionado às condições do ambiente de CI, e não necessariamente à lógica dos testes.
 
 Essa alteração melhora a estabilidade da pipeline sem modificar a funcionalidade da aplicação nem remover testes; apenas adapta a forma como eles são executados no Jenkins.
+
+### Resultado do Prompt 6
+
+**Resultado: aceita.** As configurações `testTimeout: 20000` e `maxWorkers: 2` foram adicionadas ao Vitest para tornar a execução dos testes mais estável no ambiente do Jenkins. Após a alteração, os testes do front-end passaram corretamente no ambiente de CI e a pipeline foi executada com sucesso.
 
 ---
 
