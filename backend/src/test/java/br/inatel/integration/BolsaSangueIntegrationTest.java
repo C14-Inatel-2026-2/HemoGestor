@@ -54,7 +54,7 @@ public class BolsaSangueIntegrationTest {
         Doacao doacao = new Doacao();
         doacao.setDoador(doador);
         doacao.setTipoDoacao(TipoDoacao.SANGUE_TOTAL);
-        doacao.setDataColeta(LocalDate.now());
+        doacao.setDataColeta(LocalDate.now().minusDays(1));
         doacao.setHemoglobina(BigDecimal.valueOf(13.5));
         doacao.setHoraColeta(LocalTime.of(10, 0));
         doacao.setVolume_ml(450);
@@ -83,7 +83,7 @@ public class BolsaSangueIntegrationTest {
         Doacao doacao = new Doacao();
         doacao.setDoador(doador);
         doacao.setTipoDoacao(TipoDoacao.SANGUE_TOTAL);
-        doacao.setDataColeta(LocalDate.now());
+        doacao.setDataColeta(LocalDate.now().minusDays(1));
         doacao.setHemoglobina(BigDecimal.valueOf(13.5));
         doacao.setHoraColeta(LocalTime.of(10, 0));
         doacao.setVolume_ml(450);
