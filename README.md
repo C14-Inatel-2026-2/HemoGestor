@@ -2,6 +2,8 @@
 
 Aplicação web para o gerenciamento básico de um banco de sangue, desenvolvida na disciplina C14 – Engenharia de Software (Inatel).
 
+**Aplicação publicada:** https://hemogestor.onrender.com
+
 ## Sobre o projeto
 
 O HemoGestor é uma aplicação web interna, voltada aos funcionários de um banco de sangue, para auxiliar o gerenciamento básico de doadores, doações, estoque de bolsas e solicitações de sangue. O projeto dá continuidade a um trabalho de Programação Orientada a Objetos em Java feito no semestre anterior, cuja lógica foi adaptada para uma aplicação web.
@@ -75,6 +77,7 @@ A aplicação tem cinco telas: **Doadores**, **Doações**, **Estoque**, **Solic
 | Qualidade de código | ESLint |
 | Contêineres | Docker e Docker Compose |
 | Integração contínua | Jenkins |
+| Hospedagem | Render (front-end e back-end) e Railway (banco MySQL) |
 
 ## Decisões técnicas
 
@@ -177,13 +180,14 @@ A pipeline roda no **Jenkins**, definida no `Jenkinsfile` da raiz do repositóri
 | | Build Front | `npm ci`, `npm run lint` e `npm run build` |
 | **Testes** | Testes Back | `./mvnw verify`, com relatório JUnit e cobertura JaCoCo |
 | | Testes Front | `npm run test:ci`, com relatório JUnit e cobertura (Vitest) |
-| **Deploy** | — | Sobe MySQL, back-end e front-end com `docker compose`, faz o health check em `/api/health` e valida as rotas principais `/doadores`, `/doacoes`, `/bolsas` e `/solicitacoes` |
+| **Deploy** | — | Dispara o deploy do back-end e do front-end no Render pelos deploy hooks, faz o health check em `/api/health` e valida as rotas principais `/doadores`, `/doacoes`, `/bolsas` e `/solicitacoes` e a página inicial do front-end |
 
-Após o health check, a pipeline executa requisições `GET` para as rotas principais da API. O deploy falha caso qualquer uma delas não responda com status HTTP `200`.
+Após o health check, a pipeline executa requisições `GET` para as rotas principais da API publicada e para a página inicial do front-end. O deploy falha caso qualquer uma delas não responda com status HTTP `200`.
 
 ### Pré-requisitos
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e aberto
+- Credenciais do tipo **Secret text** cadastradas no Jenkins com os IDs `render-deploy-hook-back` e `render-deploy-hook-front`, contendo os deploy hooks dos serviços no Render. Os hooks não ficam no repositório.
 
 ### Como rodar
 
@@ -213,12 +217,15 @@ No build do Jenkins:
 
 ### Aplicação após o deploy
 
+A aplicação fica publicada fora da máquina do Jenkins:
+
 | Serviço | Endereço |
 |---|---|
-| Front-end | http://localhost:5173 |
-| Back-end (health check) | http://localhost:8081/api/health |
-| MySQL | `localhost:3307` |
-| Jenkins | http://localhost:8080 |
+| Front-end | https://hemogestor.onrender.com |
+| Back-end (health check) | https://hemogestor-api.onrender.com/api/health |
+| Banco de dados | MySQL no Railway |
+
+O plano gratuito do Render desliga o serviço depois de um período sem acesso. Por isso, o primeiro acesso pode demorar cerca de 1 minuto.
 
 ### Observações
 
@@ -284,7 +291,7 @@ Não houve um QA dedicado: cada integrante escreve os testes automatizados da su
 - **Reuniões:** não houve reuniões fixas; o alinhamento foi feito de forma assíncrona pelo WhatsApp e em conversas pontuais no início de cada entrega.
 - **Quadro:** GitHub Projects com as colunas Backlog, In Progress, In Review e Done, acessível ao monitor como leitor. Cada tarefa é uma issue com label (`feature`, `tests`, `ci-cd`, `story`, `documentation`) e responsável.
 - **Código e revisão:** GitHub (branches, pull requests e revisões).
-- **Integração contínua:** Jenkins, com stages de build e testes do back-end e do front-end e deploy com Docker.
+- **Integração contínua:** Jenkins, com stages de build e testes do back-end e do front-end e deploy no Render.
 
 ### Definição de Preparado (DoR)
 
